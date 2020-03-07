@@ -1,0 +1,11 @@
+{{#each aliases}}
+pub type {{name}} = {{value}};
+{{/each}}
+
+{{#each enums}}
+pub enum {{name}} {
+{{~#each variants}}
+  {{this}},
+{{~/each}}
+}
+{{/each}}

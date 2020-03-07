@@ -1,0 +1,13 @@
+[package]
+name = "jtd-codegen"
+version = "0.1.0"
+authors = ["Ulysse Carion <ulysse@segment.com>"]
+edition = "2018"
+
+[dependencies]
+clap = "2.33"
+jtd = "0.1"
+failure = "0.1"
+serde_json = "1.0"
+handlebars = "3.0"
+serde = "1.0"

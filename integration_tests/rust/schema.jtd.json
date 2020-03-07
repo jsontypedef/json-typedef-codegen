@@ -1,0 +1,23 @@
+{
+  "definitions": {
+    "foo": {
+      "type": "boolean"
+    },
+    "bar": {
+      "enum": [
+        "foo",
+        "bar",
+        "baz"
+      ]
+    },
+    "baz": {
+      "elements": {
+        "enum": [
+          "foo",
+          "bar",
+          "baz"
+        ]
+      }
+    }
+  }
+}
