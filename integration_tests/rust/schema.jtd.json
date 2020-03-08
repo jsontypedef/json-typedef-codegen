@@ -4,20 +4,16 @@
       "type": "boolean"
     },
     "bar": {
-      "enum": [
-        "foo",
-        "bar",
-        "baz"
-      ]
+      "enum": ["foo", "bar", "baz"]
     },
     "baz": {
       "elements": {
-        "enum": [
-          "foo",
-          "bar",
-          "baz"
-        ]
+        "enum": ["foo", "bar", "baz"]
       }
     }
+  },
+  "properties": {
+    "a": { "type": "boolean" },
+    "b": { "type": "boolean", "nullable": true }
   }
 }

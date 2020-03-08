@@ -1,0 +1,7 @@
+{
+  "definitions": {
+    "foo": { "ref": "bar" },
+    "bar": { "type": "string" }
+  },
+  "ref": "foo"
+}

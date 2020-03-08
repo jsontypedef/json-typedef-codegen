@@ -1,0 +1,25 @@
+{
+  "discriminator": "version",
+  "mapping": {
+    "v1": {
+      "properties": {
+        "user": {
+          "properties": {
+            "id": { "type": "string" },
+            "favoriteNumbers": { "elements": { "type": "uint32" } }
+          }
+        }
+      }
+    },
+    "v2": {
+      "properties": {
+        "user": {
+          "properties": {
+            "id": { "type": "string" },
+            "favoriteNumbers": { "elements": { "type": "float64" } }
+          }
+        }
+      }
+    }
+  }
+}

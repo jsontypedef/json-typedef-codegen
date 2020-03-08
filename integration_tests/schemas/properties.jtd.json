@@ -1,0 +1,14 @@
+{
+  "properties": {
+    "a": { "type": "string", "nullable": true },
+    "b": { "type": "timestamp" }
+  },
+  "optionalProperties": {
+    "c": { "type": "string" },
+    "d": {
+      "properties": {
+        "a": { "type": "uint32" }
+      }
+    }
+  }
+}

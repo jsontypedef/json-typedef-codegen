@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+for schema in integration_tests/schemas/*; do
+  mkdir -p integration_tests/rust/$(basename $schema .jtd.json)
+  cargo run -- --rust-out=integration_tests/rust/$(basename $schema .jtd.json) -- $schema
+done
