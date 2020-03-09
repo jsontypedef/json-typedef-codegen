@@ -4,12 +4,12 @@ use inflector::string::singularize::to_singular;
 use inflector::Inflector;
 use jtd::{Form, Schema};
 use serde::Serialize;
-use std::collections::HashMap;
 use std::fs::File;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
 pub struct Target {
+    root_name: String,
     out_dir: PathBuf,
 }
 
@@ -22,12 +22,14 @@ struct TemplateData {
 
 #[derive(Debug, Serialize)]
 struct TypeAlias {
+    description: Vec<String>,
     name: String,
     value: String,
 }
 
 #[derive(Debug, Serialize)]
 struct Enum {
+    description: Vec<String>,
     name: String,
     tag: Option<String>,
     variants: Vec<Variant>,
@@ -35,6 +37,7 @@ struct Enum {
 
 #[derive(Debug, Serialize)]
 struct Variant {
+    description: Vec<String>,
     name: String,
     rename: String,
     value: Option<String>,
@@ -42,12 +45,15 @@ struct Variant {
 
 #[derive(Debug, Serialize)]
 struct Struct {
+    description: Vec<String>,
     name: String,
+    deny_unknown_fields: bool,
     members: Vec<Member>,
 }
 
 #[derive(Debug, Serialize)]
 struct Member {
+    description: Vec<String>,
     name: String,
     rename: String,
     required: bool,
@@ -67,6 +73,13 @@ impl super::Target for Target {
     fn from_args(matches: &clap::ArgMatches) -> Result<Option<Self>, Error> {
         if let Some(out_dir) = matches.value_of("rust-out") {
             Ok(Some(Self {
+                root_name: Path::new(matches.value_of("INPUT").unwrap())
+                    .file_stem()
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .trim_end_matches(".jtd")
+                    .to_owned(),
                 out_dir: PathBuf::from(out_dir),
             }))
         } else {
@@ -76,7 +89,7 @@ impl super::Target for Target {
 
     fn codegen(&self, schema: &Schema) -> Result<(), Error> {
         let mut state = StateManager::new(
-            "Root".to_owned(),
+            self.root_name.clone(),
             TemplateData {
                 aliases: vec![],
                 enums: vec![],
@@ -91,6 +104,18 @@ impl super::Target for Target {
         }
 
         state.with_must_emit(true, &|state| Self::emit_ast(state, schema));
+
+        state.data.aliases.sort_by_key(|a| a.name.clone());
+        state.data.enums.sort_by_key(|e| e.name.clone());
+        state.data.structs.sort_by_key(|s| s.name.clone());
+
+        for enum_ in &mut state.data.enums {
+            enum_.variants.sort_by_key(|v| v.name.clone());
+        }
+
+        for struct_ in &mut state.data.structs {
+            struct_.members.sort_by_key(|v| v.name.clone());
+        }
 
         let mut registry = Handlebars::new();
         registry.register_escape_fn(handlebars::no_escape);
@@ -113,6 +138,7 @@ impl Target {
 
                 if state.must_emit() {
                     state.data.aliases.push(TypeAlias {
+                        description: description(schema),
                         name: state.name(),
                         value: name.clone(),
                     });
@@ -132,6 +158,7 @@ impl Target {
 
                 if state.must_emit() {
                     state.data.aliases.push(TypeAlias {
+                        description: description(schema),
                         name: state.name(),
                         value: name.clone(),
                     });
@@ -165,6 +192,7 @@ impl Target {
 
                 if state.must_emit() {
                     state.data.aliases.push(TypeAlias {
+                        description: description(schema),
                         name: state.name(),
                         value: name.clone(),
                     })
@@ -177,11 +205,13 @@ impl Target {
                 nullable,
             }) => {
                 state.data.enums.push(Enum {
+                    description: description(schema),
                     name: state.name(),
                     tag: None,
                     variants: values
                         .into_iter()
                         .map(|value| Variant {
+                            description: enum_description(schema, value),
                             name: value.to_pascal_case(),
                             rename: value.clone(),
                             value: None,
@@ -211,6 +241,7 @@ impl Target {
 
                 if state.must_emit() {
                     state.data.aliases.push(TypeAlias {
+                        description: description(schema),
                         name: state.name(),
                         value: name.clone(),
                     });
@@ -221,11 +252,14 @@ impl Target {
             Form::Properties(jtd::form::Properties {
                 ref required,
                 ref optional,
+                additional,
+                nullable,
                 ..
             }) => {
                 let mut members = vec![];
                 for (name, schema) in required {
                     members.push(Member {
+                        description: description(schema),
                         name: name.to_snake_case(),
                         rename: name.clone(),
                         required: true,
@@ -237,6 +271,7 @@ impl Target {
 
                 for (name, schema) in optional {
                     members.push(Member {
+                        description: description(schema),
                         name: name.to_snake_case(),
                         rename: name.clone(),
                         required: false,
@@ -247,11 +282,17 @@ impl Target {
                 }
 
                 state.data.structs.push(Struct {
+                    description: description(schema),
                     name: state.name(),
+                    deny_unknown_fields: !additional,
                     members,
                 });
 
-                state.name()
+                if nullable {
+                    format!("Option<{}>", state.name())
+                } else {
+                    state.name()
+                }
             }
             Form::Values(jtd::form::Values {
                 ref schema,
@@ -269,6 +310,7 @@ impl Target {
 
                 if state.must_emit() {
                     state.data.aliases.push(TypeAlias {
+                        description: description(schema),
                         name: state.name(),
                         value: name.clone(),
                     });
@@ -284,6 +326,7 @@ impl Target {
                 let mut variants = vec![];
                 for (name, schema) in mapping {
                     variants.push(Variant {
+                        description: description(schema),
                         name: name.to_pascal_case(),
                         rename: name.clone(),
                         value: Some(state.with_path_segment(name.clone(), &|state| {
@@ -293,6 +336,7 @@ impl Target {
                 }
 
                 state.data.enums.push(Enum {
+                    description: description(schema),
                     name: state.name(),
                     tag: Some(discriminator.clone()),
                     variants,
@@ -306,109 +350,36 @@ impl Target {
             }
         }
     }
+}
 
-    // fn emit_ast(out: &mut TemplateData, path: &mut Vec<String>, schema: &Schema) -> String {
-    //     match schema.form {
-    //         Form::Empty => {
-    //             if path.len() == 1 {
-    //                 out.aliases.push(TypeAlias {
-    //                     name: path[0].to_owned(),
-    //                     value: "serde_json::Value".to_owned(),
-    //                 });
-    //                 path[0].to_owned()
-    //             } else {
-    //                 "serde_json::Value".to_owned()
-    //             }
-    //         }
-    //         Form::Type(jtd::form::Type {
-    //             ref type_value,
-    //             nullable,
-    //         }) => {
-    //             let name = match type_value {
-    //                 jtd::form::TypeValue::Boolean => "bool",
-    //                 jtd::form::TypeValue::Float32 => "f32",
-    //                 jtd::form::TypeValue::Float64 => "f64",
-    //                 jtd::form::TypeValue::Int8 => "i8",
-    //                 jtd::form::TypeValue::Uint8 => "u8",
-    //                 jtd::form::TypeValue::Int16 => "i16",
-    //                 jtd::form::TypeValue::Uint16 => "u16",
-    //                 jtd::form::TypeValue::Int32 => "i32",
-    //                 jtd::form::TypeValue::Uint32 => "u32",
-    //                 jtd::form::TypeValue::String => "String",
-    //                 jtd::form::TypeValue::Timestamp => "DateTime<Utc>",
-    //             };
+fn description(schema: &Schema) -> Vec<String> {
+    schema
+        .metadata
+        .get("description")
+        .and_then(|v| v.as_str())
+        .map(|s| {
+            s.to_owned()
+                .split("\n")
+                .map(|s| s.to_owned())
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default()
+}
 
-    //             let name = if nullable {
-    //                 format!("Option<{}>", name)
-    //             } else {
-    //                 name.to_owned()
-    //             };
-
-    //             if path.len() == 1 {
-    //                 out.aliases.push(TypeAlias {
-    //                     name: path[0].to_owned(),
-    //                     value: name,
-    //                 });
-    //                 path[0].to_owned()
-    //             } else {
-    //                 name
-    //             }
-    //         }
-    //         Form::Enum(jtd::form::Enum {
-    //             ref values,
-    //             nullable,
-    //         }) => {
-    //             out.enums.push(Enum {
-    //                 name: path[0].to_owned(),
-    //                 variants: values
-    //                     .into_iter()
-    //                     .map(|name| (name.to_pascal_case(), name.clone()))
-    //                     .collect(),
-    //             });
-
-    //             path[0].to_owned()
-    //         }
-    //         Form::Elements(jtd::form::Elements {
-    //             ref schema,
-    //             nullable,
-    //         }) => {
-    //             let value = format!("Vec<{}>", Self::emit_ast(out, path, schema));
-
-    //             if path.len() == 1 {
-    //                 out.aliases.push(TypeAlias {
-    //                     name: path[0].to_owned(),
-    //                     value: value,
-    //                 });
-    //                 path[0].to_owned()
-    //             } else {
-    //                 value
-    //             }
-    //         }
-    //         Form::Properties(jtd::form::Properties {
-    //             ref required,
-    //             ref optional,
-    //             nullable,
-    //             additional,
-    //             ..
-    //         }) => {
-    //             let mut members = vec![];
-    //             for (name, schema) in required {
-    //                 path.push(name.clone());
-    //                 members.push((name.clone(), Self::emit_ast(out, path, schema)));
-    //                 path.pop();
-    //             }
-
-    //             out.structs.push(Struct {
-    //                 name: path[0].to_owned(),
-    //                 members,
-    //             });
-
-    //             println!("{:?}", required);
-    //             "".to_owned()
-    //         }
-    //         _ => unreachable!(),
-    //     }
-    // }
+fn enum_description(schema: &Schema, name: &str) -> Vec<String> {
+    schema
+        .metadata
+        .get("enumDescriptions")
+        .and_then(|v| v.as_object())
+        .and_then(|a| a.get(name))
+        .and_then(|v| v.as_str())
+        .map(|s| {
+            s.to_owned()
+                .split("\n")
+                .map(|s| s.to_owned())
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default()
 }
 
 struct StateManager<Data> {
@@ -441,7 +412,7 @@ impl<Data> StateManager<Data> {
 
     pub fn name(&self) -> String {
         if self.path.is_empty() {
-            return self.root_name.clone();
+            return self.root_name.to_pascal_case();
         }
 
         let out = self.path.join("_").to_pascal_case();

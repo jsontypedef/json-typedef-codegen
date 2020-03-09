@@ -1,0 +1,48 @@
+{
+  "definitions": {
+    "empty": {},
+    "type": {
+      "properties": {
+        "boolean": { "type": "boolean" },
+        "float32": { "type": "float32" },
+        "float64": { "type": "float64" },
+        "int8": { "type": "int8" },
+        "uint8": { "type": "uint8" },
+        "int16": { "type": "int16" },
+        "uint16": { "type": "uint16" },
+        "int32": { "type": "int32" },
+        "uint32": { "type": "uint32" },
+        "string": { "type": "string" },
+        "timestamp": { "type": "timestamp" }
+      }
+    },
+    "enum": { "enum": ["foo", "bar", "baz"] },
+    "elements": {
+      "elements": {
+        "properties": {
+          "elementThing": {}
+        }
+      }
+    },
+    "values": {
+      "values": {
+        "properties": { "valueThing": {} }
+      }
+    },
+    "discriminator": {
+      "discriminator": "foo",
+      "mapping": {
+        "bar": { "properties": { "barThing": {} } },
+        "baz": { "properties": { "bazThing": {} } }
+      }
+    }
+  },
+  "properties": {
+    "empty": { "ref": "empty" },
+    "type": { "ref": "type" },
+    "enum": { "ref": "enum" },
+    "elements": { "ref": "elements" },
+    "values": { "ref": "values" },
+    "discriminator": { "ref": "discriminator" }
+  }
+}

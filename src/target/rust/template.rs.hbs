@@ -2,24 +2,41 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 {{#each aliases~}}
+{{#each description}}
+/// {{this}}
+{{~/each}}
 pub type {{name}} = {{value}};
 {{/each~}}
-{{~#each enums~}}
-#[derive(Debug, Serialize, Deserialize)]
-{{#if tag}}#[serde(tag = "{{tag}}")]{{/if}}
+{{~#each enums}}
+{{#each description}}
+/// {{this}}
+{{~/each}}
+#[derive(Debug, Serialize, Deserialize)]{{#if tag}}
+#[serde(tag = "{{tag}}")]{{/if}}
 pub enum {{name}} {
 {{~#each variants}}
-  #[serde(rename = "{{rename}}")]
-  {{name}}{{#if value}}({{value}}){{/if}},
+{{#each description}}
+    /// {{this}}
+{{~/each}}
+    #[serde(rename = "{{rename}}")]
+    {{name}}{{#if value}}({{value}}){{/if}},
 {{~/each}}
 }
-{{~/each}}
+{{/each}}
 {{~#each structs}}
-#[derive(Debug, Serialize, Deserialize)]
+{{#each description}}
+/// {{this}}
+{{~/each}}
+#[derive(Debug, Serialize, Deserialize)]{{#if deny_unknown_fields}}
+#[serde(deny_unknown_fields)]
+{{~/if}}
 pub struct {{name}} {
 {{~#each members}}
-  #[serde(rename = "{{rename}}")]
-  {{name}}: {{#if required}}{{value}}{{else}}Option<{{value}}>{{/if}},
+{{#each description}}
+    /// {{this}}
+{{~/each}}
+    #[serde(rename = "{{rename}}")]
+    {{name}}: {{#if required}}{{value}}{{else}}Option<{{value}}>{{/if}},
 {{~/each}}
 }
 {{/each}}

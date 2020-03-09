@@ -1,0 +1,123 @@
+{
+  "definitions": {
+    "name": {
+      "metadata": {
+        "description": "A proper name.\n\nNote that this is a string, and not some object with first/given name or a last/family name. We have users across many cultures, and some of these cultures use mononyms or otherwise don't map onto these concepts."
+      },
+      "type": "string"
+    },
+    "location": {
+      "metadata": {
+        "description": "A latitude / longitude pair indicating a position on Earth"
+      },
+      "properties": {
+        "lat": { "metadata": { "description": "Latitude" }, "type": "string" },
+        "lng": { "metadata": { "description": "Longitude" }, "type": "string" }
+      }
+    }
+  },
+  "metadata": {
+    "description": "A user represents a person in our system."
+  },
+  "properties": {
+    "id": {
+      "metadata": {
+        "description": "The ID of the user in our database."
+      },
+      "type": "string"
+    },
+    "name": {
+      "metadata": {
+        "description": "The user's name."
+      },
+      "ref": "name"
+    },
+    "labels": {
+      "metadata": {
+        "description": "Free-form labels that we have put on the user."
+      },
+      "values": {
+        "type": "string"
+      }
+    },
+    "preferences": {
+      "metadata": {
+        "description": "Some preferences the user has indicated to us."
+      },
+      "properties": {
+        "do_not_track": {
+          "metadata": { "description": "User preferences around do-not-track" },
+          "discriminator": "version",
+          "mapping": {
+            "v0": {
+              "metadata": {
+                "description": "Our pre-GDPR do-not-track settings"
+              },
+              "properties": {
+                "do_not_track": {
+                  "metadata": {
+                    "description": "An all-or-nothing do-not-track setting"
+                  },
+                  "type": "boolean"
+                }
+              }
+            },
+            "v1": {
+              "metadata": {
+                "description": "Our post-GDPR do-not-track settings"
+              },
+              "properties": {
+                "do_not_track": {
+                  "metadata": {
+                    "description": "A multi-level do-not-track setting",
+                    "enumDescriptions": {
+                      "ALL": "All forms of tracking permitted.",
+                      "ESSENTIAL_ONLY": "Only essentialy forms of tracking permitted.",
+                      "NONE": "No forms forms of tracking permitted."
+                    }
+                  },
+                  "enum": ["ALL", "ESSENTIAL_ONLY", "NONE"]
+                },
+                "opt_out_channels": {
+                  "metadata": {
+                    "description": "Channels the user has opted out of tracking for."
+                  },
+                  "elements": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "optionalProperties": {
+        "title": {
+          "metadata": {
+            "description": "A title we should use when addressing the user formally.",
+            "enumDescriptions": {
+              "MR": "Refer to this user as 'Mr.'",
+              "MRS": "Refer to this user as 'Mrs.'",
+              "MS": "Refer to this user as 'Ms.'",
+              "REV": "Refer to this user as 'Rev.'",
+              "HRH": "Refer to this user as 'His/Her Royal Highness'"
+            }
+          },
+          "enum": ["MR", "MRS", "MS", "REV", "HRH"]
+        }
+      }
+    }
+  },
+  "optionalProperties": {
+    "first_known_location": {
+      "metadata": {
+        "description": "The first known location of this user"
+      },
+      "ref": "location"
+    },
+    "last_known_location": {
+      "metadata": {
+        "description": "The last known location of this user"
+      },
+      "ref": "location"
+    }
+  }
+}
