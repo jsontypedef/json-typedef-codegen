@@ -1,4 +1,5 @@
 pub mod rust;
+pub mod typescript;
 
 use clap::{App, ArgMatches};
 use failure::Error;

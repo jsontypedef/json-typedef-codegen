@@ -16,7 +16,6 @@ pub struct Target {
 #[derive(Debug, Serialize)]
 struct TemplateData {
     aliases: Vec<TypeAlias>,
-    enums: Vec<Enum>,
     structs: Vec<Struct>,
 }
 
@@ -28,26 +27,9 @@ struct TypeAlias {
 }
 
 #[derive(Debug, Serialize)]
-struct Enum {
-    description: Vec<String>,
-    name: String,
-    tag: Option<String>,
-    variants: Vec<Variant>,
-}
-
-#[derive(Debug, Serialize)]
-struct Variant {
-    description: Vec<String>,
-    name: String,
-    rename: String,
-    value: Option<String>,
-}
-
-#[derive(Debug, Serialize)]
 struct Struct {
     description: Vec<String>,
     name: String,
-    deny_unknown_fields: bool,
     members: Vec<Member>,
 }
 
@@ -55,7 +37,6 @@ struct Struct {
 struct Member {
     description: Vec<String>,
     name: String,
-    rename: String,
     required: bool,
     value: String,
 }
@@ -63,15 +44,15 @@ struct Member {
 impl super::Target for Target {
     fn args<'a, 'b>(app: clap::App<'a, 'b>) -> clap::App<'a, 'b> {
         app.arg(
-            clap::Arg::with_name("rust-out")
-                .long("rust-out")
-                .help("Rust output directory")
+            clap::Arg::with_name("typescript-out")
+                .long("typescript-out")
+                .help("TypeScript output directory")
                 .takes_value(true),
         )
     }
 
     fn from_args(matches: &clap::ArgMatches) -> Result<Option<Self>, Error> {
-        if let Some(out_dir) = matches.value_of("rust-out") {
+        if let Some(out_dir) = matches.value_of("typescript-out") {
             Ok(Some(Self {
                 root_name: Path::new(matches.value_of("INPUT").unwrap())
                     .file_stem()
@@ -92,7 +73,6 @@ impl super::Target for Target {
             self.root_name.clone(),
             TemplateData {
                 aliases: vec![],
-                enums: vec![],
                 structs: vec![],
             },
         );
@@ -106,23 +86,13 @@ impl super::Target for Target {
         state.with_must_emit(true, &|state| Self::emit_ast(state, schema));
 
         state.data.aliases.sort_by_key(|a| a.name.clone());
-        state.data.enums.sort_by_key(|e| e.name.clone());
-        state.data.structs.sort_by_key(|s| s.name.clone());
-
-        for enum_ in &mut state.data.enums {
-            enum_.variants.sort_by_key(|v| v.name.clone());
-        }
-
-        for struct_ in &mut state.data.structs {
-            struct_.members.sort_by_key(|v| v.name.clone());
-        }
 
         let mut registry = Handlebars::new();
         registry.register_escape_fn(handlebars::no_escape);
 
-        let mut out = File::create(self.out_dir.join("mod.rs"))?;
+        let mut out = File::create(self.out_dir.join("index.ts"))?;
         registry.render_template_to_write(
-            include_str!("template.rs.hbs"),
+            include_str!("template.ts.hbs"),
             &Some(state.data),
             &mut out,
         )?;
@@ -134,7 +104,7 @@ impl Target {
     fn emit_ast(state: &mut StateManager<TemplateData>, schema: &Schema) -> String {
         match schema.form {
             Form::Empty => {
-                let name = "serde_json::Value".to_owned();
+                let name = "any".to_owned();
 
                 if state.must_emit() {
                     state.data.aliases.push(TypeAlias {
@@ -151,7 +121,7 @@ impl Target {
                 nullable,
             }) => {
                 let name = if nullable {
-                    format!("Option<{}>", state.definition_name(&definition))
+                    format!("({} | undefined)", state.definition_name(&definition))
                 } else {
                     state.definition_name(&definition)
                 };
@@ -171,21 +141,21 @@ impl Target {
                 nullable,
             }) => {
                 let name = match type_value {
-                    jtd::form::TypeValue::Boolean => "bool",
-                    jtd::form::TypeValue::Float32 => "f32",
-                    jtd::form::TypeValue::Float64 => "f64",
-                    jtd::form::TypeValue::Int8 => "i8",
-                    jtd::form::TypeValue::Uint8 => "u8",
-                    jtd::form::TypeValue::Int16 => "i16",
-                    jtd::form::TypeValue::Uint16 => "u16",
-                    jtd::form::TypeValue::Int32 => "i32",
-                    jtd::form::TypeValue::Uint32 => "u32",
-                    jtd::form::TypeValue::String => "String",
-                    jtd::form::TypeValue::Timestamp => "DateTime<Utc>",
+                    jtd::form::TypeValue::Boolean => "boolean",
+                    jtd::form::TypeValue::Float32 => "number",
+                    jtd::form::TypeValue::Float64 => "number",
+                    jtd::form::TypeValue::Int8 => "number",
+                    jtd::form::TypeValue::Uint8 => "number",
+                    jtd::form::TypeValue::Int16 => "number",
+                    jtd::form::TypeValue::Uint16 => "number",
+                    jtd::form::TypeValue::Int32 => "number",
+                    jtd::form::TypeValue::Uint32 => "number",
+                    jtd::form::TypeValue::String => "string",
+                    jtd::form::TypeValue::Timestamp => "string",
                 };
 
                 let name = if nullable {
-                    format!("Option<{}>", name)
+                    format!("({} | undefined)", name)
                 } else {
                     name.to_owned()
                 };
@@ -204,39 +174,18 @@ impl Target {
                 ref values,
                 nullable,
             }) => {
-                state.data.enums.push(Enum {
-                    description: description(schema),
-                    name: state.name(),
-                    tag: None,
-                    variants: values
-                        .into_iter()
-                        .map(|value| Variant {
-                            description: enum_description(schema, value),
-                            name: value.to_pascal_case(),
-                            rename: value.clone(),
-                            value: None,
-                        })
-                        .collect(),
-                });
+                let mut values: Vec<_> = values
+                    .into_iter()
+                    .map(|value| format!("{:?}", value))
+                    .collect();
 
-                if nullable {
-                    format!("Option<{}>", state.name())
-                } else {
-                    state.name()
-                }
-            }
-            Form::Elements(jtd::form::Elements {
-                ref schema,
-                nullable,
-            }) => {
-                let sub_name = state.with_singularize(true, &|state| {
-                    state.with_must_emit(false, &|state| Self::emit_ast(state, schema))
-                });
+                values.sort();
 
+                let name = values.join(" | ");
                 let name = if nullable {
-                    format!("Option<Vec<{}>>", sub_name)
+                    format!("({} | undefined)", name)
                 } else {
-                    format!("Vec<{}>", sub_name)
+                    format!("({})", name)
                 };
 
                 if state.must_emit() {
@@ -249,47 +198,36 @@ impl Target {
 
                 name
             }
-            Form::Properties(jtd::form::Properties {
-                ref required,
-                ref optional,
-                additional,
+            Form::Elements(jtd::form::Elements {
+                ref schema,
                 nullable,
-                ..
             }) => {
-                let mut members = vec![];
-                for (name, schema) in required {
-                    members.push(Member {
-                        description: description(schema),
-                        name: name.to_snake_case(),
-                        rename: name.clone(),
-                        required: true,
-                        value: state.with_path_segment(name.clone(), &|state| {
-                            Self::emit_ast(state, schema)
-                        }),
-                    });
-                }
-
-                for (name, schema) in optional {
-                    members.push(Member {
-                        description: description(schema),
-                        name: name.to_snake_case(),
-                        rename: name.clone(),
-                        required: false,
-                        value: state.with_path_segment(name.clone(), &|state| {
-                            Self::emit_ast(state, schema)
-                        }),
-                    });
-                }
-
-                state.data.structs.push(Struct {
-                    description: description(schema),
-                    name: state.name(),
-                    deny_unknown_fields: !additional,
-                    members,
+                let sub_name = state.with_singularize(true, &|state| {
+                    state.with_must_emit(false, &|state| Self::emit_ast(state, schema))
                 });
 
+                let name = if nullable {
+                    format!("({}[] | undefined)", sub_name)
+                } else {
+                    format!("{}[]", sub_name)
+                };
+
+                if state.must_emit() {
+                    state.data.aliases.push(TypeAlias {
+                        description: description(schema),
+                        name: state.name(),
+                        value: name.clone(),
+                    });
+                }
+
+                name
+            }
+            Form::Properties(jtd::form::Properties { nullable, .. }) => {
+                let strukt = Self::props_to_struct(state, schema);
+                state.data.structs.push(strukt);
+
                 if nullable {
-                    format!("Option<{}>", state.name())
+                    format!("({} | undefined)", state.name())
                 } else {
                     state.name()
                 }
@@ -303,9 +241,9 @@ impl Target {
                 });
 
                 let name = if nullable {
-                    format!("Option<HashMap<String, {}>>", sub_name)
+                    format!("({{[name: string]: {}}} | undefined)", sub_name)
                 } else {
-                    format!("HashMap<String, {}>", sub_name)
+                    format!("{{[name: string]: {}}}", sub_name)
                 };
 
                 if state.must_emit() {
@@ -325,29 +263,72 @@ impl Target {
             }) => {
                 let mut variants = vec![];
                 for (name, schema) in mapping {
-                    variants.push(Variant {
-                        description: description(schema),
-                        name: name.to_pascal_case(),
-                        rename: name.clone(),
-                        value: Some(state.with_path_segment(name.clone(), &|state| {
-                            Self::emit_ast(state, schema)
-                        })),
-                    })
+                    variants.push(state.with_path_segment(name.clone(), &|state| {
+                        let mut strukt = Self::props_to_struct(state, schema);
+                        strukt.members.push(Member {
+                            description: vec![],
+                            name: discriminator.clone(),
+                            required: true,
+                            value: format!("{:?}", name),
+                        });
+
+                        state.data.structs.push(strukt);
+                        state.name()
+                    }));
                 }
 
-                state.data.enums.push(Enum {
+                variants.sort();
+
+                state.data.aliases.push(TypeAlias {
                     description: description(schema),
                     name: state.name(),
-                    tag: Some(discriminator.clone()),
-                    variants,
+                    value: variants.join(" | "),
                 });
 
                 if nullable {
-                    format!("Option<{}>", state.name())
+                    format!("({} | undefined)", state.name())
                 } else {
                     state.name()
                 }
             }
+        }
+    }
+
+    fn props_to_struct(state: &mut StateManager<TemplateData>, schema: &Schema) -> Struct {
+        if let Form::Properties(jtd::form::Properties {
+            ref required,
+            ref optional,
+            ..
+        }) = schema.form
+        {
+            let mut members = vec![];
+            for (name, schema) in required {
+                members.push(Member {
+                    description: description(schema),
+                    name: name.to_camel_case(),
+                    required: true,
+                    value: state
+                        .with_path_segment(name.clone(), &|state| Self::emit_ast(state, schema)),
+                });
+            }
+
+            for (name, schema) in optional {
+                members.push(Member {
+                    description: description(schema),
+                    name: name.to_camel_case(),
+                    required: false,
+                    value: state
+                        .with_path_segment(name.clone(), &|state| Self::emit_ast(state, schema)),
+                });
+            }
+
+            Struct {
+                description: description(schema),
+                name: state.name(),
+                members,
+            }
+        } else {
+            unreachable!("non-properties form schema passed to props_to_struct")
         }
     }
 }

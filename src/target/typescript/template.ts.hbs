@@ -1,0 +1,19 @@
+{{#each aliases~}}
+{{#each description}}
+/// {{this}}
+{{~/each}}
+export type {{name}} = {{value}};
+{{/each~}}
+{{~#each structs}}
+{{#each description}}
+/// {{this}}
+{{~/each}}
+export interface {{name}} {
+{{~#each members}}
+{{#each description}}
+    // {{this}}
+{{~/each}}
+    {{name}}{{#unless required}}?{{/unless}}: {{value}};
+{{~/each}}
+}
+{{/each}}

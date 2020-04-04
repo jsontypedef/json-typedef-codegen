@@ -1,7 +1,7 @@
+mod statemgr;
 mod target;
 
 use clap::{crate_version, App, AppSettings, Arg};
-// use target::rust::Target as Rust;
 use failure::{format_err, Error};
 use jtd::{Schema, SerdeSchema};
 use std::convert::TryInto;
@@ -21,6 +21,7 @@ fn main() -> Result<(), Error> {
         );
 
     let app = target::rust::Target::args(app);
+    let app = target::typescript::Target::args(app);
 
     let matches = app.get_matches();
 
@@ -33,9 +34,14 @@ fn main() -> Result<(), Error> {
         .map_err(|err| format_err!("{:?}", err))?;
 
     let rust = target::rust::Target::from_args(&matches)?;
+    let typescript = target::typescript::Target::from_args(&matches)?;
 
     if let Some(rust) = rust {
         rust.codegen(&schema)?;
+    }
+
+    if let Some(typescript) = typescript {
+        typescript.codegen(&schema)?;
     }
 
     Ok(())

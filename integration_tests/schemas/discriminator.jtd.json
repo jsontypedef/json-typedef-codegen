@@ -5,8 +5,14 @@
       "properties": {
         "user": {
           "properties": {
-            "id": { "type": "string" },
-            "favoriteNumbers": { "elements": { "type": "uint32" } }
+            "id": {
+              "type": "string"
+            },
+            "favoriteNumbers": {
+              "elements": {
+                "type": "uint32"
+              }
+            }
           }
         }
       }
@@ -15,8 +21,14 @@
       "properties": {
         "user": {
           "properties": {
-            "id": { "type": "string" },
-            "favoriteNumbers": { "elements": { "type": "float64" } }
+            "id": {
+              "type": "string"
+            },
+            "favoriteNumbers": {
+              "elements": {
+                "type": "string"
+              }
+            }
           }
         }
       }
