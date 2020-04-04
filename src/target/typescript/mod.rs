@@ -346,19 +346,3 @@ fn description(schema: &Schema) -> Vec<String> {
         })
         .unwrap_or_default()
 }
-
-fn enum_description(schema: &Schema, name: &str) -> Vec<String> {
-    schema
-        .metadata
-        .get("enumDescriptions")
-        .and_then(|v| v.as_object())
-        .and_then(|a| a.get(name))
-        .and_then(|v| v.as_str())
-        .map(|s| {
-            s.to_owned()
-                .split("\n")
-                .map(|s| s.to_owned())
-                .collect::<Vec<_>>()
-        })
-        .unwrap_or_default()
-}
