@@ -1,0 +1,70 @@
+package {{package}}
+
+{{#each imports}}
+import "{{this}}"
+{{/each}}
+
+{{#each aliases~}}
+{{#each description}}
+// {{this}}
+{{~/each}}
+type {{name}} {{value}}
+{{/each~}}
+
+{{#each consts~}}
+{{#each description}}
+// {{this}}
+{{~/each}}
+const {{name}} {{type_}} = {{value}}
+{{/each~}}
+
+{{~#each structs}}
+{{#each description}}
+// {{this}}
+{{~/each}}
+type {{name}} struct {
+{{~#each members}}
+{{#each description}}
+  // {{this}}
+{{~/each}}
+  {{name}} {{#if required}}{{value}}{{else}}*{{value}}{{/if}} `json:"{{rename}}"`
+{{~/each}}
+}
+{{/each}}
+
+{{#each discriminator}}
+type {{name}} struct {
+  {{tag}} {{tag_type}} `json:"{{tag_rename}}"`
+{{#each members}}
+  {{name}} `json:"-"`
+{{/each}}
+}
+
+func (d {{name}}) MarshalJSON() ([]byte, error) {
+  switch d.{{tag}} {
+{{#each members}}
+  case {{tag_value}}:
+    return json.Marshal(struct { Tag string `json:"{{../tag_rename}}"`; {{name}} }{ Tag: {{tag_value}}, {{name}}: d.{{name}} })
+{{/each}}
+  default:
+    panic("asdf")
+  }
+}
+
+func (d *{{name}}) UnmarshalJSON(b []byte) error {
+  var base struct { Tag string `json:"{{tag_rename}}"` }
+  if err := json.Unmarshal(b, &base); err != nil {
+    return err
+  }
+
+  switch base.Tag {
+{{#each members}}
+  case {{tag_value}}:
+    d.{{../tag}} = {{tag_value}}
+    return json.Unmarshal(b, &d.{{name}})
+{{/each}}
+  default:
+    panic("asdf")
+  }
+}
+{{/each}}
