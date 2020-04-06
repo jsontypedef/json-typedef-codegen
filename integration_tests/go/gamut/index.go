@@ -94,3 +94,47 @@ type Value struct {
 }
 
 
+
+type Discriminator struct {
+  Foo DiscriminatorFoo `json:"foo"`
+
+  DiscriminatorBar `json:"-"`
+
+  DiscriminatorBaz `json:"-"`
+
+}
+
+func (d Discriminator) MarshalJSON() ([]byte, error) {
+  switch d.Foo {
+
+  case "bar":
+    return json.Marshal(struct { Tag string `json:"foo"`; DiscriminatorBar }{ Tag: "bar", DiscriminatorBar: d.DiscriminatorBar })
+
+  case "baz":
+    return json.Marshal(struct { Tag string `json:"foo"`; DiscriminatorBaz }{ Tag: "baz", DiscriminatorBaz: d.DiscriminatorBaz })
+
+  default:
+    panic("asdf")
+  }
+}
+
+func (d *Discriminator) UnmarshalJSON(b []byte) error {
+  var base struct { Tag string `json:"foo"` }
+  if err := json.Unmarshal(b, &base); err != nil {
+    return err
+  }
+
+  switch base.Tag {
+
+  case "bar":
+    d.Foo = "bar"
+    return json.Unmarshal(b, &d.DiscriminatorBar)
+
+  case "baz":
+    d.Foo = "baz"
+    return json.Unmarshal(b, &d.DiscriminatorBaz)
+
+  default:
+    panic("asdf")
+  }
+}

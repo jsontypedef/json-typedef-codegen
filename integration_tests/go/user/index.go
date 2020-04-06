@@ -112,3 +112,47 @@ type User struct {
 }
 
 
+
+type PreferencesDoNotTrack struct {
+  Version PreferencesDoNotTrackVersion `json:"version"`
+
+  PreferencesDoNotTrackV0 `json:"-"`
+
+  PreferencesDoNotTrackV1 `json:"-"`
+
+}
+
+func (d PreferencesDoNotTrack) MarshalJSON() ([]byte, error) {
+  switch d.Version {
+
+  case "v0":
+    return json.Marshal(struct { Tag string `json:"version"`; PreferencesDoNotTrackV0 }{ Tag: "v0", PreferencesDoNotTrackV0: d.PreferencesDoNotTrackV0 })
+
+  case "v1":
+    return json.Marshal(struct { Tag string `json:"version"`; PreferencesDoNotTrackV1 }{ Tag: "v1", PreferencesDoNotTrackV1: d.PreferencesDoNotTrackV1 })
+
+  default:
+    panic("asdf")
+  }
+}
+
+func (d *PreferencesDoNotTrack) UnmarshalJSON(b []byte) error {
+  var base struct { Tag string `json:"version"` }
+  if err := json.Unmarshal(b, &base); err != nil {
+    return err
+  }
+
+  switch base.Tag {
+
+  case "v0":
+    d.Version = "v0"
+    return json.Unmarshal(b, &d.PreferencesDoNotTrackV0)
+
+  case "v1":
+    d.Version = "v1"
+    return json.Unmarshal(b, &d.PreferencesDoNotTrackV1)
+
+  default:
+    panic("asdf")
+  }
+}

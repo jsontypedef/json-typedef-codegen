@@ -32,7 +32,7 @@ type {{name}} struct {
 }
 {{/each}}
 
-{{#each discriminator}}
+{{#each discriminators}}
 type {{name}} struct {
   {{tag}} {{tag_type}} `json:"{{tag_rename}}"`
 {{#each members}}
