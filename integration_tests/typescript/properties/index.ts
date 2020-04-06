@@ -8,9 +8,9 @@ export interface D {
 
 export interface Properties {
 
-    b: string;
-
     a: (string | undefined);
+
+    b: string;
 
     c?: string;
 

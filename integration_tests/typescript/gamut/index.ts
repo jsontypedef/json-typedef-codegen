@@ -16,11 +16,35 @@ export interface Element {
 }
 
 
-export interface DiscriminatorBar {
+export interface Type {
 
-    barThing: any;
+    boolean: boolean;
 
-    foo: "bar";
+    float32: number;
+
+    float64: number;
+
+    int16: number;
+
+    int32: number;
+
+    int8: number;
+
+    string: string;
+
+    timestamp: string;
+
+    uint16: number;
+
+    uint32: number;
+
+    uint8: number;
+}
+
+
+export interface Value {
+
+    valueThing: any;
 }
 
 
@@ -32,50 +56,26 @@ export interface DiscriminatorBaz {
 }
 
 
-export interface Type {
+export interface DiscriminatorBar {
 
-    uint32: number;
+    barThing: any;
 
-    float32: number;
-
-    string: string;
-
-    timestamp: string;
-
-    float64: number;
-
-    uint16: number;
-
-    uint8: number;
-
-    int8: number;
-
-    int32: number;
-
-    int16: number;
-
-    boolean: boolean;
-}
-
-
-export interface Value {
-
-    valueThing: any;
+    foo: "bar";
 }
 
 
 export interface Gamut {
 
-    values: Values;
-
-    enum: Enum;
+    discriminator: Discriminator;
 
     elements: Elements;
 
-    discriminator: Discriminator;
-
     empty: Empty;
 
+    enum: Enum;
+
     type: Type;
+
+    values: Values;
 }
 

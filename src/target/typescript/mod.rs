@@ -87,6 +87,10 @@ impl super::Target for Target {
 
         state.data.aliases.sort_by_key(|a| a.name.clone());
 
+        for struct_ in &mut state.data.structs {
+            struct_.members.sort_by_key(|v| v.name.clone());
+        }
+
         let mut registry = Handlebars::new();
         registry.register_escape_fn(handlebars::no_escape);
 
