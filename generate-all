@@ -4,11 +4,14 @@ set -e
 
 for schema in integration_tests/schemas/*; do
   mkdir -p integration_tests/go/$(basename $schema .jtd.json)
+  mkdir -p integration_tests/java/$(basename $schema .jtd.json)
   mkdir -p integration_tests/rust/$(basename $schema .jtd.json)
   mkdir -p integration_tests/typescript/$(basename $schema .jtd.json)
 
   cargo run -- \
     --go-out=integration_tests/go/$(basename $schema .jtd.json) \
+    --java-out=integration_tests/java/$(basename $schema .jtd.json) \
+    --java-pkg=com.jsontypedef.jtdcodegendemo \
     --rust-out=integration_tests/rust/$(basename $schema .jtd.json) \
     --typescript-out=integration_tests/typescript/$(basename $schema .jtd.json) \
     -- $schema

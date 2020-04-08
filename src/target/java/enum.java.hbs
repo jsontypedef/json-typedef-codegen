@@ -1,0 +1,8 @@
+package {{package}};
+
+public enum {{name}} {
+{{#each variants}}
+  @JsonProperty({{rename}})
+  {{name}},
+{{/each}}
+}

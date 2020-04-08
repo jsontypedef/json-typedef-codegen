@@ -21,6 +21,7 @@ fn main() -> Result<(), Error> {
         );
 
     let app = target::go::Target::args(app);
+    let app = target::java::Target::args(app);
     let app = target::rust::Target::args(app);
     let app = target::typescript::Target::args(app);
 
@@ -35,11 +36,16 @@ fn main() -> Result<(), Error> {
         .map_err(|err| format_err!("{:?}", err))?;
 
     let go = target::go::Target::from_args(&matches)?;
+    let java = target::java::Target::from_args(&matches)?;
     let rust = target::rust::Target::from_args(&matches)?;
     let typescript = target::typescript::Target::from_args(&matches)?;
 
     if let Some(go) = go {
         go.codegen(&schema)?;
+    }
+
+    if let Some(java) = java {
+        java.codegen(&schema)?;
     }
 
     if let Some(rust) = rust {

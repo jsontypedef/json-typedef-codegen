@@ -1,0 +1,36 @@
+package {{package}};
+
+{{#each imports}}
+import {{this}};
+{{/each}}
+
+{{#if discriminator}}
+  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = {{discriminator}})
+  @JsonSubTypes({
+    {{#each ../discriminator_variants}}
+      @JsonSubTypes.Type({{this}}.class),
+    {{/each}}
+  })
+{{/if}}
+public {{#if is_abstract}}abstract {{/if}}class {{name}} {{#if extends}}extends {{extends}} {{/if}}{
+{{#each properties}}
+  {{#if entire_value}}@JsonValue{{/if}}
+  {{#if rename}}@JsonProperty({{rename}}){{/if}}
+  private {{value}} {{name}};
+{{/each}}
+
+  {{#unless is_abstract}}
+  public {{name}}() {
+  }
+  {{/unless}}
+
+{{#each properties}}
+  public {{value}} get{{method_name}}() {
+    return {{name}};
+  }
+
+  public void set{{method_name}}({{value}} {{name}}) {
+    this.{{name}} = {{name}};
+  }
+{{/each}}
+}

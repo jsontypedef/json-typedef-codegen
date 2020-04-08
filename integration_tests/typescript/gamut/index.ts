@@ -10,14 +10,6 @@ export type Enum = ("bar" | "baz" | "foo");
 export type Values = {[name: string]: Value};
 
 
-export interface DiscriminatorBaz {
-
-    bazThing: any;
-
-    foo: "baz";
-}
-
-
 export interface DiscriminatorBar {
 
     barThing: any;
@@ -26,9 +18,23 @@ export interface DiscriminatorBar {
 }
 
 
+export interface DiscriminatorBaz {
+
+    bazThing: any;
+
+    foo: "baz";
+}
+
+
 export interface Element {
 
     elementThing: any;
+}
+
+
+export interface Value {
+
+    valueThing: any;
 }
 
 
@@ -55,12 +61,6 @@ export interface Type {
     uint32: number;
 
     uint8: number;
-}
-
-
-export interface Value {
-
-    valueThing: any;
 }
 
 
