@@ -10,16 +10,16 @@ public class User {
   private Preferences preferences;
 
   
+  @JsonProperty("name")
+  private Name name;
+
+  
   @JsonProperty("id")
   private String id;
 
   
   @JsonProperty("labels")
   private Map<String, String> labels;
-
-  
-  @JsonProperty("name")
-  private Name name;
 
   
   @JsonProperty("first_known_location")
@@ -44,6 +44,14 @@ public class User {
     this.preferences = preferences;
   }
 
+  public Name getName() {
+    return name;
+  }
+
+  public void setName(Name name) {
+    this.name = name;
+  }
+
   public String getId() {
     return id;
   }
@@ -58,14 +66,6 @@ public class User {
 
   public void setLabels(Map<String, String> labels) {
     this.labels = labels;
-  }
-
-  public Name getName() {
-    return name;
-  }
-
-  public void setName(Name name) {
-    this.name = name;
   }
 
   public Location getFirstKnownLocation() {

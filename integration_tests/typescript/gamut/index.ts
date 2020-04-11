@@ -1,81 +1,85 @@
 
 export type Discriminator = DiscriminatorBar | DiscriminatorBaz;
 
+
 export type Elements = Element[];
+
 
 export type Empty = any;
 
+
 export type Enum = ("bar" | "baz" | "foo");
+
 
 export type Values = {[name: string]: Value};
 
 
-export interface DiscriminatorBar {
+export interface Type {
 
-    barThing: any;
+  boolean: boolean;
 
-    foo: "bar";
-}
+  float32: number;
 
+  float64: number;
 
-export interface DiscriminatorBaz {
+  int16: number;
 
-    bazThing: any;
+  int32: number;
 
-    foo: "baz";
+  int8: number;
+
+  string: string;
+
+  timestamp: string;
+
+  uint16: number;
+
+  uint32: number;
+
+  uint8: number;
 }
 
 
 export interface Element {
 
-    elementThing: any;
+  elementThing: any;
 }
 
 
 export interface Value {
 
-    valueThing: any;
+  valueThing: any;
 }
 
 
-export interface Type {
+export interface DiscriminatorBar {
 
-    boolean: boolean;
+  barThing: any;
 
-    float32: number;
+  foo: "bar";
+}
 
-    float64: number;
 
-    int16: number;
+export interface DiscriminatorBaz {
 
-    int32: number;
+  bazThing: any;
 
-    int8: number;
-
-    string: string;
-
-    timestamp: string;
-
-    uint16: number;
-
-    uint32: number;
-
-    uint8: number;
+  foo: "baz";
 }
 
 
 export interface Gamut {
 
-    discriminator: Discriminator;
+  discriminator: Discriminator;
 
-    elements: Elements;
+  elements: Elements;
 
-    empty: Empty;
+  empty: Empty;
 
-    enum: Enum;
+  enum: Enum;
 
-    type: Type;
+  type: Type;
 
-    values: Values;
+  values: Values;
 }
 

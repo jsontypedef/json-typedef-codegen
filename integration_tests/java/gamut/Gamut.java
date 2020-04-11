@@ -6,24 +6,24 @@ package com.jsontypedef.jtdcodegendemo;
 public class Gamut {
 
   
-  @JsonProperty("elements")
-  private Elements elements;
-
-  
-  @JsonProperty("enum")
-  private Enum enum;
-
-  
-  @JsonProperty("discriminator")
-  private Discriminator discriminator;
-
-  
   @JsonProperty("empty")
   private Empty empty;
 
   
   @JsonProperty("type")
   private Type type;
+
+  
+  @JsonProperty("elements")
+  private Elements elements;
+
+  
+  @JsonProperty("discriminator")
+  private Discriminator discriminator;
+
+  
+  @JsonProperty("enum")
+  private Enum enum;
 
   
   @JsonProperty("values")
@@ -35,30 +35,6 @@ public class Gamut {
   }
   
 
-
-  public Elements getElements() {
-    return elements;
-  }
-
-  public void setElements(Elements elements) {
-    this.elements = elements;
-  }
-
-  public Enum getEnum() {
-    return enum;
-  }
-
-  public void setEnum(Enum enum) {
-    this.enum = enum;
-  }
-
-  public Discriminator getDiscriminator() {
-    return discriminator;
-  }
-
-  public void setDiscriminator(Discriminator discriminator) {
-    this.discriminator = discriminator;
-  }
 
   public Empty getEmpty() {
     return empty;
@@ -74,6 +50,30 @@ public class Gamut {
 
   public void setType(Type type) {
     this.type = type;
+  }
+
+  public Elements getElements() {
+    return elements;
+  }
+
+  public void setElements(Elements elements) {
+    this.elements = elements;
+  }
+
+  public Discriminator getDiscriminator() {
+    return discriminator;
+  }
+
+  public void setDiscriminator(Discriminator discriminator) {
+    this.discriminator = discriminator;
+  }
+
+  public Enum getEnum() {
+    return enum;
+  }
+
+  public void setEnum(Enum enum) {
+    this.enum = enum;
   }
 
   public Values getValues() {

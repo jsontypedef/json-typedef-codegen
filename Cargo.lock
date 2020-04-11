@@ -241,6 +241,7 @@ dependencies = [
  "jtd",
  "serde",
  "serde_json",
+ "textwrap",
 ]
 
 [[package]]

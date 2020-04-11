@@ -1,3 +1,4 @@
+use crate::handlebars_helpers;
 use crate::statemgr::StateManager;
 use failure::Error;
 use handlebars::Handlebars;
@@ -21,21 +22,21 @@ struct TemplateData {
 
 #[derive(Debug, Serialize)]
 struct TypeAlias {
-    description: Vec<String>,
+    description: String,
     name: String,
     value: String,
 }
 
 #[derive(Debug, Serialize)]
 struct Struct {
-    description: Vec<String>,
+    description: String,
     name: String,
     members: Vec<Member>,
 }
 
 #[derive(Debug, Serialize)]
 struct Member {
-    description: Vec<String>,
+    description: String,
     name: String,
     required: bool,
     value: String,
@@ -93,6 +94,7 @@ impl super::Target for Target {
 
         let mut registry = Handlebars::new();
         registry.register_escape_fn(handlebars::no_escape);
+        registry.register_helper("comment", Box::new(handlebars_helpers::comment));
 
         let mut out = File::create(self.out_dir.join("index.ts"))?;
         registry.render_template_to_write(
@@ -270,7 +272,7 @@ impl Target {
                     variants.push(state.with_path_segment(name.clone(), &|state| {
                         let mut strukt = Self::props_to_struct(state, schema);
                         strukt.members.push(Member {
-                            description: vec![],
+                            description: "".to_owned(),
                             name: discriminator.clone(),
                             required: true,
                             value: format!("{:?}", name),
@@ -337,16 +339,11 @@ impl Target {
     }
 }
 
-fn description(schema: &Schema) -> Vec<String> {
+fn description(schema: &Schema) -> String {
     schema
         .metadata
         .get("description")
         .and_then(|v| v.as_str())
-        .map(|s| {
-            s.to_owned()
-                .split("\n")
-                .map(|s| s.to_owned())
-                .collect::<Vec<_>>()
-        })
         .unwrap_or_default()
+        .to_owned()
 }

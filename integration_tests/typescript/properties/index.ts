@@ -1,19 +1,18 @@
 
-
 export interface D {
 
-    a: number;
+  a: number;
 }
 
 
 export interface Properties {
 
-    a: (string | undefined);
+  a: (string | undefined);
 
-    b: string;
+  b: string;
 
-    c?: string;
+  c?: string;
 
-    d?: D;
+  d?: D;
 }
 
