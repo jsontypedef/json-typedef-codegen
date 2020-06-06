@@ -9,23 +9,33 @@ import "encoding/json"
 
 type DiscriminatorFoo string
 
+
 type Elements []Element
+
 
 type Empty interface{}
 
+
 type Enum string
+
 
 type Values map[string]Value
 
+
 const DiscriminatorFooBar DiscriminatorFoo = "bar"
+
 
 const DiscriminatorFooBaz DiscriminatorFoo = "baz"
 
+
 const EnumEnumBar Enum = "bar"
+
 
 const EnumEnumBaz Enum = "baz"
 
+
 const EnumEnumFoo Enum = "foo"
+
 
 
 type DiscriminatorBar struct {
@@ -34,16 +44,19 @@ type DiscriminatorBar struct {
 }
 
 
+
 type DiscriminatorBaz struct {
 
   BazThing interface{} `json:"bazThing"`
 }
 
 
+
 type Element struct {
 
   ElementThing interface{} `json:"elementThing"`
 }
+
 
 
 type Gamut struct {
@@ -60,6 +73,7 @@ type Gamut struct {
 
   Values Values `json:"values"`
 }
+
 
 
 type Type struct {
@@ -88,6 +102,7 @@ type Type struct {
 }
 
 
+
 type Value struct {
 
   ValueThing interface{} `json:"valueThing"`
@@ -114,7 +129,7 @@ func (d Discriminator) MarshalJSON() ([]byte, error) {
     return json.Marshal(struct { Tag string `json:"foo"`; DiscriminatorBaz }{ Tag: "baz", DiscriminatorBaz: d.DiscriminatorBaz })
 
   default:
-    panic("asdf")
+    panic("unknown discriminator variant")
   }
 }
 
@@ -135,6 +150,6 @@ func (d *Discriminator) UnmarshalJSON(b []byte) error {
     return json.Unmarshal(b, &d.DiscriminatorBaz)
 
   default:
-    panic("asdf")
+    panic("unknown discriminator variant")
   }
 }

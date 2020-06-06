@@ -2,6 +2,12 @@ package com.jsontypedef.jtdcodegendemo;
 
 public enum PreferencesTitle {
 
+  @JsonProperty("MS")
+  MS,
+
+  @JsonProperty("HRH")
+  HRH,
+
   @JsonProperty("REV")
   REV,
 
@@ -10,11 +16,5 @@ public enum PreferencesTitle {
 
   @JsonProperty("MR")
   MR,
-
-  @JsonProperty("HRH")
-  HRH,
-
-  @JsonProperty("MS")
-  MS,
 
 }

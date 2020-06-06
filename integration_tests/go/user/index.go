@@ -4,10 +4,11 @@ package user
 import "encoding/json"
 
 
-
 // A proper name.
 // 
-// Note that this is a string, and not some object with first/given name or a last/family name. We have users across many cultures, and some of these cultures use mononyms or otherwise don't map onto these concepts.
+// Note that this is a string, and not some object with first/given name or a
+// last/family name. We have users across many cultures, and some of these
+// cultures use mononyms or otherwise don't map onto these concepts.
 type Name string
 
 // A multi-level do-not-track setting
@@ -28,8 +29,10 @@ const PreferencesDoNotTrackV1DoNotTrackPreferencesDoNotTrackV1DoNotTrackESSENTIA
 // No forms forms of tracking permitted.
 const PreferencesDoNotTrackV1DoNotTrackPreferencesDoNotTrackV1DoNotTrackNONE PreferencesDoNotTrackV1DoNotTrack = "NONE"
 
+// Our pre-GDPR do-not-track settings
 const PreferencesDoNotTrackVersionV0 PreferencesDoNotTrackVersion = "v0"
 
+// Our post-GDPR do-not-track settings
 const PreferencesDoNotTrackVersionV1 PreferencesDoNotTrackVersion = "v1"
 
 // Refer to this user as 'His/Her Royal Highness'
@@ -50,10 +53,8 @@ const PreferencesTitlePreferencesTitleREV PreferencesTitle = "REV"
 
 // A latitude / longitude pair indicating a position on Earth
 type Location struct {
-
   // Latitude
   Lat string `json:"lat"`
-
   // Longitude
   Lng string `json:"lng"`
 }
@@ -61,10 +62,8 @@ type Location struct {
 
 // Some preferences the user has indicated to us.
 type Preferences struct {
-
   // User preferences around do-not-track
   DoNotTrack PreferencesDoNotTrack `json:"do_not_track"`
-
   // A title we should use when addressing the user formally.
   Title *PreferencesTitle `json:"title"`
 }
@@ -72,7 +71,6 @@ type Preferences struct {
 
 // Our pre-GDPR do-not-track settings
 type PreferencesDoNotTrackV0 struct {
-
   // An all-or-nothing do-not-track setting
   DoNotTrack bool `json:"do_not_track"`
 }
@@ -80,10 +78,8 @@ type PreferencesDoNotTrackV0 struct {
 
 // Our post-GDPR do-not-track settings
 type PreferencesDoNotTrackV1 struct {
-
   // A multi-level do-not-track setting
   DoNotTrack PreferencesDoNotTrackV1DoNotTrack `json:"do_not_track"`
-
   // Channels the user has opted out of tracking for.
   OptOutChannels []string `json:"opt_out_channels"`
 }
@@ -91,22 +87,16 @@ type PreferencesDoNotTrackV1 struct {
 
 // A user represents a person in our system.
 type User struct {
-
   // The first known location of this user
   FirstKnownLocation *Location `json:"first_known_location"`
-
   // The ID of the user in our database.
   Id string `json:"id"`
-
   // Free-form labels that we have put on the user.
   Labels map[string]string `json:"labels"`
-
   // The last known location of this user
   LastKnownLocation *Location `json:"last_known_location"`
-
   // The user's name.
   Name Name `json:"name"`
-
   // Some preferences the user has indicated to us.
   Preferences Preferences `json:"preferences"`
 }
@@ -132,7 +122,7 @@ func (d PreferencesDoNotTrack) MarshalJSON() ([]byte, error) {
     return json.Marshal(struct { Tag string `json:"version"`; PreferencesDoNotTrackV1 }{ Tag: "v1", PreferencesDoNotTrackV1: d.PreferencesDoNotTrackV1 })
 
   default:
-    panic("asdf")
+    panic("unknown discriminator variant")
   }
 }
 
@@ -153,6 +143,6 @@ func (d *PreferencesDoNotTrack) UnmarshalJSON(b []byte) error {
     return json.Unmarshal(b, &d.PreferencesDoNotTrackV1)
 
   default:
-    panic("asdf")
+    panic("unknown discriminator variant")
   }
 }

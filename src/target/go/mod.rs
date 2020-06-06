@@ -1,3 +1,4 @@
+use crate::handlebars_helpers;
 use crate::statemgr::StateManager;
 use failure::Error;
 use handlebars::Handlebars;
@@ -27,14 +28,14 @@ struct TemplateData {
 
 #[derive(Debug, Serialize)]
 struct TypeAlias {
-    description: Vec<String>,
+    description: String,
     name: String,
     value: String,
 }
 
 #[derive(Debug, Serialize)]
 struct Const {
-    description: Vec<String>,
+    description: String,
     name: String,
     type_: String,
     value: String,
@@ -42,14 +43,14 @@ struct Const {
 
 #[derive(Debug, Serialize)]
 struct Struct {
-    description: Vec<String>,
+    description: String,
     name: String,
     members: Vec<Member>,
 }
 
 #[derive(Debug, Serialize)]
 struct Member {
-    description: Vec<String>,
+    description: String,
     name: String,
     rename: String,
     required: bool,
@@ -58,7 +59,7 @@ struct Member {
 
 #[derive(Debug, Serialize)]
 struct Discriminator {
-    description: Vec<String>,
+    description: String,
     name: String,
     tag: String,
     tag_type: String,
@@ -141,6 +142,7 @@ impl super::Target for Target {
 
         let mut registry = Handlebars::new();
         registry.register_escape_fn(handlebars::no_escape);
+        registry.register_helper("comment", Box::new(handlebars_helpers::comment));
 
         let mut out = File::create(self.out_dir.join("index.go"))?;
         registry.render_template_to_write(
@@ -339,10 +341,10 @@ impl Target {
                 let tag_type = state.with_path_segment(discriminator.clone(), &|state| {
                     let tag_type = state.name();
 
-                    for tag_value in mapping.keys() {
+                    for (tag_value, mapping_schema) in mapping {
                         state.with_path_segment(tag_value.clone(), &|state| {
                             state.data.consts.push(Const {
-                                description: vec![],
+                                description: description(mapping_schema),
                                 name: state.name(),
                                 type_: tag_type.clone(),
                                 value: format!("{:?}", tag_value),
@@ -392,32 +394,22 @@ impl Target {
     }
 }
 
-fn description(schema: &Schema) -> Vec<String> {
+fn description(schema: &Schema) -> String {
     schema
         .metadata
         .get("description")
         .and_then(|v| v.as_str())
-        .map(|s| {
-            s.to_owned()
-                .split("\n")
-                .map(|s| s.to_owned())
-                .collect::<Vec<_>>()
-        })
+        .map(|s| s.to_owned())
         .unwrap_or_default()
 }
 
-fn enum_description(schema: &Schema, name: &str) -> Vec<String> {
+fn enum_description(schema: &Schema, name: &str) -> String {
     schema
         .metadata
         .get("enumDescriptions")
         .and_then(|v| v.as_object())
         .and_then(|a| a.get(name))
         .and_then(|v| v.as_str())
-        .map(|s| {
-            s.to_owned()
-                .split("\n")
-                .map(|s| s.to_owned())
-                .collect::<Vec<_>>()
-        })
+        .map(|s| s.to_owned())
         .unwrap_or_default()
 }

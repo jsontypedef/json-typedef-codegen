@@ -7,15 +7,19 @@ import "encoding/json"
 
 type Version string
 
+
 const VersionV1 Version = "v1"
 
+
 const VersionV2 Version = "v2"
+
 
 
 type V1 struct {
 
   User V1User `json:"user"`
 }
+
 
 
 type V1User struct {
@@ -26,10 +30,12 @@ type V1User struct {
 }
 
 
+
 type V2 struct {
 
   User V2User `json:"user"`
 }
+
 
 
 type V2User struct {
@@ -60,7 +66,7 @@ func (d Discriminator) MarshalJSON() ([]byte, error) {
     return json.Marshal(struct { Tag string `json:"version"`; V2 }{ Tag: "v2", V2: d.V2 })
 
   default:
-    panic("asdf")
+    panic("unknown discriminator variant")
   }
 }
 
@@ -81,6 +87,6 @@ func (d *Discriminator) UnmarshalJSON(b []byte) error {
     return json.Unmarshal(b, &d.V2)
 
   default:
-    panic("asdf")
+    panic("unknown discriminator variant")
   }
 }

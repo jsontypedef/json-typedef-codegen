@@ -14,6 +14,12 @@ export type Enum = ("bar" | "baz" | "foo");
 export type Values = {[name: string]: Value};
 
 
+export interface Element {
+
+  elementThing: any;
+}
+
+
 export interface Type {
 
   boolean: boolean;
@@ -40,15 +46,11 @@ export interface Type {
 }
 
 
-export interface Element {
+export interface DiscriminatorBaz {
 
-  elementThing: any;
-}
+  bazThing: any;
 
-
-export interface Value {
-
-  valueThing: any;
+  foo: "baz";
 }
 
 
@@ -60,11 +62,9 @@ export interface DiscriminatorBar {
 }
 
 
-export interface DiscriminatorBaz {
+export interface Value {
 
-  bazThing: any;
-
-  foo: "baz";
+  valueThing: any;
 }
 
 

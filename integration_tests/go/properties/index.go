@@ -12,6 +12,7 @@ type D struct {
 }
 
 
+
 type Properties struct {
 
   A *string `json:"a"`

@@ -5,33 +5,25 @@ import "{{this}}"
 {{/each}}
 
 {{#each aliases~}}
-{{#each description}}
-// {{this}}
-{{~/each}}
+{{ comment 80 "" "// " "" description }}
 type {{name}} {{value}}
-{{/each~}}
 
+{{/each~}}
 {{#each consts~}}
-{{#each description}}
-// {{this}}
-{{~/each}}
+{{ comment 80 "" "// " "" description }}
 const {{name}} {{type_}} = {{value}}
-{{/each~}}
 
+{{/each~}}
 {{~#each structs}}
-{{#each description}}
-// {{this}}
-{{~/each}}
+{{ comment 80 "" "// " "" description }}
 type {{name}} struct {
 {{~#each members}}
-{{#each description}}
-  // {{this}}
-{{~/each}}
+{{ comment 80 "" "  // " "" description }}
   {{name}} {{#if required}}{{value}}{{else}}*{{value}}{{/if}} `json:"{{rename}}"`
 {{~/each}}
 }
-{{/each}}
 
+{{/each}}
 {{#each discriminators}}
 type {{name}} struct {
   {{tag}} {{tag_type}} `json:"{{tag_rename}}"`
@@ -47,7 +39,7 @@ func (d {{name}}) MarshalJSON() ([]byte, error) {
     return json.Marshal(struct { Tag string `json:"{{../tag_rename}}"`; {{name}} }{ Tag: {{tag_value}}, {{name}}: d.{{name}} })
 {{/each}}
   default:
-    panic("asdf")
+    panic("unknown discriminator variant")
   }
 }
 
@@ -64,7 +56,7 @@ func (d *{{name}}) UnmarshalJSON(b []byte) error {
     return json.Unmarshal(b, &d.{{name}})
 {{/each}}
   default:
-    panic("asdf")
+    panic("unknown discriminator variant")
   }
 }
 {{/each}}
