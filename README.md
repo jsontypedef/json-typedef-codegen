@@ -9,11 +9,13 @@ guidance on how to use this package with your particular programming language of
 choice, see:
 
 * ["Generating TypeScript from JSON Typedef Schemas"][jtd-ts-codegen]
+* ["Generating Golang from JSON Typedef Schemas"][jtd-go-codegen]
 
 In addition to the general docs in this README, each programming language that
 `jtd-codegen` supports has its own set of specific documentation:
 
 * [`jtd-codegen` + TypeScript README](./src/target/typescript)
+* [`jtd-codegen` + Golang README](./src/target/go)
 
 ## Installation
 
@@ -188,3 +190,4 @@ public class User {
 
 [jtd-jtd-codegen]: https://jsontypedef.com/docs/tools/jtd-codegen
 [jtd-ts-codegen]: https://jsontypedef.com/docs/javascript/code-generation
+[jtd-go-codegen]: https://jsontypedef.com/docs/golang/code-generation
