@@ -1,17 +1,23 @@
 package com.jsontypedef.jtdcodegendemo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonValue;
 
+import java.util.List;
+import java.util.Map;
 
 
 public class User {
 
   
-  @JsonProperty("labels")
-  private Map<String, String> labels;
-
-  
   @JsonProperty("preferences")
   private Preferences preferences;
+
+  
+  @JsonProperty("labels")
+  private Map<String, String> labels;
 
   
   @JsonProperty("id")
@@ -36,20 +42,20 @@ public class User {
   
 
 
-  public Map<String, String> getLabels() {
-    return labels;
-  }
-
-  public void setLabels(Map<String, String> labels) {
-    this.labels = labels;
-  }
-
   public Preferences getPreferences() {
     return preferences;
   }
 
   public void setPreferences(Preferences preferences) {
     this.preferences = preferences;
+  }
+
+  public Map<String, String> getLabels() {
+    return labels;
+  }
+
+  public void setLabels(Map<String, String> labels) {
+    this.labels = labels;
   }
 
   public String getId() {

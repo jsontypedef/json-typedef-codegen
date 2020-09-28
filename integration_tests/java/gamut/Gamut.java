@@ -1,9 +1,19 @@
 package com.jsontypedef.jtdcodegendemo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonValue;
 
+import java.util.List;
+import java.util.Map;
 
 
 public class Gamut {
+
+  
+  @JsonProperty("empty")
+  private Empty empty;
 
   
   @JsonProperty("values")
@@ -14,16 +24,12 @@ public class Gamut {
   private Elements elements;
 
   
-  @JsonProperty("type")
-  private Type type;
-
-  
   @JsonProperty("discriminator")
   private Discriminator discriminator;
 
   
-  @JsonProperty("empty")
-  private Empty empty;
+  @JsonProperty("type")
+  private Type type;
 
   
   @JsonProperty("enum")
@@ -35,6 +41,14 @@ public class Gamut {
   }
   
 
+
+  public Empty getEmpty() {
+    return empty;
+  }
+
+  public void setEmpty(Empty empty) {
+    this.empty = empty;
+  }
 
   public Values getValues() {
     return values;
@@ -52,14 +66,6 @@ public class Gamut {
     this.elements = elements;
   }
 
-  public Type getType() {
-    return type;
-  }
-
-  public void setType(Type type) {
-    this.type = type;
-  }
-
   public Discriminator getDiscriminator() {
     return discriminator;
   }
@@ -68,12 +74,12 @@ public class Gamut {
     this.discriminator = discriminator;
   }
 
-  public Empty getEmpty() {
-    return empty;
+  public Type getType() {
+    return type;
   }
 
-  public void setEmpty(Empty empty) {
-    this.empty = empty;
+  public void setType(Type type) {
+    this.type = type;
   }
 
   public Enum getEnum() {
