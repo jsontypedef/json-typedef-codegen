@@ -24,11 +24,17 @@ struct TemplateDatas {
 struct Class {
     package: String,
     discriminator: String,
-    discriminator_variants: Vec<String>,
+    discriminator_variants: Vec<DiscriminatorVariant>,
     is_abstract: bool,
     name: String,
     extends: String,
     properties: Vec<Property>,
+}
+
+#[derive(Debug, Serialize)]
+struct DiscriminatorVariant {
+    json_name: String,
+    class_name: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -294,10 +300,13 @@ impl Target {
 
                 let mut variants = vec![];
                 for (name, schema) in mapping {
-                    variants
-                        .push(state.with_path_segment(name.clone(), &|state| {
-                            self.emit_ast(state, schema)
-                        }));
+                    let variant_class_name = state
+                        .with_path_segment(name.clone(), &|state| self.emit_ast(state, schema));
+
+                    variants.push(DiscriminatorVariant {
+                        json_name: name.clone(),
+                        class_name: variant_class_name,
+                    });
 
                     // A bit of a hack, but this step here ensures that the
                     // class generated in the previous emit_ast call immediately
