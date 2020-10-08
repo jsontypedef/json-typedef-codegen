@@ -27,6 +27,18 @@ export interface Location {
 }
 
 /**
+ * Our pre-GDPR do-not-track settings
+ */
+export interface PreferencesDoNotTrackV0 {
+  /**
+   * An all-or-nothing do-not-track setting
+   */
+  doNotTrack: boolean;
+
+  version: "v0";
+}
+
+/**
  * Our post-GDPR do-not-track settings
  */
 export interface PreferencesDoNotTrackV1 {
@@ -40,18 +52,6 @@ export interface PreferencesDoNotTrackV1 {
   optOutChannels: string[];
 
   version: "v1";
-}
-
-/**
- * Our pre-GDPR do-not-track settings
- */
-export interface PreferencesDoNotTrackV0 {
-  /**
-   * An all-or-nothing do-not-track setting
-   */
-  doNotTrack: boolean;
-
-  version: "v0";
 }
 
 /**

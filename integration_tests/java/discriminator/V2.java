@@ -5,11 +5,14 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
 
+
 public class V2 extends Discriminator {
+
 
   
   @JsonProperty("user")
@@ -22,9 +25,11 @@ public class V2 extends Discriminator {
   
 
 
+
   public V2User getUser() {
     return user;
   }
+
 
   public void setUser(V2User user) {
     this.user = user;

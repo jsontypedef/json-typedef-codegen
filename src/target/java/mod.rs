@@ -6,6 +6,7 @@ use jtd::{Form, Schema};
 use serde::Serialize;
 use std::fs::File;
 use std::path::{Path, PathBuf};
+use crate::handlebars_helpers;
 
 #[derive(Debug)]
 pub struct Target {
@@ -29,6 +30,7 @@ struct Class {
     name: String,
     extends: String,
     properties: Vec<Property>,
+    description: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -44,6 +46,7 @@ struct Property {
     rename: String,
     value: String,
     entire_value: bool,
+    description: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -51,12 +54,14 @@ struct Enum {
     package: String,
     name: String,
     variants: Vec<Variant>,
+    description: String,
 }
 
 #[derive(Debug, Serialize)]
 struct Variant {
     name: String,
     rename: String,
+    description: String,
 }
 
 impl super::Target for Target {
@@ -113,6 +118,15 @@ impl super::Target for Target {
 
         let mut registry = Handlebars::new();
         registry.register_escape_fn(handlebars::no_escape);
+        registry.register_helper("comment", Box::new(handlebars_helpers::comment));
+
+        for class in &mut state.data.classes {
+            class.properties.sort_by_key(|p| p.name.clone());
+        }
+
+        for enum_ in &mut state.data.enums {
+            enum_.variants.sort_by_key(|p| p.name.clone());
+        }
 
         for class in state.data.classes {
             let mut out = File::create(self.out_dir.join(&class.name).with_extension("java"))?;
@@ -148,7 +162,7 @@ impl Target {
                     state
                         .data
                         .classes
-                        .push(self.primitive_wrapper_class(name.clone(), value));
+                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
                     name
                 } else {
                     value
@@ -162,7 +176,7 @@ impl Target {
                     state
                         .data
                         .classes
-                        .push(self.primitive_wrapper_class(name.clone(), value));
+                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
                     name
                 } else {
                     value
@@ -190,7 +204,7 @@ impl Target {
                     state
                         .data
                         .classes
-                        .push(self.primitive_wrapper_class(name.clone(), value));
+                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
                     name
                 } else {
                     value
@@ -202,6 +216,7 @@ impl Target {
                     .map(|v| Variant {
                         name: v.to_screaming_snake_case(),
                         rename: format!("{:?}", v),
+                        description: enum_description(schema, v),
                     })
                     .collect();
 
@@ -209,13 +224,14 @@ impl Target {
                     package: self.pkg_name.clone(),
                     name: state.name(),
                     variants,
+                    description: description(schema),
                 });
 
                 state.name()
             }
-            Form::Elements(jtd::form::Elements { ref schema, .. }) => {
+            Form::Elements(jtd::form::Elements { schema: ref sub_schema, .. }) => {
                 let sub_name = state.with_singularize(true, &|state| {
-                    state.with_must_emit(false, &|state| self.emit_ast(state, schema))
+                    state.with_must_emit(false, &|state| self.emit_ast(state, sub_schema))
                 });
 
                 let value = format!("List<{}>", sub_name);
@@ -226,7 +242,7 @@ impl Target {
                     state
                         .data
                         .classes
-                        .push(self.primitive_wrapper_class(name.clone(), value));
+                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
                     name
                 } else {
                     value
@@ -246,6 +262,7 @@ impl Target {
                         value: state
                             .with_path_segment(name.clone(), &|state| self.emit_ast(state, schema)),
                         entire_value: false,
+                        description: description(schema),
                     });
                 }
 
@@ -257,6 +274,7 @@ impl Target {
                         value: state
                             .with_path_segment(name.clone(), &|state| self.emit_ast(state, schema)),
                         entire_value: false,
+                        description: description(schema),
                     });
                 }
 
@@ -268,13 +286,14 @@ impl Target {
                     name: state.name(),
                     extends: "".to_owned(),
                     properties,
+                    description: description(schema),
                 });
 
                 state.name()
             }
-            Form::Values(jtd::form::Values { ref schema, .. }) => {
+            Form::Values(jtd::form::Values { schema: ref sub_schema, .. }) => {
                 let sub_name = state.with_singularize(true, &|state| {
-                    state.with_must_emit(false, &|state| self.emit_ast(state, schema))
+                    state.with_must_emit(false, &|state| self.emit_ast(state, sub_schema))
                 });
 
                 let value = format!("Map<String, {}>", sub_name);
@@ -285,7 +304,7 @@ impl Target {
                     state
                         .data
                         .classes
-                        .push(self.primitive_wrapper_class(name.clone(), value));
+                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
                     name
                 } else {
                     value
@@ -329,6 +348,7 @@ impl Target {
                     name: parent_name.clone(),
                     extends: "".to_owned(),
                     properties: vec![],
+                    description: description(schema),
                 });
 
                 parent_name
@@ -336,7 +356,7 @@ impl Target {
         }
     }
 
-    fn primitive_wrapper_class(&self, name: String, wrapped_type: String) -> Class {
+    fn primitive_wrapper_class(&self, schema: &Schema, name: String, wrapped_type: String) -> Class {
         Class {
             discriminator: "".to_owned(),
             discriminator_variants: vec![],
@@ -344,13 +364,37 @@ impl Target {
             is_abstract: false,
             name,
             extends: "".to_owned(),
-            properties: vec![Property {
-                name: "value".to_owned(),
-                method_name: "Value".to_owned(),
-                rename: "".to_owned(),
-                value: wrapped_type,
-                entire_value: true,
-            }],
+            properties: vec![
+                Property {
+                    name: "value".to_owned(),
+                    method_name: "Value".to_owned(),
+                    rename: "".to_owned(),
+                    value: wrapped_type,
+                    entire_value: true,
+                    description: "".to_owned(),
+                }
+            ],
+            description: description(schema),
         }
     }
+}
+
+fn description(schema: &Schema) -> String {
+    schema
+        .metadata
+        .get("description")
+        .and_then(|v| v.as_str())
+        .unwrap_or_default()
+        .to_owned()
+}
+
+fn enum_description(schema: &Schema, name: &str) -> String {
+    schema
+        .metadata
+        .get("enumDescriptions")
+        .and_then(|v| v.as_object())
+        .and_then(|a| a.get(name))
+        .and_then(|v| v.as_str())
+        .unwrap_or_default()
+        .to_owned()
 }

@@ -5,18 +5,20 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
 
-  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "foo")
-  @JsonSubTypes({
-    
-      @JsonSubTypes.Type(name = "baz", value = DiscriminatorBaz.class),
-    
-      @JsonSubTypes.Type(name = "bar", value = DiscriminatorBar.class),
-    
-  })
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "foo")
+@JsonSubTypes({
+  
+    @JsonSubTypes.Type(name = "baz", value = DiscriminatorBaz.class),
+  
+    @JsonSubTypes.Type(name = "bar", value = DiscriminatorBar.class),
+  
+})
 
 public abstract class Discriminator {
 

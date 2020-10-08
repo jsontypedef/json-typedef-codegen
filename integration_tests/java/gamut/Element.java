@@ -5,11 +5,14 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
 
+
 public class Element {
+
 
   
   @JsonProperty("elementThing")
@@ -22,9 +25,11 @@ public class Element {
   
 
 
+
   public Object getElementThing() {
     return elementThing;
   }
+
 
   public void setElementThing(Object elementThing) {
     this.elementThing = elementThing;
