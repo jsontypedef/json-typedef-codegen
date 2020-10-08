@@ -5,19 +5,22 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
+{{ comment 80 "/**" " * " " */" description }}
 {{#if discriminator}}
-  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = {{discriminator}})
-  @JsonSubTypes({
-    {{#each ../discriminator_variants}}
-      @JsonSubTypes.Type(name = "{{json_name}}", value = {{class_name}}.class),
-    {{/each}}
-  })
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = {{discriminator}})
+@JsonSubTypes({
+  {{#each ../discriminator_variants}}
+    @JsonSubTypes.Type(name = "{{json_name}}", value = {{class_name}}.class),
+  {{/each}}
+})
 {{/if}}
 public {{#if is_abstract}}abstract {{/if}}class {{name}} {{#if extends}}extends {{extends}} {{/if}}{
 {{#each properties}}
+{{ comment 80 "  /**" "   * " "   */" description }}
   {{#if entire_value}}@JsonValue{{/if}}
   {{#if rename}}@JsonProperty({{rename}}){{/if}}
   private {{value}} {{name}};
@@ -29,10 +32,12 @@ public {{#if is_abstract}}abstract {{/if}}class {{name}} {{#if extends}}extends 
   {{/unless}}
 
 {{#each properties}}
+{{ comment 80 "  /**" "   * " "   */" description }}
   public {{value}} get{{method_name}}() {
     return {{name}};
   }
 
+{{ comment 80 "  /**" "   * " "   */" description }}
   public void set{{method_name}}({{value}} {{name}}) {
     this.{{name}} = {{name}};
   }

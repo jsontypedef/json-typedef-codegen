@@ -1,7 +1,9 @@
 package {{package}};
 
+{{ comment 80 "/**" " * " " */" description }}
 public enum {{name}} {
 {{#each variants}}
+{{ comment 80 "  /**" "   * " "   */" description }}
   @JsonProperty({{rename}})
   {{name}},
 {{/each}}

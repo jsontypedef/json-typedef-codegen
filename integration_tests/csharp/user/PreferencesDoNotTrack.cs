@@ -26,9 +26,9 @@ namespace Jtd.JtdCodegenDemo
             {
                 return
 
-                    objectType == typeof(PreferencesDoNotTrackV1)  ||
+                    objectType == typeof(PreferencesDoNotTrackV0)  ||
 
-                    objectType == typeof(PreferencesDoNotTrackV0) 
+                    objectType == typeof(PreferencesDoNotTrackV1) 
 ;
             }
 
@@ -46,16 +46,16 @@ namespace Jtd.JtdCodegenDemo
                 switch (discriminatorValue)
                 {
 
-                    case "v1":
+                    case "v0":
                     {
-                        PreferencesDoNotTrackV1 value = new PreferencesDoNotTrackV1();
+                        PreferencesDoNotTrackV0 value = new PreferencesDoNotTrackV0();
                         serializer.Populate(obj.CreateReader(), value);
                         return value;
                     }
 
-                    case "v0":
+                    case "v1":
                     {
-                        PreferencesDoNotTrackV0 value = new PreferencesDoNotTrackV0();
+                        PreferencesDoNotTrackV1 value = new PreferencesDoNotTrackV1();
                         serializer.Populate(obj.CreateReader(), value);
                         return value;
                     }
