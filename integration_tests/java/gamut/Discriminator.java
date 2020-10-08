@@ -12,9 +12,9 @@ import java.util.Map;
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "foo")
   @JsonSubTypes({
     
-      @JsonSubTypes.Type(name = "bar", value = DiscriminatorBar.class),
-    
       @JsonSubTypes.Type(name = "baz", value = DiscriminatorBaz.class),
+    
+      @JsonSubTypes.Type(name = "bar", value = DiscriminatorBar.class),
     
   })
 

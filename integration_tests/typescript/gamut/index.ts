@@ -20,19 +20,9 @@ export interface Value {
 }
 
 
-export interface DiscriminatorBar {
+export interface Element {
 
-  barThing: any;
-
-  foo: "bar";
-}
-
-
-export interface DiscriminatorBaz {
-
-  bazThing: any;
-
-  foo: "baz";
+  elementThing: any;
 }
 
 
@@ -62,9 +52,19 @@ export interface Type {
 }
 
 
-export interface Element {
+export interface DiscriminatorBaz {
 
-  elementThing: any;
+  bazThing: any;
+
+  foo: "baz";
+}
+
+
+export interface DiscriminatorBar {
+
+  barThing: any;
+
+  foo: "bar";
 }
 
 

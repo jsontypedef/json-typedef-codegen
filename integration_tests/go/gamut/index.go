@@ -1,9 +1,9 @@
 package gamut
 
 
-import "encoding/json"
-
 import "time"
+
+import "encoding/json"
 
 
 

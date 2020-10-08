@@ -12,20 +12,20 @@ import java.util.Map;
 public class User {
 
   
-  @JsonProperty("preferences")
-  private Preferences preferences;
+  @JsonProperty("id")
+  private String id;
 
   
   @JsonProperty("labels")
   private Map<String, String> labels;
 
   
-  @JsonProperty("id")
-  private String id;
-
-  
   @JsonProperty("name")
   private Name name;
+
+  
+  @JsonProperty("preferences")
+  private Preferences preferences;
 
   
   @JsonProperty("last_known_location")
@@ -42,12 +42,12 @@ public class User {
   
 
 
-  public Preferences getPreferences() {
-    return preferences;
+  public String getId() {
+    return id;
   }
 
-  public void setPreferences(Preferences preferences) {
-    this.preferences = preferences;
+  public void setId(String id) {
+    this.id = id;
   }
 
   public Map<String, String> getLabels() {
@@ -58,20 +58,20 @@ public class User {
     this.labels = labels;
   }
 
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
   public Name getName() {
     return name;
   }
 
   public void setName(Name name) {
     this.name = name;
+  }
+
+  public Preferences getPreferences() {
+    return preferences;
+  }
+
+  public void setPreferences(Preferences preferences) {
+    this.preferences = preferences;
   }
 
   public Location getLastKnownLocation() {

@@ -1,0 +1,92 @@
+using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace {{namespace}}
+{
+{{ comment 80 "    /// <summary>" "    /// " "    /// </summary>" description }}
+    {{#if is_abstract}}[JsonConverter(typeof({{name}}.JsonConverter))]{{/if}}
+    public {{#if is_abstract}}abstract {{/if}}class {{name}} {{#if extends}}: {{extends}}{{/if}}
+    {
+{{#if static_property}}
+        [JsonProperty({{static_property.rename}})]
+        public const string {{static_property.name}} = {{static_property.value}};
+{{/if}}
+{{#each properties}}
+{{ comment 80 "        /// <value>" "        /// " "        /// </value>" description }}
+        {{#if rename}}[JsonProperty({{rename}})]{{/if}}
+        public {{value}} {{name}} { get; set; }
+{{/each}}
+
+{{#if is_primitive_wrapper}}
+        private class JsonConverter : Newtonsoft.Json.JsonConverter
+        {
+            public override bool CanRead => true;
+            public override bool CanWrite => true;
+
+            public override bool CanConvert(System.Type objectType)
+            {
+                return objectType == typeof({{properties.0.value}});
+            }
+
+            public override object ReadJson(JsonReader reader, System.Type objectType, object existingValue, JsonSerializer serializer)
+            {
+                return new {{name}} { Value = serializer.Deserialize<{{properties.0.value}}>(reader) };
+            }
+
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            {
+                serializer.Serialize(writer, (({{name}}) value).Value);
+            }
+        }
+{{/if}}
+
+{{#if is_discriminator}}
+        private class JsonConverter : Newtonsoft.Json.JsonConverter
+        {
+            public override bool CanRead => true;
+            public override bool CanWrite => false;
+
+            public override bool CanConvert(System.Type objectType)
+            {
+                return
+{{#each discriminator_variants}}
+                    objectType == typeof({{class_name}}) {{#unless @last}} ||{{/unless}}
+{{/each}};
+            }
+
+            public override object ReadJson(JsonReader reader, System.Type objectType, object existingValue, JsonSerializer serializer)
+            {
+                JObject obj = JObject.Load(reader);
+                JProperty discriminator = obj.Property({{discriminator}});
+
+                if (discriminator == null || discriminator.Value.Type != JTokenType.String)
+                {
+                    throw new JsonSerializationException("bad discriminator property");
+                }
+
+                string discriminatorValue = (string) discriminator.Value;
+                switch (discriminatorValue)
+                {
+{{#each discriminator_variants}}
+                    case {{json_name}}:
+                    {
+                        {{class_name}} value = new {{class_name}}();
+                        serializer.Populate(obj.CreateReader(), value);
+                        return value;
+                    }
+{{/each}}
+                    default:
+                        throw new JsonSerializationException("bad discriminator value");
+                }
+            }
+
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            {
+                throw new NotImplementedException();
+            }
+        }
+{{/if}}
+    }
+}

@@ -12,18 +12,6 @@ import java.util.Map;
 public class Gamut {
 
   
-  @JsonProperty("empty")
-  private Empty empty;
-
-  
-  @JsonProperty("values")
-  private Values values;
-
-  
-  @JsonProperty("elements")
-  private Elements elements;
-
-  
   @JsonProperty("discriminator")
   private Discriminator discriminator;
 
@@ -32,8 +20,20 @@ public class Gamut {
   private Type type;
 
   
+  @JsonProperty("empty")
+  private Empty empty;
+
+  
   @JsonProperty("enum")
   private Enum enum;
+
+  
+  @JsonProperty("elements")
+  private Elements elements;
+
+  
+  @JsonProperty("values")
+  private Values values;
 
 
   
@@ -41,30 +41,6 @@ public class Gamut {
   }
   
 
-
-  public Empty getEmpty() {
-    return empty;
-  }
-
-  public void setEmpty(Empty empty) {
-    this.empty = empty;
-  }
-
-  public Values getValues() {
-    return values;
-  }
-
-  public void setValues(Values values) {
-    this.values = values;
-  }
-
-  public Elements getElements() {
-    return elements;
-  }
-
-  public void setElements(Elements elements) {
-    this.elements = elements;
-  }
 
   public Discriminator getDiscriminator() {
     return discriminator;
@@ -82,12 +58,36 @@ public class Gamut {
     this.type = type;
   }
 
+  public Empty getEmpty() {
+    return empty;
+  }
+
+  public void setEmpty(Empty empty) {
+    this.empty = empty;
+  }
+
   public Enum getEnum() {
     return enum;
   }
 
   public void setEnum(Enum enum) {
     this.enum = enum;
+  }
+
+  public Elements getElements() {
+    return elements;
+  }
+
+  public void setElements(Elements elements) {
+    this.elements = elements;
+  }
+
+  public Values getValues() {
+    return values;
+  }
+
+  public void setValues(Values values) {
+    this.values = values;
   }
 
 }

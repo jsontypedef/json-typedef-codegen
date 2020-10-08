@@ -12,9 +12,9 @@ import java.util.Map;
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "version")
   @JsonSubTypes({
     
-      @JsonSubTypes.Type(name = "v0", value = PreferencesDoNotTrackV0.class),
-    
       @JsonSubTypes.Type(name = "v1", value = PreferencesDoNotTrackV1.class),
+    
+      @JsonSubTypes.Type(name = "v0", value = PreferencesDoNotTrackV0.class),
     
   })
 
