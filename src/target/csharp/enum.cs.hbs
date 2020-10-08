@@ -1,0 +1,15 @@
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+namespace {{namespace}}
+{
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum {{name}}
+    {
+{{#each variants}}
+        [EnumMember(Value = {{rename}})]
+        {{name}},
+{{/each}}
+    }
+}

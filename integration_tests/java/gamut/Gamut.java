@@ -12,28 +12,28 @@ import java.util.Map;
 public class Gamut {
 
   
+  @JsonProperty("enum")
+  private Enum enum;
+
+  
   @JsonProperty("empty")
   private Empty empty;
-
-  
-  @JsonProperty("values")
-  private Values values;
-
-  
-  @JsonProperty("elements")
-  private Elements elements;
-
-  
-  @JsonProperty("discriminator")
-  private Discriminator discriminator;
 
   
   @JsonProperty("type")
   private Type type;
 
   
-  @JsonProperty("enum")
-  private Enum enum;
+  @JsonProperty("values")
+  private Values values;
+
+  
+  @JsonProperty("discriminator")
+  private Discriminator discriminator;
+
+  
+  @JsonProperty("elements")
+  private Elements elements;
 
 
   
@@ -42,36 +42,20 @@ public class Gamut {
   
 
 
+  public Enum getEnum() {
+    return enum;
+  }
+
+  public void setEnum(Enum enum) {
+    this.enum = enum;
+  }
+
   public Empty getEmpty() {
     return empty;
   }
 
   public void setEmpty(Empty empty) {
     this.empty = empty;
-  }
-
-  public Values getValues() {
-    return values;
-  }
-
-  public void setValues(Values values) {
-    this.values = values;
-  }
-
-  public Elements getElements() {
-    return elements;
-  }
-
-  public void setElements(Elements elements) {
-    this.elements = elements;
-  }
-
-  public Discriminator getDiscriminator() {
-    return discriminator;
-  }
-
-  public void setDiscriminator(Discriminator discriminator) {
-    this.discriminator = discriminator;
   }
 
   public Type getType() {
@@ -82,12 +66,28 @@ public class Gamut {
     this.type = type;
   }
 
-  public Enum getEnum() {
-    return enum;
+  public Values getValues() {
+    return values;
   }
 
-  public void setEnum(Enum enum) {
-    this.enum = enum;
+  public void setValues(Values values) {
+    this.values = values;
+  }
+
+  public Discriminator getDiscriminator() {
+    return discriminator;
+  }
+
+  public void setDiscriminator(Discriminator discriminator) {
+    this.discriminator = discriminator;
+  }
+
+  public Elements getElements() {
+    return elements;
+  }
+
+  public void setElements(Elements elements) {
+    this.elements = elements;
   }
 
 }

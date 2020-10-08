@@ -12,28 +12,28 @@ import java.util.Map;
 public class User {
 
   
-  @JsonProperty("preferences")
-  private Preferences preferences;
+  @JsonProperty("id")
+  private String id;
 
   
   @JsonProperty("labels")
   private Map<String, String> labels;
 
   
-  @JsonProperty("id")
-  private String id;
-
-  
   @JsonProperty("name")
   private Name name;
 
   
-  @JsonProperty("last_known_location")
-  private Location lastKnownLocation;
+  @JsonProperty("preferences")
+  private Preferences preferences;
 
   
   @JsonProperty("first_known_location")
   private Location firstKnownLocation;
+
+  
+  @JsonProperty("last_known_location")
+  private Location lastKnownLocation;
 
 
   
@@ -42,12 +42,12 @@ public class User {
   
 
 
-  public Preferences getPreferences() {
-    return preferences;
+  public String getId() {
+    return id;
   }
 
-  public void setPreferences(Preferences preferences) {
-    this.preferences = preferences;
+  public void setId(String id) {
+    this.id = id;
   }
 
   public Map<String, String> getLabels() {
@@ -58,14 +58,6 @@ public class User {
     this.labels = labels;
   }
 
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
   public Name getName() {
     return name;
   }
@@ -74,12 +66,12 @@ public class User {
     this.name = name;
   }
 
-  public Location getLastKnownLocation() {
-    return lastKnownLocation;
+  public Preferences getPreferences() {
+    return preferences;
   }
 
-  public void setLastKnownLocation(Location lastKnownLocation) {
-    this.lastKnownLocation = lastKnownLocation;
+  public void setPreferences(Preferences preferences) {
+    this.preferences = preferences;
   }
 
   public Location getFirstKnownLocation() {
@@ -88,6 +80,14 @@ public class User {
 
   public void setFirstKnownLocation(Location firstKnownLocation) {
     this.firstKnownLocation = firstKnownLocation;
+  }
+
+  public Location getLastKnownLocation() {
+    return lastKnownLocation;
+  }
+
+  public void setLastKnownLocation(Location lastKnownLocation) {
+    this.lastKnownLocation = lastKnownLocation;
   }
 
 }

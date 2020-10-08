@@ -3,12 +3,15 @@
 set -e
 
 for schema in integration_tests/schemas/*; do
+  mkdir -p integration_tests/csharp/$(basename $schema .jtd.json)
   mkdir -p integration_tests/go/$(basename $schema .jtd.json)
   mkdir -p integration_tests/java/$(basename $schema .jtd.json)
   mkdir -p integration_tests/rust/$(basename $schema .jtd.json)
   mkdir -p integration_tests/typescript/$(basename $schema .jtd.json)
 
   cargo run -- \
+    --csharp-out=integration_tests/csharp/$(basename $schema .jtd.json) \
+    --csharp-namespace=Jtd.JtdCodegenDemo \
     --go-out=integration_tests/go/$(basename $schema .jtd.json) \
     --java-out=integration_tests/java/$(basename $schema .jtd.json) \
     --java-pkg=com.jsontypedef.jtdcodegendemo \

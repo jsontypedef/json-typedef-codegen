@@ -21,6 +21,7 @@ fn main() -> Result<(), Error> {
                 .required(true),
         );
 
+    let app = target::csharp::Target::args(app);
     let app = target::go::Target::args(app);
     let app = target::java::Target::args(app);
     let app = target::rust::Target::args(app);
@@ -36,10 +37,15 @@ fn main() -> Result<(), Error> {
         .try_into()
         .map_err(|err| format_err!("{:?}", err))?;
 
+    let csharp = target::csharp::Target::from_args(&matches)?;
     let go = target::go::Target::from_args(&matches)?;
     let java = target::java::Target::from_args(&matches)?;
     let rust = target::rust::Target::from_args(&matches)?;
     let typescript = target::typescript::Target::from_args(&matches)?;
+
+    if let Some(csharp) = csharp {
+        csharp.codegen(&schema)?;
+    }
 
     if let Some(go) = go {
         go.codegen(&schema)?;
