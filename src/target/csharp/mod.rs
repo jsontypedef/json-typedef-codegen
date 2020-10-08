@@ -6,6 +6,7 @@ use handlebars::Handlebars;
 use jtd::{Form, Schema};
 use serde::Serialize;
 use inflector::Inflector;
+use crate::handlebars_helpers;
 
 pub struct Target {
     namespace_name: String,
@@ -30,6 +31,7 @@ struct Class {
     properties: Vec<Property>,
     discriminator: Option<String>,
     discriminator_variants: Vec<DiscriminatorVariant>,
+    description: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -50,6 +52,7 @@ struct Property {
     name: String,
     value: String,
     rename: Option<String>,
+    description: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -57,12 +60,14 @@ struct Enum {
     namespace: String,
     name: String,
     variants: Vec<Variant>,
+    description: String,
 }
 
 #[derive(Debug, Serialize)]
 struct Variant {
     name: String,
     rename: String,
+    description: String,
 }
 
 impl super::Target for Target {
@@ -119,6 +124,15 @@ impl super::Target for Target {
 
         let mut registry = Handlebars::new();
         registry.register_escape_fn(handlebars::no_escape);
+        registry.register_helper("comment", Box::new(handlebars_helpers::comment));
+
+        for class in &mut state.data.classes {
+            class.properties.sort_by_key(|p| p.name.clone());
+        }
+
+        for enum_ in &mut state.data.enums {
+            enum_.variants.sort_by_key(|p| p.name.clone());
+        }
 
         for class in state.data.classes {
             let mut out = File::create(self.out_dir.join(&class.name).with_extension("cs"))?;
@@ -154,7 +168,7 @@ impl Target {
                     state
                         .data
                         .classes
-                        .push(self.primitive_wrapper_class(name.clone(), value));
+                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
                     name
                 } else {
                     value
@@ -190,7 +204,7 @@ impl Target {
                     state
                         .data
                         .classes
-                        .push(self.primitive_wrapper_class(name.clone(), value));
+                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
 
                     name
                 } else {
@@ -205,7 +219,7 @@ impl Target {
                     state
                         .data
                         .classes
-                        .push(self.primitive_wrapper_class(name.clone(), value));
+                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
                     name
                 } else {
                     value
@@ -217,6 +231,7 @@ impl Target {
                     .map(|v| Variant {
                         name: v.to_pascal_case(),
                         rename: format!("{:?}", v),
+                        description: enum_description(schema, v),
                     })
                     .collect();
 
@@ -224,13 +239,14 @@ impl Target {
                     namespace: self.namespace_name.to_owned(),
                     name: state.name(),
                     variants,
+                    description: description(schema),
                 });
 
                 state.name()
             }
-            Form::Elements(jtd::form::Elements { ref schema, .. }) => {
+            Form::Elements(jtd::form::Elements { schema: ref sub_schema, .. }) => {
                 let sub_name = state.with_singularize(true, &|state| {
-                    state.with_must_emit(false, &|state| self.emit_ast(state, schema))
+                    state.with_must_emit(false, &|state| self.emit_ast(state, sub_schema))
                 });
 
                 let value = format!("IList<{}>", sub_name);
@@ -241,7 +257,7 @@ impl Target {
                     state
                         .data
                         .classes
-                        .push(self.primitive_wrapper_class(name.clone(), value));
+                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
                     name
                 } else {
                     value
@@ -259,6 +275,7 @@ impl Target {
                         rename: Some(format!("{:?}", name)),
                         value: state
                             .with_path_segment(name.clone(), &|state| self.emit_ast(state, schema)),
+                        description: description(schema),
                     });
                 }
 
@@ -268,6 +285,7 @@ impl Target {
                         rename: Some(format!("{:?}", name)),
                         value: state
                             .with_path_segment(name.clone(), &|state| self.emit_ast(state, schema)),
+                        description: description(schema),
                     });
                 }
 
@@ -282,13 +300,14 @@ impl Target {
                     properties,
                     discriminator: None,
                     discriminator_variants: vec![],
+                    description: description(schema),
                 });
 
                 state.name()
             }
-            Form::Values(jtd::form::Values { ref schema, .. }) => {
+            Form::Values(jtd::form::Values { schema: ref sub_schema, .. }) => {
                 let sub_name = state.with_singularize(true, &|state| {
-                    state.with_must_emit(false, &|state| self.emit_ast(state, schema))
+                    state.with_must_emit(false, &|state| self.emit_ast(state, sub_schema))
                 });
 
                 let value = format!("IDictionary<string, {}>", sub_name);
@@ -299,7 +318,7 @@ impl Target {
                     state
                         .data
                         .classes
-                        .push(self.primitive_wrapper_class(name.clone(), value));
+                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
                     name
                 } else {
                     value
@@ -352,6 +371,7 @@ impl Target {
                     properties: vec![],
                     discriminator: Some(format!("{:?}", discriminator)),
                     discriminator_variants: variants,
+                    description: description(schema),
                 });
 
                 parent_name
@@ -359,7 +379,7 @@ impl Target {
         }
     }
 
-    fn primitive_wrapper_class(&self, name: String, wrapped_type: String) -> Class {
+    fn primitive_wrapper_class(&self, schema: &Schema, name: String, wrapped_type: String) -> Class {
         Class {
             namespace: self.namespace_name.to_owned(),
             name: name.clone(),
@@ -372,9 +392,31 @@ impl Target {
                 name: "Value".to_owned(),
                 value: wrapped_type,
                 rename: None,
+                description: "".to_owned(),
             }],
             discriminator: None,
             discriminator_variants: vec![],
+            description: description(schema),
         }
     }
+}
+
+fn description(schema: &Schema) -> String {
+    schema
+        .metadata
+        .get("description")
+        .and_then(|v| v.as_str())
+        .unwrap_or_default()
+        .to_owned()
+}
+
+fn enum_description(schema: &Schema, name: &str) -> String {
+    schema
+        .metadata
+        .get("enumDescriptions")
+        .and_then(|v| v.as_object())
+        .and_then(|a| a.get(name))
+        .and_then(|v| v.as_str())
+        .unwrap_or_default()
+        .to_owned()
 }

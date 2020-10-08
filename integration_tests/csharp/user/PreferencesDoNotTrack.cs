@@ -5,6 +5,9 @@ using Newtonsoft.Json.Linq;
 
 namespace Jtd.JtdCodegenDemo
 {
+    /// <summary>
+    /// User preferences around do-not-track
+    /// </summary>
     [JsonConverter(typeof(PreferencesDoNotTrack.JsonConverter))]
     public abstract class PreferencesDoNotTrack 
     {
@@ -23,9 +26,9 @@ namespace Jtd.JtdCodegenDemo
             {
                 return
 
-                    objectType == typeof(PreferencesDoNotTrackV0)  ||
+                    objectType == typeof(PreferencesDoNotTrackV1)  ||
 
-                    objectType == typeof(PreferencesDoNotTrackV1) 
+                    objectType == typeof(PreferencesDoNotTrackV0) 
 ;
             }
 
@@ -43,16 +46,16 @@ namespace Jtd.JtdCodegenDemo
                 switch (discriminatorValue)
                 {
 
-                    case "v0":
+                    case "v1":
                     {
-                        PreferencesDoNotTrackV0 value = new PreferencesDoNotTrackV0();
+                        PreferencesDoNotTrackV1 value = new PreferencesDoNotTrackV1();
                         serializer.Populate(obj.CreateReader(), value);
                         return value;
                     }
 
-                    case "v1":
+                    case "v0":
                     {
-                        PreferencesDoNotTrackV1 value = new PreferencesDoNotTrackV1();
+                        PreferencesDoNotTrackV0 value = new PreferencesDoNotTrackV0();
                         serializer.Populate(obj.CreateReader(), value);
                         return value;
                     }

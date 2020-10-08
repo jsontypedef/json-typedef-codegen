@@ -16,8 +16,12 @@ public class Type {
   private Byte uint8;
 
   
-  @JsonProperty("float64")
-  private Double float64;
+  @JsonProperty("int16")
+  private Short int16;
+
+  
+  @JsonProperty("boolean")
+  private Boolean boolean;
 
   
   @JsonProperty("float32")
@@ -28,32 +32,28 @@ public class Type {
   private Byte int8;
 
   
-  @JsonProperty("boolean")
-  private Boolean boolean;
-
-  
-  @JsonProperty("timestamp")
-  private OffsetDateTime timestamp;
-
-  
-  @JsonProperty("int16")
-  private Short int16;
+  @JsonProperty("uint32")
+  private Integer uint32;
 
   
   @JsonProperty("uint16")
   private Short uint16;
 
   
+  @JsonProperty("int32")
+  private Integer int32;
+
+  
   @JsonProperty("string")
   private String string;
 
   
-  @JsonProperty("uint32")
-  private Integer uint32;
+  @JsonProperty("timestamp")
+  private OffsetDateTime timestamp;
 
   
-  @JsonProperty("int32")
-  private Integer int32;
+  @JsonProperty("float64")
+  private Double float64;
 
 
   
@@ -70,12 +70,20 @@ public class Type {
     this.uint8 = uint8;
   }
 
-  public Double getFloat64() {
-    return float64;
+  public Short getInt16() {
+    return int16;
   }
 
-  public void setFloat64(Double float64) {
-    this.float64 = float64;
+  public void setInt16(Short int16) {
+    this.int16 = int16;
+  }
+
+  public Boolean getBoolean() {
+    return boolean;
+  }
+
+  public void setBoolean(Boolean boolean) {
+    this.boolean = boolean;
   }
 
   public Float getFloat32() {
@@ -94,28 +102,12 @@ public class Type {
     this.int8 = int8;
   }
 
-  public Boolean getBoolean() {
-    return boolean;
+  public Integer getUint32() {
+    return uint32;
   }
 
-  public void setBoolean(Boolean boolean) {
-    this.boolean = boolean;
-  }
-
-  public OffsetDateTime getTimestamp() {
-    return timestamp;
-  }
-
-  public void setTimestamp(OffsetDateTime timestamp) {
-    this.timestamp = timestamp;
-  }
-
-  public Short getInt16() {
-    return int16;
-  }
-
-  public void setInt16(Short int16) {
-    this.int16 = int16;
+  public void setUint32(Integer uint32) {
+    this.uint32 = uint32;
   }
 
   public Short getUint16() {
@@ -126,6 +118,14 @@ public class Type {
     this.uint16 = uint16;
   }
 
+  public Integer getInt32() {
+    return int32;
+  }
+
+  public void setInt32(Integer int32) {
+    this.int32 = int32;
+  }
+
   public String getString() {
     return string;
   }
@@ -134,20 +134,20 @@ public class Type {
     this.string = string;
   }
 
-  public Integer getUint32() {
-    return uint32;
+  public OffsetDateTime getTimestamp() {
+    return timestamp;
   }
 
-  public void setUint32(Integer uint32) {
-    this.uint32 = uint32;
+  public void setTimestamp(OffsetDateTime timestamp) {
+    this.timestamp = timestamp;
   }
 
-  public Integer getInt32() {
-    return int32;
+  public Double getFloat64() {
+    return float64;
   }
 
-  public void setInt32(Integer int32) {
-    this.int32 = int32;
+  public void setFloat64(Double float64) {
+    this.float64 = float64;
   }
 
 }

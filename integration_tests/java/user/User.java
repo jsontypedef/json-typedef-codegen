@@ -28,12 +28,12 @@ public class User {
   private Preferences preferences;
 
   
-  @JsonProperty("first_known_location")
-  private Location firstKnownLocation;
-
-  
   @JsonProperty("last_known_location")
   private Location lastKnownLocation;
+
+  
+  @JsonProperty("first_known_location")
+  private Location firstKnownLocation;
 
 
   
@@ -74,20 +74,20 @@ public class User {
     this.preferences = preferences;
   }
 
-  public Location getFirstKnownLocation() {
-    return firstKnownLocation;
-  }
-
-  public void setFirstKnownLocation(Location firstKnownLocation) {
-    this.firstKnownLocation = firstKnownLocation;
-  }
-
   public Location getLastKnownLocation() {
     return lastKnownLocation;
   }
 
   public void setLastKnownLocation(Location lastKnownLocation) {
     this.lastKnownLocation = lastKnownLocation;
+  }
+
+  public Location getFirstKnownLocation() {
+    return firstKnownLocation;
+  }
+
+  public void setFirstKnownLocation(Location firstKnownLocation) {
+    this.firstKnownLocation = firstKnownLocation;
   }
 
 }

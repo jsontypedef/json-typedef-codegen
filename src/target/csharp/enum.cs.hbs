@@ -4,10 +4,12 @@ using Newtonsoft.Json.Converters;
 
 namespace {{namespace}}
 {
+{{ comment 80 "    /// <summary>" "    /// " "    /// </summary>" description }}
     [JsonConverter(typeof(StringEnumConverter))]
     public enum {{name}}
     {
 {{#each variants}}
+{{ comment 80 "        /// <value>" "        /// " "        /// </value>" description }}
         [EnumMember(Value = {{rename}})]
         {{name}},
 {{/each}}

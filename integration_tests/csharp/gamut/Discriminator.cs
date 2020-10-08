@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Jtd.JtdCodegenDemo
 {
+
     [JsonConverter(typeof(Discriminator.JsonConverter))]
     public abstract class Discriminator 
     {

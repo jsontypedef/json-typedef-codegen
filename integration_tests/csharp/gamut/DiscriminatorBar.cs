@@ -5,12 +5,14 @@ using Newtonsoft.Json.Linq;
 
 namespace Jtd.JtdCodegenDemo
 {
+
     
     public class DiscriminatorBar : Discriminator
     {
 
         [JsonProperty("foo")]
         public const string Foo = "bar";
+
 
 
         [JsonProperty("barThing")]

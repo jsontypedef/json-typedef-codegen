@@ -20,12 +20,12 @@ public class Properties {
   private String a;
 
   
-  @JsonProperty("d")
-  private D d;
-
-  
   @JsonProperty("c")
   private String c;
+
+  
+  @JsonProperty("d")
+  private D d;
 
 
   
@@ -50,20 +50,20 @@ public class Properties {
     this.a = a;
   }
 
-  public D getD() {
-    return d;
-  }
-
-  public void setD(D d) {
-    this.d = d;
-  }
-
   public String getC() {
     return c;
   }
 
   public void setC(String c) {
     this.c = c;
+  }
+
+  public D getD() {
+    return d;
+  }
+
+  public void setD(D d) {
+    this.d = d;
   }
 
 }

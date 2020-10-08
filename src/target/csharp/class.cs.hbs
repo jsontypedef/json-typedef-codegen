@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace {{namespace}}
 {
+{{ comment 80 "    /// <summary>" "    /// " "    /// </summary>" description }}
     {{#if is_abstract}}[JsonConverter(typeof({{name}}.JsonConverter))]{{/if}}
     public {{#if is_abstract}}abstract {{/if}}class {{name}} {{#if extends}}: {{extends}}{{/if}}
     {
@@ -13,6 +14,7 @@ namespace {{namespace}}
         public const string {{static_property.name}} = {{static_property.value}};
 {{/if}}
 {{#each properties}}
+{{ comment 80 "        /// <summary>" "        /// " "        /// </summary>" description }}
         {{#if rename}}[JsonProperty({{rename}})]{{/if}}
         public {{value}} {{name}} { get; set; }
 {{/each}}

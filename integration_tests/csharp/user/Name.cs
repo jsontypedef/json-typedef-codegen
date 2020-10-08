@@ -5,9 +5,17 @@ using Newtonsoft.Json.Linq;
 
 namespace Jtd.JtdCodegenDemo
 {
+    /// <summary>
+    /// A proper name.
+    /// 
+    /// Note that this is a string, and not some object with first/given name or
+    /// a last/family name. We have users across many cultures, and some of
+    /// these cultures use mononyms or otherwise don't map onto these concepts.
+    /// </summary>
     
     public class Name 
     {
+
 
 
         

@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Jtd.JtdCodegenDemo
 {
+
     [JsonConverter(typeof(Discriminator.JsonConverter))]
     public abstract class Discriminator 
     {
@@ -23,9 +24,9 @@ namespace Jtd.JtdCodegenDemo
             {
                 return
 
-                    objectType == typeof(V2)  ||
+                    objectType == typeof(V1)  ||
 
-                    objectType == typeof(V1) 
+                    objectType == typeof(V2) 
 ;
             }
 
@@ -43,16 +44,16 @@ namespace Jtd.JtdCodegenDemo
                 switch (discriminatorValue)
                 {
 
-                    case "v2":
+                    case "v1":
                     {
-                        V2 value = new V2();
+                        V1 value = new V1();
                         serializer.Populate(obj.CreateReader(), value);
                         return value;
                     }
 
-                    case "v1":
+                    case "v2":
                     {
-                        V1 value = new V1();
+                        V2 value = new V2();
                         serializer.Populate(obj.CreateReader(), value);
                         return value;
                     }
