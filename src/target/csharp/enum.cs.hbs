@@ -9,7 +9,7 @@ namespace {{namespace}}
     public enum {{name}}
     {
 {{#each variants}}
-{{ comment 80 "        /// <value>" "        /// " "        /// </value>" description }}
+{{ comment 80 "        /// <summary>" "        /// " "        /// </summary>" description }}
         [EnumMember(Value = {{rename}})]
         {{name}},
 {{/each}}

@@ -13,15 +13,15 @@ namespace Jtd.JtdCodegenDemo
     {
 
 
-        /// <summary>
+        /// <value>
         /// User preferences around do-not-track
-        /// </summary>
+        /// </value>
         [JsonProperty("do_not_track")]
         public PreferencesDoNotTrack DoNotTrack { get; set; }
 
-        /// <summary>
+        /// <value>
         /// A title we should use when addressing the user formally.
-        /// </summary>
+        /// </value>
         [JsonProperty("title")]
         public PreferencesTitle Title { get; set; }
 

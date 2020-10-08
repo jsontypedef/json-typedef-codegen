@@ -12,20 +12,20 @@ import java.util.Map;
 public class Properties {
 
   
-  @JsonProperty("b")
-  private OffsetDateTime b;
-
-  
   @JsonProperty("a")
   private String a;
 
   
-  @JsonProperty("c")
-  private String c;
+  @JsonProperty("b")
+  private OffsetDateTime b;
 
   
   @JsonProperty("d")
   private D d;
+
+  
+  @JsonProperty("c")
+  private String c;
 
 
   
@@ -33,14 +33,6 @@ public class Properties {
   }
   
 
-
-  public OffsetDateTime getB() {
-    return b;
-  }
-
-  public void setB(OffsetDateTime b) {
-    this.b = b;
-  }
 
   public String getA() {
     return a;
@@ -50,12 +42,12 @@ public class Properties {
     this.a = a;
   }
 
-  public String getC() {
-    return c;
+  public OffsetDateTime getB() {
+    return b;
   }
 
-  public void setC(String c) {
-    this.c = c;
+  public void setB(OffsetDateTime b) {
+    this.b = b;
   }
 
   public D getD() {
@@ -64,6 +56,14 @@ public class Properties {
 
   public void setD(D d) {
     this.d = d;
+  }
+
+  public String getC() {
+    return c;
+  }
+
+  public void setC(String c) {
+    this.c = c;
   }
 
 }

@@ -12,12 +12,12 @@ import java.util.Map;
 public class V1User {
 
   
-  @JsonProperty("favoriteNumbers")
-  private List<Integer> favoriteNumbers;
-
-  
   @JsonProperty("id")
   private String id;
+
+  
+  @JsonProperty("favoriteNumbers")
+  private List<Integer> favoriteNumbers;
 
 
   
@@ -26,20 +26,20 @@ public class V1User {
   
 
 
-  public List<Integer> getFavoriteNumbers() {
-    return favoriteNumbers;
-  }
-
-  public void setFavoriteNumbers(List<Integer> favoriteNumbers) {
-    this.favoriteNumbers = favoriteNumbers;
-  }
-
   public String getId() {
     return id;
   }
 
   public void setId(String id) {
     this.id = id;
+  }
+
+  public List<Integer> getFavoriteNumbers() {
+    return favoriteNumbers;
+  }
+
+  public void setFavoriteNumbers(List<Integer> favoriteNumbers) {
+    this.favoriteNumbers = favoriteNumbers;
   }
 
 }

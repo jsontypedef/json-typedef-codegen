@@ -16,15 +16,15 @@ namespace Jtd.JtdCodegenDemo
         public const string Version = "v1";
 
 
-        /// <summary>
+        /// <value>
         /// A multi-level do-not-track setting
-        /// </summary>
+        /// </value>
         [JsonProperty("do_not_track")]
         public PreferencesDoNotTrackV1DoNotTrack DoNotTrack { get; set; }
 
-        /// <summary>
+        /// <value>
         /// Channels the user has opted out of tracking for.
-        /// </summary>
+        /// </value>
         [JsonProperty("opt_out_channels")]
         public IList<string> OptOutChannels { get; set; }
 

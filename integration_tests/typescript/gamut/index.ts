@@ -14,6 +14,18 @@ export type Enum = ("bar" | "baz" | "foo");
 export type Values = {[name: string]: Value};
 
 
+export interface Value {
+
+  valueThing: any;
+}
+
+
+export interface Element {
+
+  elementThing: any;
+}
+
+
 export interface Type {
 
   boolean: boolean;
@@ -37,18 +49,6 @@ export interface Type {
   uint32: number;
 
   uint8: number;
-}
-
-
-export interface Value {
-
-  valueThing: any;
-}
-
-
-export interface Element {
-
-  elementThing: any;
 }
 
 

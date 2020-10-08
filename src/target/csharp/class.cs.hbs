@@ -14,7 +14,7 @@ namespace {{namespace}}
         public const string {{static_property.name}} = {{static_property.value}};
 {{/if}}
 {{#each properties}}
-{{ comment 80 "        /// <summary>" "        /// " "        /// </summary>" description }}
+{{ comment 80 "        /// <value>" "        /// " "        /// </value>" description }}
         {{#if rename}}[JsonProperty({{rename}})]{{/if}}
         public {{value}} {{name}} { get; set; }
 {{/each}}

@@ -16,9 +16,9 @@ namespace Jtd.JtdCodegenDemo
         public const string Version = "v0";
 
 
-        /// <summary>
+        /// <value>
         /// An all-or-nothing do-not-track setting
-        /// </summary>
+        /// </value>
         [JsonProperty("do_not_track")]
         public bool DoNotTrack { get; set; }
 

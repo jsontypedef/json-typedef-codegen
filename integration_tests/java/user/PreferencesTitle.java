@@ -8,11 +8,11 @@ public enum PreferencesTitle {
   @JsonProperty("MS")
   MS,
 
-  @JsonProperty("MRS")
-  MRS,
-
   @JsonProperty("MR")
   MR,
+
+  @JsonProperty("MRS")
+  MRS,
 
   @JsonProperty("REV")
   REV,

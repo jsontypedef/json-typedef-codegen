@@ -13,15 +13,15 @@ namespace Jtd.JtdCodegenDemo
     {
 
 
-        /// <summary>
+        /// <value>
         /// Latitude
-        /// </summary>
+        /// </value>
         [JsonProperty("lat")]
         public string Lat { get; set; }
 
-        /// <summary>
+        /// <value>
         /// Longitude
-        /// </summary>
+        /// </value>
         [JsonProperty("lng")]
         public string Lng { get; set; }
 

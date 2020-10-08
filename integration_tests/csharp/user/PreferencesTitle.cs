@@ -11,33 +11,33 @@ namespace Jtd.JtdCodegenDemo
     public enum PreferencesTitle
     {
 
-        /// <value>
+        /// <summary>
         /// Refer to this user as 'His/Her Royal Highness'
-        /// </value>
+        /// </summary>
         [EnumMember(Value = "HRH")]
         Hrh,
 
-        /// <value>
+        /// <summary>
         /// Refer to this user as 'Mr.'
-        /// </value>
+        /// </summary>
         [EnumMember(Value = "MR")]
         Mr,
 
-        /// <value>
+        /// <summary>
         /// Refer to this user as 'Mrs.'
-        /// </value>
+        /// </summary>
         [EnumMember(Value = "MRS")]
         Mrs,
 
-        /// <value>
+        /// <summary>
         /// Refer to this user as 'Ms.'
-        /// </value>
+        /// </summary>
         [EnumMember(Value = "MS")]
         Ms,
 
-        /// <value>
+        /// <summary>
         /// Refer to this user as 'Rev.'
-        /// </value>
+        /// </summary>
         [EnumMember(Value = "REV")]
         Rev,
 

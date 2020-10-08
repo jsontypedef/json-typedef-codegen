@@ -11,21 +11,21 @@ namespace Jtd.JtdCodegenDemo
     public enum PreferencesDoNotTrackV1DoNotTrack
     {
 
-        /// <value>
+        /// <summary>
         /// All forms of tracking permitted.
-        /// </value>
+        /// </summary>
         [EnumMember(Value = "ALL")]
         All,
 
-        /// <value>
+        /// <summary>
         /// Only essentialy forms of tracking permitted.
-        /// </value>
+        /// </summary>
         [EnumMember(Value = "ESSENTIAL_ONLY")]
         EssentialOnly,
 
-        /// <value>
+        /// <summary>
         /// No forms forms of tracking permitted.
-        /// </value>
+        /// </summary>
         [EnumMember(Value = "NONE")]
         None,
 
