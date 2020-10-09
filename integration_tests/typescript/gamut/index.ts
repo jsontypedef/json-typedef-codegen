@@ -14,6 +14,44 @@ export type Enum = ("bar" | "baz" | "foo");
 export type Values = {[name: string]: Value};
 
 
+export interface DiscriminatorBar {
+
+  barThing: any;
+
+  foo: "bar";
+}
+
+
+export interface DiscriminatorBaz {
+
+  bazThing: any;
+
+  foo: "baz";
+}
+
+
+export interface Element {
+
+  elementThing: any;
+}
+
+
+export interface Gamut {
+
+  discriminator: Discriminator;
+
+  elements: Elements;
+
+  empty: Empty;
+
+  enum: Enum;
+
+  type: Type;
+
+  values: Values;
+}
+
+
 export interface Type {
 
   boolean: boolean;
@@ -40,46 +78,8 @@ export interface Type {
 }
 
 
-export interface DiscriminatorBaz {
-
-  bazThing: any;
-
-  foo: "baz";
-}
-
-
-export interface DiscriminatorBar {
-
-  barThing: any;
-
-  foo: "bar";
-}
-
-
-export interface Element {
-
-  elementThing: any;
-}
-
-
 export interface Value {
 
   valueThing: any;
-}
-
-
-export interface Gamut {
-
-  discriminator: Discriminator;
-
-  elements: Elements;
-
-  empty: Empty;
-
-  enum: Enum;
-
-  type: Type;
-
-  values: Values;
 }
 

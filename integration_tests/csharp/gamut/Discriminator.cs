@@ -24,9 +24,9 @@ namespace Jtd.JtdCodegenDemo
             {
                 return
 
-                    objectType == typeof(DiscriminatorBaz)  ||
+                    objectType == typeof(DiscriminatorBar)  ||
 
-                    objectType == typeof(DiscriminatorBar) 
+                    objectType == typeof(DiscriminatorBaz) 
 ;
             }
 
@@ -44,16 +44,16 @@ namespace Jtd.JtdCodegenDemo
                 switch (discriminatorValue)
                 {
 
-                    case "baz":
+                    case "bar":
                     {
-                        DiscriminatorBaz value = new DiscriminatorBaz();
+                        DiscriminatorBar value = new DiscriminatorBar();
                         serializer.Populate(obj.CreateReader(), value);
                         return value;
                     }
 
-                    case "bar":
+                    case "baz":
                     {
-                        DiscriminatorBar value = new DiscriminatorBar();
+                        DiscriminatorBaz value = new DiscriminatorBaz();
                         serializer.Populate(obj.CreateReader(), value);
                         return value;
                     }
