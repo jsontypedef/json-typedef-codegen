@@ -128,6 +128,7 @@ impl super::Target for Target {
 
         for class in &mut state.data.classes {
             class.properties.sort_by_key(|p| p.name.clone());
+            class.discriminator_variants.sort_by_key(|v| v.class_name.clone());
         }
 
         for enum_ in &mut state.data.enums {

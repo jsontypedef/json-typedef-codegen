@@ -5,7 +5,6 @@ use handlebars::Handlebars;
 use inflector::Inflector;
 use jtd::{Form, Schema};
 use serde::Serialize;
-use std::collections::HashSet;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 
@@ -19,7 +18,7 @@ pub struct Target {
 #[derive(Debug, Serialize)]
 struct TemplateData {
     package: String,
-    imports: HashSet<String>,
+    imports: Vec<String>,
     aliases: Vec<TypeAlias>,
     consts: Vec<Const>,
     structs: Vec<Struct>,
@@ -111,7 +110,7 @@ impl super::Target for Target {
             self.root_name.clone(),
             TemplateData {
                 package: self.pkg_name.clone(),
-                imports: HashSet::new(),
+                imports: vec![],
                 aliases: vec![],
                 consts: vec![],
                 structs: vec![],
@@ -150,6 +149,7 @@ impl super::Target for Target {
             &Some(state.data),
             &mut out,
         )?;
+
         Ok(())
     }
 }
@@ -206,7 +206,10 @@ impl Target {
                     jtd::form::TypeValue::Uint32 => "uint32",
                     jtd::form::TypeValue::String => "string",
                     jtd::form::TypeValue::Timestamp => {
-                        state.data.imports.insert("time".to_owned());
+                        if !state.data.imports.contains(&"time".to_owned()) {
+                            state.data.imports.push("time".to_owned());
+                        }
+
                         "time.Time"
                     }
                 };
@@ -336,7 +339,9 @@ impl Target {
                 ref mapping,
                 nullable,
             }) => {
-                state.data.imports.insert("encoding/json".to_owned());
+                if !state.data.imports.contains(&"encoding/json".to_owned()) {
+                    state.data.imports.push("encoding/json".to_owned());
+                }
 
                 let tag_type = state.with_path_segment(discriminator.clone(), &|state| {
                     let tag_type = state.name();

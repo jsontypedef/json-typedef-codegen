@@ -27,6 +27,20 @@ export interface Location {
 }
 
 /**
+ * Some preferences the user has indicated to us.
+ */
+export interface Preferences {
+  /**
+   * User preferences around do-not-track
+   */
+  doNotTrack: PreferencesDoNotTrack;
+  /**
+   * A title we should use when addressing the user formally.
+   */
+  title?: ("HRH" | "MR" | "MRS" | "MS" | "REV");
+}
+
+/**
  * Our pre-GDPR do-not-track settings
  */
 export interface PreferencesDoNotTrackV0 {
@@ -52,20 +66,6 @@ export interface PreferencesDoNotTrackV1 {
   optOutChannels: string[];
 
   version: "v1";
-}
-
-/**
- * Some preferences the user has indicated to us.
- */
-export interface Preferences {
-  /**
-   * User preferences around do-not-track
-   */
-  doNotTrack: PreferencesDoNotTrack;
-  /**
-   * A title we should use when addressing the user formally.
-   */
-  title?: ("HRH" | "MR" | "MRS" | "MS" | "REV");
 }
 
 /**

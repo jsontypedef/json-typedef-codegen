@@ -87,6 +87,7 @@ impl super::Target for Target {
         state.with_must_emit(true, &|state| Self::emit_ast(state, schema));
 
         state.data.aliases.sort_by_key(|a| a.name.clone());
+        state.data.structs.sort_by_key(|v| v.name.clone());
 
         for struct_ in &mut state.data.structs {
             struct_.members.sort_by_key(|v| v.name.clone());
