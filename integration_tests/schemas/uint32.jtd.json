@@ -1,1 +1,11 @@
-{ "type": "uint32" }
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "MAIN_CLASS": "Uint32",
+                "CODEGEN_DIR": "uint32"
+            }
+        }
+    },
+    "type": "uint32"
+}

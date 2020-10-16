@@ -1,12 +1,12 @@
+use crate::handlebars_helpers;
 use crate::statemgr::StateManager;
 use failure::Error;
-use std::fs::File;
-use std::path::{Path, PathBuf};
 use handlebars::Handlebars;
+use inflector::Inflector;
 use jtd::{Form, Schema};
 use serde::Serialize;
-use inflector::Inflector;
-use crate::handlebars_helpers;
+use std::fs::File;
+use std::path::{Path, PathBuf};
 
 pub struct Target {
     namespace_name: String,
@@ -128,7 +128,9 @@ impl super::Target for Target {
 
         for class in &mut state.data.classes {
             class.properties.sort_by_key(|p| p.name.clone());
-            class.discriminator_variants.sort_by_key(|v| v.class_name.clone());
+            class
+                .discriminator_variants
+                .sort_by_key(|v| v.class_name.clone());
         }
 
         for enum_ in &mut state.data.enums {
@@ -166,16 +168,21 @@ impl Target {
                 if state.must_emit() {
                     let name = state.name();
 
-                    state
-                        .data
-                        .classes
-                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
+                    state.data.classes.push(self.primitive_wrapper_class(
+                        schema,
+                        name.clone(),
+                        value,
+                    ));
                     name
                 } else {
                     value
                 }
             }
-            Form::Type(jtd::form::Type { ref type_value, nullable, .. }) => {
+            Form::Type(jtd::form::Type {
+                ref type_value,
+                nullable,
+                ..
+            }) => {
                 let mut value = match type_value {
                     jtd::form::TypeValue::Boolean => "bool",
                     jtd::form::TypeValue::Float32 => "float",
@@ -202,10 +209,11 @@ impl Target {
                 if state.must_emit() {
                     let name = state.name();
 
-                    state
-                        .data
-                        .classes
-                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
+                    state.data.classes.push(self.primitive_wrapper_class(
+                        schema,
+                        name.clone(),
+                        value,
+                    ));
 
                     name
                 } else {
@@ -217,10 +225,11 @@ impl Target {
                 if state.must_emit() {
                     let name = state.name();
 
-                    state
-                        .data
-                        .classes
-                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
+                    state.data.classes.push(self.primitive_wrapper_class(
+                        schema,
+                        name.clone(),
+                        value,
+                    ));
                     name
                 } else {
                     value
@@ -245,7 +254,10 @@ impl Target {
 
                 state.name()
             }
-            Form::Elements(jtd::form::Elements { schema: ref sub_schema, .. }) => {
+            Form::Elements(jtd::form::Elements {
+                schema: ref sub_schema,
+                ..
+            }) => {
                 let sub_name = state.with_singularize(true, &|state| {
                     state.with_must_emit(false, &|state| self.emit_ast(state, sub_schema))
                 });
@@ -255,10 +267,11 @@ impl Target {
                 if state.must_emit() {
                     let name = state.name();
 
-                    state
-                        .data
-                        .classes
-                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
+                    state.data.classes.push(self.primitive_wrapper_class(
+                        schema,
+                        name.clone(),
+                        value,
+                    ));
                     name
                 } else {
                     value
@@ -306,7 +319,10 @@ impl Target {
 
                 state.name()
             }
-            Form::Values(jtd::form::Values { schema: ref sub_schema, .. }) => {
+            Form::Values(jtd::form::Values {
+                schema: ref sub_schema,
+                ..
+            }) => {
                 let sub_name = state.with_singularize(true, &|state| {
                     state.with_must_emit(false, &|state| self.emit_ast(state, sub_schema))
                 });
@@ -316,10 +332,11 @@ impl Target {
                 if state.must_emit() {
                     let name = state.name();
 
-                    state
-                        .data
-                        .classes
-                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
+                    state.data.classes.push(self.primitive_wrapper_class(
+                        schema,
+                        name.clone(),
+                        value,
+                    ));
                     name
                 } else {
                     value
@@ -380,7 +397,12 @@ impl Target {
         }
     }
 
-    fn primitive_wrapper_class(&self, schema: &Schema, name: String, wrapped_type: String) -> Class {
+    fn primitive_wrapper_class(
+        &self,
+        schema: &Schema,
+        name: String,
+        wrapped_type: String,
+    ) -> Class {
         Class {
             namespace: self.namespace_name.to_owned(),
             name: name.clone(),

@@ -1,0 +1,14 @@
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "MAIN_CLASS": "ElementsNullableFloat32",
+                "CODEGEN_DIR": "elements_nullable_float32"
+            }
+        }
+    },
+    "elements": {
+        "type": "float32",
+        "nullable": true
+    }
+}

@@ -1,1 +1,11 @@
-{ "type": "int16" }
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "MAIN_CLASS": "Int16",
+                "CODEGEN_DIR": "int16"
+            }
+        }
+    },
+    "type": "int16"
+}

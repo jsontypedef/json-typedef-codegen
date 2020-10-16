@@ -1,3 +1,4 @@
+use crate::handlebars_helpers;
 use crate::statemgr::StateManager;
 use failure::Error;
 use handlebars::Handlebars;
@@ -6,7 +7,6 @@ use jtd::{Form, Schema};
 use serde::Serialize;
 use std::fs::File;
 use std::path::{Path, PathBuf};
-use crate::handlebars_helpers;
 
 #[derive(Debug)]
 pub struct Target {
@@ -159,10 +159,11 @@ impl Target {
                 if state.must_emit() {
                     let name = state.name();
 
-                    state
-                        .data
-                        .classes
-                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
+                    state.data.classes.push(self.primitive_wrapper_class(
+                        schema,
+                        name.clone(),
+                        value,
+                    ));
                     name
                 } else {
                     value
@@ -173,10 +174,11 @@ impl Target {
                 if state.must_emit() {
                     let name = state.name();
 
-                    state
-                        .data
-                        .classes
-                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
+                    state.data.classes.push(self.primitive_wrapper_class(
+                        schema,
+                        name.clone(),
+                        value,
+                    ));
                     name
                 } else {
                     value
@@ -201,10 +203,11 @@ impl Target {
                 if state.must_emit() {
                     let name = state.name();
 
-                    state
-                        .data
-                        .classes
-                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
+                    state.data.classes.push(self.primitive_wrapper_class(
+                        schema,
+                        name.clone(),
+                        value,
+                    ));
                     name
                 } else {
                     value
@@ -229,7 +232,10 @@ impl Target {
 
                 state.name()
             }
-            Form::Elements(jtd::form::Elements { schema: ref sub_schema, .. }) => {
+            Form::Elements(jtd::form::Elements {
+                schema: ref sub_schema,
+                ..
+            }) => {
                 let sub_name = state.with_singularize(true, &|state| {
                     state.with_must_emit(false, &|state| self.emit_ast(state, sub_schema))
                 });
@@ -239,10 +245,11 @@ impl Target {
                 if state.must_emit() {
                     let name = state.name();
 
-                    state
-                        .data
-                        .classes
-                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
+                    state.data.classes.push(self.primitive_wrapper_class(
+                        schema,
+                        name.clone(),
+                        value,
+                    ));
                     name
                 } else {
                     value
@@ -291,7 +298,10 @@ impl Target {
 
                 state.name()
             }
-            Form::Values(jtd::form::Values { schema: ref sub_schema, .. }) => {
+            Form::Values(jtd::form::Values {
+                schema: ref sub_schema,
+                ..
+            }) => {
                 let sub_name = state.with_singularize(true, &|state| {
                     state.with_must_emit(false, &|state| self.emit_ast(state, sub_schema))
                 });
@@ -301,10 +311,11 @@ impl Target {
                 if state.must_emit() {
                     let name = state.name();
 
-                    state
-                        .data
-                        .classes
-                        .push(self.primitive_wrapper_class(schema, name.clone(), value));
+                    state.data.classes.push(self.primitive_wrapper_class(
+                        schema,
+                        name.clone(),
+                        value,
+                    ));
                     name
                 } else {
                     value
@@ -356,7 +367,12 @@ impl Target {
         }
     }
 
-    fn primitive_wrapper_class(&self, schema: &Schema, name: String, wrapped_type: String) -> Class {
+    fn primitive_wrapper_class(
+        &self,
+        schema: &Schema,
+        name: String,
+        wrapped_type: String,
+    ) -> Class {
         Class {
             discriminator: "".to_owned(),
             discriminator_variants: vec![],
@@ -364,16 +380,14 @@ impl Target {
             is_abstract: false,
             name,
             extends: "".to_owned(),
-            properties: vec![
-                Property {
-                    name: "value".to_owned(),
-                    method_name: "Value".to_owned(),
-                    rename: "".to_owned(),
-                    value: wrapped_type,
-                    entire_value: true,
-                    description: "".to_owned(),
-                }
-            ],
+            properties: vec![Property {
+                name: "value".to_owned(),
+                method_name: "Value".to_owned(),
+                rename: "".to_owned(),
+                value: wrapped_type,
+                entire_value: true,
+                description: "".to_owned(),
+            }],
             description: description(schema),
         }
     }

@@ -1,1 +1,11 @@
-{ "type": "float32" }
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "MAIN_CLASS": "Float32",
+                "CODEGEN_DIR": "float32"
+            }
+        }
+    },
+    "type": "float32"
+}

@@ -1,0 +1,13 @@
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "MAIN_CLASS": "ValuesFloat32",
+                "CODEGEN_DIR": "values_float32"
+            }
+        }
+    },
+    "values": {
+        "type": "float32"
+    }
+}

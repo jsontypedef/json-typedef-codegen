@@ -1,1 +1,11 @@
-{ "type": "boolean" }
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "MAIN_CLASS": "Boolean",
+                "CODEGEN_DIR": "boolean"
+            }
+        }
+    },
+    "type": "boolean"
+}

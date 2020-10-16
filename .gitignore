@@ -1,2 +1,2 @@
 /target
-/integration_tests/rust/
+/integration_tests/target/*/codegen/

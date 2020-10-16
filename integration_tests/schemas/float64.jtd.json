@@ -1,1 +1,11 @@
-{ "type": "float64" }
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "MAIN_CLASS": "Float64",
+                "CODEGEN_DIR": "float64"
+            }
+        }
+    },
+    "type": "float64"
+}

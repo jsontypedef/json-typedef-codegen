@@ -1,1 +1,11 @@
-{ "type": "string" }
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "MAIN_CLASS": "String",
+                "CODEGEN_DIR": "string"
+            }
+        }
+    },
+    "type": "string"
+}

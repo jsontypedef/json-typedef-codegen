@@ -1,0 +1,16 @@
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "MAIN_CLASS": "NullableEnum",
+                "CODEGEN_DIR": "nullable_enum"
+            }
+        }
+    },
+    "enum": [
+        "foo",
+        "bar",
+        "baz"
+    ],
+    "nullable": true
+}

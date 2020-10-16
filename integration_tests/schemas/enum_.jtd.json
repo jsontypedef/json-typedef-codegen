@@ -1,0 +1,15 @@
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "MAIN_CLASS": "Enum1",
+                "CODEGEN_DIR": "enum_"
+            }
+        }
+    },
+    "enum": [
+        "foo",
+        "bar",
+        "baz"
+    ]
+}
