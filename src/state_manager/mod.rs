@@ -30,26 +30,35 @@ impl<'a, Data> State<'a, Data> {
     }
 
     pub fn with_singularize<T>(&mut self, f: &dyn Fn(&mut Self) -> T) -> T {
+        let singularize = self.singularize;
+
         self.singularize = true;
         let t = f(self);
-        self.singularize = false;
+        self.singularize = singularize;
 
         t
     }
 
     pub fn with_must_emit<T>(&mut self, f: &dyn Fn(&mut Self) -> T) -> T {
+        let must_emit = self.must_emit;
+
         self.must_emit = true;
         let t = f(self);
-        self.must_emit = false;
+        self.must_emit = must_emit;
 
         t
     }
 
     pub fn with_path_segment<T>(&mut self, path_segment: &'a str, f: &dyn Fn(&mut Self) -> T) -> T {
+        let singularize = self.singularize;
+        let must_emit = self.must_emit;
+
         self.singularize = false;
         self.must_emit = false;
         self.path.push(path_segment);
         let t = f(self);
+        self.singularize = singularize;
+        self.must_emit = must_emit;
         self.path.pop();
 
         t

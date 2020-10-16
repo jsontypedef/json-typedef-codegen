@@ -1,0 +1,25 @@
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "CODEGEN_DIR": "basic_properties",
+                "MAIN_CLASS": "BasicProperties"
+            }
+        }
+    },
+    "properties": {
+        "a": {
+            "type": "string"
+        },
+        "b": {
+            "elements": {
+                "type": "string"
+            }
+        },
+        "c": {
+            "values": {
+                "type": "string"
+            }
+        }
+    }
+}

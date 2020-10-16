@@ -2,7 +2,7 @@
     "metadata": {
         "integration": {
             "python": {
-                "MAIN_CLASS": "NullableEnum",
+                "MAIN_CLASS": "NullableEnum1",
                 "CODEGEN_DIR": "nullable_enum"
             }
         }

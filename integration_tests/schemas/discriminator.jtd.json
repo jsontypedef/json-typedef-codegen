@@ -1,0 +1,27 @@
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "CODEGEN_DIR": "discriminator",
+                "MAIN_CLASS": "Discriminator"
+            }
+        }
+    },
+    "discriminator": "foo",
+    "mapping": {
+        "bar": {
+            "properties": {
+                "a": {
+                    "type": "uint32"
+                }
+            }
+        },
+        "baz": {
+            "properties": {
+                "a": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "CODEGEN_DIR": "nullable_discriminator",
+                "MAIN_CLASS": "NullableDiscriminator1"
+            }
+        }
+    },
+    "discriminator": "foo",
+    "mapping": {
+        "bar": {
+            "properties": {
+                "a": {
+                    "type": "uint32"
+                }
+            }
+        },
+        "baz": {
+            "properties": {
+                "a": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "nullable": true
+}

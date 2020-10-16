@@ -1,0 +1,28 @@
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "CODEGEN_DIR": "nullable_properties",
+                "MAIN_CLASS": "NullableProperties1"
+            }
+        }
+    },
+    "properties": {
+        "a": {
+            "type": "string"
+        },
+        "b": {
+            "elements": {
+                "type": "string"
+            },
+            "nullable": true
+        },
+        "c": {
+            "values": {
+                "type": "string",
+                "nullable": true
+            }
+        }
+    },
+    "nullable": true
+}
