@@ -1,0 +1,10 @@
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "CODEGEN_DIR": "empty",
+                "MAIN_CLASS": "Empty"
+            }
+        }
+    }
+}

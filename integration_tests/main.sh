@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+TEST_CASE_RUN_TARGETS=${TEST_CASE_RUN_TARGETS:-.*}
+TEST_CASE_RUN_SCHEMAS=${TEST_CASE_RUN_SCHEMAS:-.*}
+
 # Prepare a new build of jtd-codegen
 cargo build
 
@@ -13,11 +16,19 @@ build_python_image() {
 }
 
 integration_test_image() {
+    if [[ ! $1 =~ $TEST_CASE_RUN_TARGETS ]]; then
+        continue
+    fi
+
     echo "$2: $1"
     jtd-fuzz --num-values 1000 $2 | docker run -i $3 | jtd-validate $2
 }
 
 for schema in $(dirname $0)/schemas/*; do
+    if [[ ! $schema =~ $TEST_CASE_RUN_SCHEMAS ]]; then
+        continue
+    fi
+
     schema_name=$(basename $schema .jtd.json)
 
     # Directories where we will output code to

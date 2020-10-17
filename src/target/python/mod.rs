@@ -58,6 +58,7 @@ pub fn codegen(input: &str, arg_matches: &clap::ArgMatches, schema: &Schema) -> 
     // Add imports we always potentially use.
     add_import(&mut state, "typing", "get_origin");
     add_import(&mut state, "typing", "get_args");
+    add_import(&mut state, "typing", "Any");
     add_import(&mut state, "typing", "Union");
 
     // Generate root-level data.
@@ -138,6 +139,20 @@ struct DiscriminatorVariant {
     type_: String,
 }
 
+mod filters {
+    pub fn comment_block(s: &str, indent_level: &usize) -> ::askama::Result<String> {
+        use crate::comment_fmt;
+        let indent = " ".repeat(4 * indent_level);
+        Ok(comment_fmt::surrounded_comment_block(
+            80,
+            &format!("{}\"\"\"", indent),
+            &format!("{}\"\"\"", indent),
+            &indent,
+            s,
+        ))
+    }
+}
+
 fn emit_ast<'a>(state: &mut State<'a, TemplateData>, schema: &'a Schema) -> String {
     match schema.form {
         Form::Empty => {
@@ -198,7 +213,7 @@ fn emit_ast<'a>(state: &mut State<'a, TemplateData>, schema: &'a Schema) -> Stri
                     &RESERVED_WORDS,
                     value.to_screaming_snake_case(),
                     EnumMember {
-                        description: "".to_owned(),
+                        description: metadata::enum_description(schema, value),
                         value: format!("{:?}", value),
                     },
                 );
@@ -211,19 +226,17 @@ fn emit_ast<'a>(state: &mut State<'a, TemplateData>, schema: &'a Schema) -> Stri
                 &RESERVED_WORDS,
                 name,
                 Class::Enum(Enum {
-                    description: "".to_owned(),
+                    description: metadata::description(schema),
                     members,
                 }),
             );
 
-            let type_ = if nullable {
+            if nullable {
                 add_import(state, "typing", "Optional");
-                format!("Optional[{}]", name)
+                type_or_wrapper(state, schema, format!("Optional[{}]", name))
             } else {
                 name
-            };
-
-            type_or_wrapper(state, schema, type_)
+            }
         }
 
         Form::Elements(form::Elements {
@@ -333,7 +346,7 @@ fn emit_ast<'a>(state: &mut State<'a, TemplateData>, schema: &'a Schema) -> Stri
                     DiscriminatorVariant {
                         discriminator_value: format!("{:?}", name),
                         type_: state.with_path_segment(name, &|state| emit_ast(state, sub_schema)),
-                    }
+                    },
                 );
             }
 

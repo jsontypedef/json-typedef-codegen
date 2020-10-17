@@ -1,0 +1,104 @@
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "CODEGEN_DIR": "whitespace",
+                "MAIN_CLASS": "Whitespace"
+            }
+        },
+        "description": "A description for whitespace."
+    },
+    "definitions": {
+        "enum_without_comments": {
+            "enum": [
+                "FOO",
+                "BAR",
+                "BAZ"
+            ]
+        },
+        "enum_with_comments": {
+            "metadata": {
+                "description": "A description for enum_with_comments.",
+                "enumDescriptions": {
+                    "FOO": "A description for FOO.",
+                    "BAR": "A description for BAR.",
+                    "BAZ": "A description for BAZ."
+                }
+            },
+            "enum": [
+                "FOO",
+                "BAR",
+                "BAZ"
+            ]
+        },
+        "properties_without_comments": {
+            "properties": {
+                "foo": {
+                    "type": "string"
+                },
+                "bar": {
+                    "type": "string"
+                },
+                "baz": {
+                    "type": "string"
+                }
+            }
+        },
+        "properties_with_comments": {
+            "metadata": {
+                "description": "A description for properties_with_comments."
+            },
+            "properties": {
+                "foo": {
+                    "metadata": {
+                        "description": "A description for foo."
+                    },
+                    "type": "string"
+                },
+                "bar": {
+                    "metadata": {
+                        "description": "A description for bar."
+                    },
+                    "type": "string"
+                },
+                "baz": {
+                    "metadata": {
+                        "description": "A description for baz."
+                    },
+                    "type": "string"
+                }
+            }
+        },
+        "discriminator_without_comments": {
+            "discriminator": "foo",
+            "mapping": {
+                "bar": {
+                    "properties": {}
+                },
+                "baz": {
+                    "properties": {}
+                }
+            }
+        },
+        "discriminator_with_comments": {
+            "metadata": {
+                "description": "A description for discriminator_with_comments."
+            },
+            "discriminator": "foo",
+            "mapping": {
+                "bar": {
+                    "metadata": {
+                        "description": "A description for bar."
+                    },
+                    "properties": {}
+                },
+                "baz": {
+                    "metadata": {
+                        "description": "A description for baz."
+                    },
+                    "properties": {}
+                }
+            }
+        }
+    }
+}
