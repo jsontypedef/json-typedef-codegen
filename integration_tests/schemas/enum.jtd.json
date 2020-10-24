@@ -2,7 +2,7 @@
     "metadata": {
         "integration": {
             "python": {
-                "MAIN_CLASS": "Enum1",
+                "MAIN_CLASS": "Enum_",
                 "CODEGEN_DIR": "enum_"
             }
         }

@@ -3,7 +3,7 @@
         "integration": {
             "python": {
                 "CODEGEN_DIR": "nullable_discriminator",
-                "MAIN_CLASS": "NullableDiscriminator1"
+                "MAIN_CLASS": "NullableDiscriminator"
             }
         }
     },

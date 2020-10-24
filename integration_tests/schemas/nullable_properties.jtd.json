@@ -3,7 +3,7 @@
         "integration": {
             "python": {
                 "CODEGEN_DIR": "nullable_properties",
-                "MAIN_CLASS": "NullableProperties1"
+                "MAIN_CLASS": "NullableProperties"
             }
         }
     },

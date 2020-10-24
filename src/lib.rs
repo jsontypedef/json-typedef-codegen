@@ -1,4 +1,7 @@
 mod comment_fmt;
 mod metadata;
-mod state_manager;
+mod namespace;
+mod naming_convention;
+mod root_name;
+mod state;
 pub mod target;
