@@ -1,5 +1,4 @@
 mod ast;
-// mod ir;
 mod render;
 
 use crate::root_name::root_name_from_input_name;

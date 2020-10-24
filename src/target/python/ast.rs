@@ -5,7 +5,28 @@ use crate::state::State;
 use clap::crate_version;
 use inflector::Inflector;
 use jtd::{form, Form, Schema};
+use lazy_static::lazy_static;
 use std::collections::{BTreeMap, BTreeSet};
+
+lazy_static! {
+    static ref ENUM_NAMING_CONVENTION: NamingConvention = NamingConvention::new(
+        SeparatorStyle::ScreamingSnakeCase,
+        include_str!("python_reserved_words.txt")
+            .lines()
+            .map(str::to_owned)
+            .collect(),
+        "default".to_owned(),
+    );
+
+    static ref FIELD_NAMING_CONVENTION: NamingConvention = NamingConvention::new(
+        SeparatorStyle::SnakeCase,
+        include_str!("python_reserved_words.txt")
+            .lines()
+            .map(str::to_owned)
+            .collect(),
+        "default".to_owned(),
+    );
+}
 
 pub struct Ast {
     pub version: String,
@@ -175,7 +196,7 @@ fn emit_ast(state: &mut State<Ast>, schema: &Schema) -> TypeRef {
                 for value in values {
                     members.insert(
                         0,
-                        value.to_screaming_snake_case(),
+                        ENUM_NAMING_CONVENTION.get(&[value]),
                         EnumMember {
                             description: metadata::enum_description(schema, value),
                             value: format!("{:?}", value),
@@ -222,7 +243,7 @@ fn emit_ast(state: &mut State<Ast>, schema: &Schema) -> TypeRef {
                 for (name, sub_schema) in required {
                     fields.insert(
                         0,
-                        name.to_snake_case(),
+                        FIELD_NAMING_CONVENTION.get(&[name]),
                         state.with_path_segment(name, |state| DataclassField {
                             description: metadata::description(sub_schema),
                             json_name: format!("{:?}", name),
@@ -236,7 +257,7 @@ fn emit_ast(state: &mut State<Ast>, schema: &Schema) -> TypeRef {
 
                     fields.insert(
                         0,
-                        name.to_snake_case(),
+                        FIELD_NAMING_CONVENTION.get(&[name]),
                         state.with_path_segment(name, |state| DataclassField {
                             description: metadata::description(sub_schema),
                             json_name: format!("{:?}", name),
@@ -282,7 +303,7 @@ fn emit_ast(state: &mut State<Ast>, schema: &Schema) -> TypeRef {
                 for (name, sub_schema) in mapping {
                     variants.insert(
                         0,
-                        name.to_snake_case(),
+                        FIELD_NAMING_CONVENTION.get(&[name]),
                         DiscriminatorVariant {
                             discriminator_value: format!("{:?}", name),
                             type_: state

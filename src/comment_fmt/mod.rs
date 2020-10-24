@@ -18,7 +18,7 @@ pub fn surrounded_comment_block(
     }
 
     format!(
-        "\n{}\n{}\n{}\n",
+        "{}\n{}\n{}\n",
         before,
         simple_comment_block(max_width, prefix, s),
         after

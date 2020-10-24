@@ -1,3 +1,4 @@
+use crate::comment_fmt::surrounded_comment_block;
 use super::ast;
 use anyhow::Result;
 use std::collections::BTreeMap;
@@ -26,15 +27,26 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
     }
 
     for (class_name, class) in &id_state.id_table {
+        // Add a blank line between classes or between the first class and the
+        // imports.
+        writeln!(out)?;
+
         match class {
             ast::Class::TypeWrapper(type_wrapper) => {
                 writeln!(out, "@dataclass")?;
                 writeln!(out, "class {}:", class_name)?;
+
+                if !type_wrapper.description.is_empty() {
+                    writeln!(out, "{}", surrounded_comment_block(80, "    \"\"\"", "    \"\"\"", "    ", &type_wrapper.description))?;
+                }
+
                 writeln!(
                     out,
                     "    value: '{}'",
                     render_type_ref(&id_state, &type_wrapper.type_),
                 )?;
+
+                writeln!(out)?;
                 writeln!(out, "    @classmethod")?;
                 writeln!(out, "    def from_json(cls, data):")?;
                 writeln!(
@@ -42,18 +54,31 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                     "        return cls(_from_json({}, data))",
                     render_type_ref(&id_state, &type_wrapper.type_)
                 )?;
+                writeln!(out)?;
                 writeln!(out, "    def to_json(self):")?;
                 writeln!(out, "        return _to_json(self.value)",)?;
             }
 
             ast::Class::Enum(enum_) => {
                 writeln!(out, "class {}(Enum):", class_name)?;
+
+                if !enum_.description.is_empty() {
+                    writeln!(out, "{}", surrounded_comment_block(80, "    \"\"\"", "    \"\"\"", "    ", &enum_.description))?;
+                }
+
                 for (member_name, member) in &enum_.members {
                     writeln!(out, "    {} = {}", member_name, member.value)?;
+
+                    if !member.description.is_empty() {
+                        writeln!(out, "{}", surrounded_comment_block(80, "    \"\"\"", "    \"\"\"", "    ", &member.description))?;
+                    }
                 }
+
+                writeln!(out)?;
                 writeln!(out, "    @classmethod")?;
                 writeln!(out, "    def from_json(cls, data):")?;
                 writeln!(out, "        return cls(data)")?;
+                writeln!(out)?;
                 writeln!(out, "    def to_json(self):")?;
                 writeln!(out, "        return self.value")?;
             }
@@ -61,6 +86,11 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
             ast::Class::Dataclass(dataclass) => {
                 writeln!(out, "@dataclass")?;
                 writeln!(out, "class {}:", class_name)?;
+
+                if !dataclass.description.is_empty() {
+                    writeln!(out, "{}", surrounded_comment_block(80, "    \"\"\"", "    \"\"\"", "    ", &dataclass.description))?;
+                }
+
                 for (field_name, field) in &dataclass.fields {
                     writeln!(
                         out,
@@ -68,8 +98,13 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                         field_name,
                         render_type_ref(&id_state, &field.type_)
                     )?;
+
+                    if !field.description.is_empty() {
+                        writeln!(out, "{}", surrounded_comment_block(80, "    \"\"\"", "    \"\"\"", "    ", &field.description))?;
+                    }
                 }
 
+                writeln!(out)?;
                 writeln!(out, "    @classmethod")?;
                 writeln!(out, "    def from_json(cls, data):")?;
                 writeln!(out, "        return cls(")?;
@@ -82,7 +117,7 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                     )?;
                 }
                 writeln!(out, "        )")?;
-
+                writeln!(out)?;
                 writeln!(out, "    def to_json(self):")?;
                 writeln!(out, "        return {{")?;
                 for (field_name, field) in &dataclass.fields {
@@ -98,6 +133,11 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
             ast::Class::Discriminator(discriminator) => {
                 writeln!(out, "@dataclass")?;
                 writeln!(out, "class {}:", class_name)?;
+
+                if !discriminator.description.is_empty() {
+                    writeln!(out, "{}", surrounded_comment_block(80, "    \"\"\"", "    \"\"\"", "    ", &discriminator.description))?;
+                }
+
                 writeln!(out, "    {}: str", discriminator.discriminator_name)?;
                 for (variant_name, variant) in &discriminator.variants {
                     writeln!(
@@ -108,6 +148,7 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                     )?;
                 }
 
+                writeln!(out)?;
                 writeln!(out, "    @classmethod")?;
                 writeln!(out, "    def from_json(cls, data):")?;
                 writeln!(
@@ -132,6 +173,7 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                     )?;
                 }
                 writeln!(out, "        return result")?;
+                writeln!(out)?;
                 writeln!(out, "    def to_json(self):")?;
                 writeln!(out, "        result = {{}}")?;
                 for (index, (variant_name, variant)) in discriminator.variants.iter().enumerate() {
@@ -153,6 +195,7 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
         }
     }
 
+    writeln!(out)?;
     out.write_all(include_bytes!("postamble.py"))?;
 
     Ok(())
