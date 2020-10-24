@@ -17,7 +17,6 @@ lazy_static! {
             .collect(),
         "default".to_owned(),
     );
-
     static ref FIELD_NAMING_CONVENTION: NamingConvention = NamingConvention::new(
         SeparatorStyle::SnakeCase,
         include_str!("python_reserved_words.txt")

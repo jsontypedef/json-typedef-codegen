@@ -36,31 +36,43 @@ impl NamingConvention {
     }
 
     pub fn get_with_style(&self, singular: bool, style: &SeparatorStyle, s: &[&str]) -> String {
-        let base_name = s.join("_");
-
-        let base_name = if base_name.is_empty() {
-            &self.default_name
-        } else {
-            &base_name
-        };
-
-        let base_name = match style {
-            SeparatorStyle::CamelCase => base_name.to_camel_case(),
-            SeparatorStyle::SnakeCase => base_name.to_snake_case(),
-            SeparatorStyle::PascalCase => base_name.to_pascal_case(),
-            SeparatorStyle::ScreamingSnakeCase => base_name.to_screaming_snake_case(),
-        };
-
+        let base_name = Self::apply_separator_style(style, &s.join("_"));
         let base_name = if singular {
             base_name.to_singular()
         } else {
             base_name
         };
 
-        if self.keywords.contains(&base_name) {
-            format!("{}_", base_name)
-        } else {
-            base_name
+        self.mangle(base_name)
+    }
+
+    fn mangle(&self, name: String) -> String {
+        // First, retain only ASCII.
+        let name: String = name.chars().filter(char::is_ascii).collect();
+
+        // If the name is empty or starts with a number, then we cannot mangle
+        // it into a good name. Fall back to the default name.
+        if name.is_empty() || !name.chars().nth(0).unwrap().is_ascii_alphabetic() {
+            return Self::apply_separator_style(&self.default_separator_style, &self.default_name);
+        }
+
+        // If the resulting name is a keyword, we can "dodge" that keyword by
+        // manipulating the name.
+        if self.keywords.contains(&name) {
+            // If we want to support other keyword dodging strategies, this is
+            // the place to update.
+            return format!("{}_", name);
+        }
+
+        name
+    }
+
+    fn apply_separator_style(style: &SeparatorStyle, name: &str) -> String {
+        match style {
+            SeparatorStyle::CamelCase => name.to_camel_case(),
+            SeparatorStyle::SnakeCase => name.to_snake_case(),
+            SeparatorStyle::PascalCase => name.to_pascal_case(),
+            SeparatorStyle::ScreamingSnakeCase => name.to_screaming_snake_case(),
         }
     }
 }
@@ -70,7 +82,27 @@ mod tests {
     use super::*;
 
     #[test]
-    fn get_with_style() {
+    fn test_mangling() {
+        let convention = NamingConvention::new(
+            super::SeparatorStyle::SnakeCase,
+            vec!["key_word".to_owned()].into_iter().collect(),
+            "default".to_owned(),
+        );
+
+        assert_eq!("foo", convention.get(&["foo"]));
+        assert_eq!("fo_o", convention.get(&["foço"]));
+        assert_eq!("foo", convention.get(&[" foo"]));
+        assert_eq!("default", convention.get(&[""]));
+        assert_eq!("default", convention.get(&["\t"]));
+        assert_eq!("default", convention.get(&["1"]));
+        assert_eq!("default", convention.get(&["1foo"]));
+        assert_eq!("keyword", convention.get(&["keyword"]));
+        assert_eq!("key_word_", convention.get(&["key_word_"]));
+        assert_eq!("key_word_", convention.get(&["key", "word_"]));
+    }
+
+    #[test]
+    fn test_get_with_style() {
         let convention = NamingConvention::new(
             super::SeparatorStyle::SnakeCase,
             vec!["keyword".to_owned()].into_iter().collect(),

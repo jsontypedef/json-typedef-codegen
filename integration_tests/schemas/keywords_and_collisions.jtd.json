@@ -1,0 +1,56 @@
+{
+    "metadata": {
+        "integration": {
+            "python": {
+                "CODEGEN_DIR": "keywords_and_collisions",
+                "MAIN_CLASS": "KeywordsAndCollisions"
+            }
+        }
+    },
+    "definitions": {
+        "": {},
+        " ": {},
+        "\t": {},
+        "1": {},
+        "for": {},
+        "foo_bar": {},
+        "FooBar": {},
+        "in_properties": {
+            "properties": {
+                "": {},
+                " ": {},
+                "\t": {},
+                "1": {},
+                "for": {},
+                "foo_bar": {},
+                "FooBar": {}
+            }
+        }
+    },
+    "properties": {
+        "": {
+            "ref": ""
+        },
+        " ": {
+            "ref": " "
+        },
+        "\t": {
+            "ref": "\t"
+        },
+        "1": {
+            "ref": "1"
+        },
+        "for": {
+            "ref": "for"
+        },
+        "foo_bar": {
+            "ref": "foo_bar"
+        },
+        "FooBar": {
+            "ref": "FooBar"
+        },
+        "in_properties": {
+            "ref": "in_properties"
+        }
+    }
+}
