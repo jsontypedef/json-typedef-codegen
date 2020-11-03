@@ -1,7 +1,7 @@
 use super::ast;
+use crate::comment_fmt::surrounded_comment_block;
 use anyhow::Result;
 use std::collections::BTreeMap;
-use crate::comment_fmt::surrounded_comment_block;
 use std::io::Write;
 
 struct IdState {
@@ -29,13 +29,7 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                 write!(
                     out,
                     "{}",
-                    surrounded_comment_block(
-                        80,
-                        "/**",
-                        " */",
-                        " * ",
-                        &type_alias.description
-                    )
+                    surrounded_comment_block(80, "/**", " */", " * ", &type_alias.description)
                 )?;
 
                 writeln!(
@@ -50,13 +44,7 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                 write!(
                     out,
                     "{}",
-                    surrounded_comment_block(
-                        80,
-                        "/**",
-                        " */",
-                        " * ",
-                        &interface.description
-                    )
+                    surrounded_comment_block(80, "/**", " */", " * ", &interface.description)
                 )?;
                 writeln!(out, "export interface {} {{", type_name)?;
                 for (field_name, field) in &interface.fields {

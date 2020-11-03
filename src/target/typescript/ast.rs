@@ -177,36 +177,9 @@ fn emit_ast(state: &mut State<Ast>, schema: &Schema) -> TypeRef {
             })
         }),
 
-        Form::Properties(form::Properties {
-            ref required,
-            ref optional,
-            nullable,
-            ..
-        }) => with_type_wrapper(state, schema, |state| {
-            with_nullable_wrapper(state, nullable, |state| {
-                let mut fields = BTreeMap::new();
-
-                for (name, sub_schema) in required {
-                    fields.insert(
-                        format!("{:?}", name),
-                        state.with_path_segment(name, |state| InterfaceField {
-                            description: metadata::description(sub_schema),
-                            optional: false,
-                            type_: emit_ast(state, sub_schema),
-                        }),
-                    );
-                }
-
-                for (name, sub_schema) in optional {
-                    fields.insert(
-                        format!("{:?}", name),
-                        state.with_path_segment(name, |state| InterfaceField {
-                            description: metadata::description(sub_schema),
-                            optional: true,
-                            type_: emit_ast(state, sub_schema),
-                        }),
-                    );
-                }
+        Form::Properties(ref properties) => with_type_wrapper(state, schema, |state| {
+            with_nullable_wrapper(state, properties.nullable, |state| {
+                let fields = properties_fields(state, &properties);
 
                 let name = state.name();
                 let priority = state.priority();
@@ -243,7 +216,7 @@ fn emit_ast(state: &mut State<Ast>, schema: &Schema) -> TypeRef {
                     if let Form::Properties(ref properties) = sub_schema.form {
                         let mut fields = properties_fields(state, properties);
                         fields.insert(
-                            format!("{:?}", discriminator),
+                            sanitize_property_name(discriminator.clone()),
                             InterfaceField {
                                 description: "".to_owned(),
                                 optional: false,
@@ -294,7 +267,7 @@ fn properties_fields(
 
     for (name, sub_schema) in &properties.required {
         fields.insert(
-            format!("{:?}", name),
+            sanitize_property_name(name.clone()),
             state.with_path_segment(name, |state| InterfaceField {
                 description: metadata::description(sub_schema),
                 optional: false,
@@ -305,7 +278,7 @@ fn properties_fields(
 
     for (name, sub_schema) in &properties.optional {
         fields.insert(
-            format!("{:?}", name),
+            sanitize_property_name(name.clone()),
             state.with_path_segment(name, |state| InterfaceField {
                 description: metadata::description(sub_schema),
                 optional: true,
@@ -315,6 +288,29 @@ fn properties_fields(
     }
 
     fields
+}
+
+/// Returns the name of a property as it should appear in a TypeScript
+/// interface.
+///
+/// TypeScript's code generation is unique in that property names must exactly
+/// match their JSON names. So we do not have the option to unconditionally
+/// mangle names, nor do we have the option to "rename" properties.
+///
+/// In order to make outputted code as pretty as possible, we will "escape" a
+/// property's name (by Debug-formatting it) only if required.
+fn sanitize_property_name(s: String) -> String {
+    let escaped = format!("{:?}", s);
+
+    if s.is_empty() || !s.chars().nth(0).unwrap().is_ascii_alphabetic() {
+        return escaped;
+    }
+
+    if !s.chars().all(|c| c == '_' || c.is_ascii_alphanumeric()) {
+        return escaped;
+    }
+
+    s
 }
 
 /// Returns `UndefinedOr[f(state)]` if `nullable`.
