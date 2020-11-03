@@ -43,17 +43,7 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                 writeln!(out, "class {}:", class_name)?;
 
                 if !type_wrapper.description.is_empty() {
-                    writeln!(
-                        out,
-                        "{}",
-                        surrounded_comment_block(
-                            80,
-                            "    \"\"\"",
-                            "    \"\"\"",
-                            "    ",
-                            &type_wrapper.description
-                        )
-                    )?;
+                    render_heredoc_indent1(out, &type_wrapper.description)?;
                 }
 
                 writeln!(
@@ -62,32 +52,12 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                     render_type_ref(&id_state, &type_wrapper.type_),
                 )?;
 
-                writeln!(
-                    out,
-                    "{}",
-                    surrounded_comment_block(
-                        80,
-                        "    \"\"\"",
-                        "    \"\"\"",
-                        "    ",
-                        TYPE_WRAPPER_VALUE_HEREDOC,
-                    )
-                )?;
+                render_heredoc_indent1(out, TYPE_WRAPPER_VALUE_HEREDOC)?;
 
                 writeln!(out)?;
                 writeln!(out, "    @classmethod")?;
                 writeln!(out, "    def from_json(cls, data):")?;
-                writeln!(
-                    out,
-                    "{}",
-                    surrounded_comment_block(
-                        80,
-                        "        \"\"\"",
-                        "        \"\"\"",
-                        "        ",
-                        FROM_JSON_HEREDOC
-                    )
-                )?;
+                render_heredoc_indent2(out, FROM_JSON_HEREDOC)?;
                 writeln!(
                     out,
                     "        return cls(_from_json({}, data))",
@@ -95,17 +65,7 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                 )?;
                 writeln!(out)?;
                 writeln!(out, "    def to_json(self):")?;
-                writeln!(
-                    out,
-                    "{}",
-                    surrounded_comment_block(
-                        80,
-                        "        \"\"\"",
-                        "        \"\"\"",
-                        "        ",
-                        TO_JSON_HEREDOC
-                    )
-                )?;
+                render_heredoc_indent2(out, TO_JSON_HEREDOC)?;
                 writeln!(out, "        return _to_json(self.value)",)?;
             }
 
@@ -113,65 +73,25 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                 writeln!(out, "class {}(Enum):", class_name)?;
 
                 if !enum_.description.is_empty() {
-                    writeln!(
-                        out,
-                        "{}",
-                        surrounded_comment_block(
-                            80,
-                            "    \"\"\"",
-                            "    \"\"\"",
-                            "    ",
-                            &enum_.description
-                        )
-                    )?;
+                    render_heredoc_indent1(out, &enum_.description)?;
                 }
 
                 for (member_name, member) in &enum_.members {
                     writeln!(out, "    {} = {}", member_name, member.value)?;
 
                     if !member.description.is_empty() {
-                        writeln!(
-                            out,
-                            "{}",
-                            surrounded_comment_block(
-                                80,
-                                "    \"\"\"",
-                                "    \"\"\"",
-                                "    ",
-                                &member.description
-                            )
-                        )?;
+                        render_heredoc_indent1(out, &member.description)?;
                     }
                 }
 
                 writeln!(out)?;
                 writeln!(out, "    @classmethod")?;
                 writeln!(out, "    def from_json(cls, data):")?;
-                writeln!(
-                    out,
-                    "{}",
-                    surrounded_comment_block(
-                        80,
-                        "        \"\"\"",
-                        "        \"\"\"",
-                        "        ",
-                        FROM_JSON_HEREDOC
-                    )
-                )?;
+                render_heredoc_indent2(out, FROM_JSON_HEREDOC)?;
                 writeln!(out, "        return cls(data)")?;
                 writeln!(out)?;
                 writeln!(out, "    def to_json(self):")?;
-                writeln!(
-                    out,
-                    "{}",
-                    surrounded_comment_block(
-                        80,
-                        "        \"\"\"",
-                        "        \"\"\"",
-                        "        ",
-                        TO_JSON_HEREDOC
-                    )
-                )?;
+                render_heredoc_indent2(out, TO_JSON_HEREDOC)?;
                 writeln!(out, "        return self.value")?;
             }
 
@@ -180,17 +100,7 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                 writeln!(out, "class {}:", class_name)?;
 
                 if !dataclass.description.is_empty() {
-                    writeln!(
-                        out,
-                        "{}",
-                        surrounded_comment_block(
-                            80,
-                            "    \"\"\"",
-                            "    \"\"\"",
-                            "    ",
-                            &dataclass.description
-                        )
-                    )?;
+                    render_heredoc_indent1(out, &dataclass.description)?;
                 }
 
                 for (field_name, field) in &dataclass.fields {
@@ -202,34 +112,14 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                     )?;
 
                     if !field.description.is_empty() {
-                        writeln!(
-                            out,
-                            "{}",
-                            surrounded_comment_block(
-                                80,
-                                "    \"\"\"",
-                                "    \"\"\"",
-                                "    ",
-                                &field.description
-                            )
-                        )?;
+                        render_heredoc_indent1(out, &field.description)?;
                     }
                 }
 
                 writeln!(out)?;
                 writeln!(out, "    @classmethod")?;
                 writeln!(out, "    def from_json(cls, data):")?;
-                writeln!(
-                    out,
-                    "{}",
-                    surrounded_comment_block(
-                        80,
-                        "        \"\"\"",
-                        "        \"\"\"",
-                        "        ",
-                        FROM_JSON_HEREDOC
-                    )
-                )?;
+                render_heredoc_indent2(out, FROM_JSON_HEREDOC)?;
                 writeln!(out, "        return cls(")?;
                 for (_, field) in &dataclass.fields {
                     writeln!(
@@ -242,17 +132,7 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                 writeln!(out, "        )")?;
                 writeln!(out)?;
                 writeln!(out, "    def to_json(self):")?;
-                writeln!(
-                    out,
-                    "{}",
-                    surrounded_comment_block(
-                        80,
-                        "        \"\"\"",
-                        "        \"\"\"",
-                        "        ",
-                        TO_JSON_HEREDOC
-                    )
-                )?;
+                render_heredoc_indent2(out, TO_JSON_HEREDOC)?;
                 writeln!(out, "        return {{")?;
                 for (field_name, field) in &dataclass.fields {
                     writeln!(
@@ -269,17 +149,7 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                 writeln!(out, "class {}:", class_name)?;
 
                 if !discriminator.description.is_empty() {
-                    writeln!(
-                        out,
-                        "{}",
-                        surrounded_comment_block(
-                            80,
-                            "    \"\"\"",
-                            "    \"\"\"",
-                            "    ",
-                            &discriminator.description
-                        )
-                    )?;
+                    render_heredoc_indent1(out, &discriminator.description)?;
                 }
 
                 writeln!(out, "    {}: str", discriminator.discriminator_name)?;
@@ -295,17 +165,7 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                 writeln!(out)?;
                 writeln!(out, "    @classmethod")?;
                 writeln!(out, "    def from_json(cls, data):")?;
-                writeln!(
-                    out,
-                    "{}",
-                    surrounded_comment_block(
-                        80,
-                        "        \"\"\"",
-                        "        \"\"\"",
-                        "        ",
-                        FROM_JSON_HEREDOC
-                    )
-                )?;
+                render_heredoc_indent2(out, FROM_JSON_HEREDOC)?;
                 writeln!(
                     out,
                     "        result = cls(data[{}])",
@@ -330,17 +190,7 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                 writeln!(out, "        return result")?;
                 writeln!(out)?;
                 writeln!(out, "    def to_json(self):")?;
-                writeln!(
-                    out,
-                    "{}",
-                    surrounded_comment_block(
-                        80,
-                        "        \"\"\"",
-                        "        \"\"\"",
-                        "        ",
-                        TO_JSON_HEREDOC
-                    )
-                )?;
+                render_heredoc_indent2(out, TO_JSON_HEREDOC)?;
                 writeln!(out, "        result = {{}}")?;
                 for (index, (variant_name, variant)) in discriminator.variants.iter().enumerate() {
                     let if_or_elif = if index == 0 { "if" } else { "elif" };
@@ -363,6 +213,26 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
 
     writeln!(out)?;
     out.write_all(include_bytes!("postamble.py"))?;
+
+    Ok(())
+}
+
+fn render_heredoc_indent1(out: &mut dyn Write, comment: &str) -> Result<()> {
+    writeln!(
+        out,
+        "{}",
+        surrounded_comment_block(80, "    \"\"\"", "    ", "    \"\"\"", comment)
+    )?;
+
+    Ok(())
+}
+
+fn render_heredoc_indent2(out: &mut dyn Write, comment: &str) -> Result<()> {
+    writeln!(
+        out,
+        "{}",
+        surrounded_comment_block(80, "        \"\"\"", "        ", "        \"\"\"", comment)
+    )?;
 
     Ok(())
 }

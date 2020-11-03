@@ -9,8 +9,8 @@ pub fn simple_comment_block(max_width: usize, prefix: &str, s: &str) -> String {
 pub fn surrounded_comment_block(
     max_width: usize,
     before: &str,
-    after: &str,
     prefix: &str,
+    after: &str,
     s: &str,
 ) -> String {
     if s.is_empty() {

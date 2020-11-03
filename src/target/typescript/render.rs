@@ -26,12 +26,7 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
 
         match type_ {
             ast::Type::TypeAlias(type_alias) => {
-                write!(
-                    out,
-                    "{}",
-                    surrounded_comment_block(80, "/**", " */", " * ", &type_alias.description)
-                )?;
-
+                render_typedoc(out, &type_alias.description)?;
                 writeln!(
                     out,
                     "export type {} = {};",
@@ -41,11 +36,7 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
             }
 
             ast::Type::Interface(interface) => {
-                write!(
-                    out,
-                    "{}",
-                    surrounded_comment_block(80, "/**", " */", " * ", &interface.description)
-                )?;
+                render_typedoc(out, &interface.description)?;
                 writeln!(out, "export interface {} {{", type_name)?;
                 for (field_name, field) in &interface.fields {
                     let blank_or_question = if field.optional { "?" } else { "" };
@@ -63,6 +54,16 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
     }
 
     writeln!(out)?;
+
+    Ok(())
+}
+
+fn render_typedoc(out: &mut dyn Write, comment: &str) -> Result<()> {
+    write!(
+        out,
+        "{}",
+        surrounded_comment_block(80, "/**", " * ", " */", comment)
+    )?;
 
     Ok(())
 }
