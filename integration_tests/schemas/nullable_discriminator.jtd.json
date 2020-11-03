@@ -4,6 +4,10 @@
             "python": {
                 "CODEGEN_DIR": "nullable_discriminator",
                 "MAIN_CLASS": "NullableDiscriminator"
+            },
+            "typescript": {
+                "CODEGEN_DIR": "nullable_discriminator",
+                "MAIN_CLASS": "NullableDiscriminator"
             }
         }
     },

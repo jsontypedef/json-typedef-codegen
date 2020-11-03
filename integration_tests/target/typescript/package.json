@@ -1,0 +1,7 @@
+{
+    "name": "jtd-codegen-integration-test",
+    "dependencies": {
+        "@types/node": "^14.14.2",
+        "typescript": "^4"
+    }
+}

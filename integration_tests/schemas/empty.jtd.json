@@ -4,6 +4,10 @@
             "python": {
                 "CODEGEN_DIR": "empty",
                 "MAIN_CLASS": "Empty"
+            },
+            "typescript": {
+                "CODEGEN_DIR": "empty",
+                "MAIN_CLASS": "Empty"
             }
         }
     }

@@ -4,6 +4,10 @@
             "python": {
                 "MAIN_CLASS": "Enum_",
                 "CODEGEN_DIR": "enum_"
+            },
+            "typescript": {
+                "MAIN_CLASS": "Enum",
+                "CODEGEN_DIR": "enum"
             }
         }
     },

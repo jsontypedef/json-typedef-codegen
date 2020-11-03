@@ -4,6 +4,10 @@
             "python": {
                 "MAIN_CLASS": "ValuesFloat32",
                 "CODEGEN_DIR": "values_float32"
+            },
+            "typescript": {
+                "MAIN_CLASS": "ValuesFloat32",
+                "CODEGEN_DIR": "values_float32"
             }
         }
     },

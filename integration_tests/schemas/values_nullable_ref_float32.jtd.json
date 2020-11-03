@@ -4,6 +4,10 @@
             "python": {
                 "MAIN_CLASS": "ValuesNullableRefFloat32",
                 "CODEGEN_DIR": "values_nullable_ref_float32"
+            },
+            "typescript": {
+                "MAIN_CLASS": "ValuesNullableRefFloat32",
+                "CODEGEN_DIR": "values_nullable_ref_float32"
             }
         }
     },

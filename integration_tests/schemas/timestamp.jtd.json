@@ -4,6 +4,10 @@
             "python": {
                 "MAIN_CLASS": "Timestamp",
                 "CODEGEN_DIR": "timestamp"
+            },
+            "typescript": {
+                "MAIN_CLASS": "Timestamp",
+                "CODEGEN_DIR": "timestamp"
             }
         }
     },

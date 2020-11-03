@@ -4,7 +4,12 @@
             "python": {
                 "MAIN_CLASS": "Boolean",
                 "CODEGEN_DIR": "boolean"
+            },
+            "typescript": {
+                "MAIN_CLASS": "Boolean",
+                "CODEGEN_DIR": "boolean"
             }
+
         }
     },
     "type": "boolean"

@@ -1,2 +1,3 @@
 /target
 /integration_tests/target/*/codegen/
+/integration_tests/target/typescript/node_modules/

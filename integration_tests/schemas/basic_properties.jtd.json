@@ -4,6 +4,10 @@
             "python": {
                 "CODEGEN_DIR": "basic_properties",
                 "MAIN_CLASS": "BasicProperties"
+            },
+            "typescript": {
+                "CODEGEN_DIR": "basic_properties",
+                "MAIN_CLASS": "BasicProperties"
             }
         }
     },

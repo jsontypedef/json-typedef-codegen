@@ -4,6 +4,10 @@
             "python": {
                 "MAIN_CLASS": "Uint16",
                 "CODEGEN_DIR": "uint16"
+            },
+            "typescript": {
+                "MAIN_CLASS": "Uint16",
+                "CODEGEN_DIR": "uint16"
             }
         }
     },

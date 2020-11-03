@@ -4,6 +4,10 @@
             "python": {
                 "CODEGEN_DIR": "keywords_and_collisions",
                 "MAIN_CLASS": "KeywordsAndCollisions"
+            },
+            "typescript": {
+                "CODEGEN_DIR": "keywords_and_collisions",
+                "MAIN_CLASS": "KeywordsAndCollisions"
             }
         }
     },

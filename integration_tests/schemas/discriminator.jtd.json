@@ -4,6 +4,10 @@
             "python": {
                 "CODEGEN_DIR": "discriminator",
                 "MAIN_CLASS": "Discriminator"
+            },
+            "typescript": {
+                "CODEGEN_DIR": "discriminator",
+                "MAIN_CLASS": "Discriminator"
             }
         }
     },

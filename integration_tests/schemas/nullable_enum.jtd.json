@@ -4,6 +4,10 @@
             "python": {
                 "MAIN_CLASS": "NullableEnum",
                 "CODEGEN_DIR": "nullable_enum"
+            },
+            "typescript": {
+                "MAIN_CLASS": "NullableEnum",
+                "CODEGEN_DIR": "nullable_enum"
             }
         }
     },

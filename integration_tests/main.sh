@@ -15,9 +15,16 @@ build_python_image() {
         integration_tests/target/python
 }
 
+build_typescript_image() {
+    docker build --quiet \
+        --build-arg MAIN_CLASS=$(jq -r .metadata.integration.typescript.MAIN_CLASS $1) \
+        --build-arg CODEGEN_DIR=$(jq -r .metadata.integration.typescript.CODEGEN_DIR $1) \
+        integration_tests/target/typescript
+}
+
 integration_test_image() {
     if [[ ! $1 =~ $TEST_CASE_RUN_TARGETS ]]; then
-        continue
+        return
     fi
 
     echo "$2: $1"
@@ -33,15 +40,18 @@ for schema in $(dirname $0)/schemas/*; do
 
     # Directories where we will output code to
     python_dir=integration_tests/target/python/codegen/$schema_name
+    typescript_dir=integration_tests/target/typescript/codegen/$schema_name
 
     # Prepare output directories for jtd-codegen
-    mkdir -p $python_dir
+    mkdir -p $python_dir $typescript_dir
 
     # Generate code for this schema
     ./target/debug/jtd-codegen \
         --python-out $python_dir \
+        --typescript-out $typescript_dir \
         -- $schema
 
     # Run integration tests
     integration_test_image python $schema $(build_python_image $schema)
+    integration_test_image typescript $schema $(build_typescript_image $schema)
 done

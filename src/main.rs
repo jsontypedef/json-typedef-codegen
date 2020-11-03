@@ -21,8 +21,8 @@ fn main() -> Result<()> {
     // let app = target::go::Target::args(app);
     // let app = target::java::Target::args(app);
     // let app = target::rust::Target::args(app);
-    // let app = target::typescript::Target::args(app);
     let app = target::python::with_args(app);
+    let app = target::typescript::with_args(app);
 
     let matches = app.get_matches();
 
@@ -34,6 +34,7 @@ fn main() -> Result<()> {
         .try_into()
         .map_err(|err| format_err!("{:?}", err))?;
 
+    target::typescript::codegen(&input, &matches, &schema)?;
     target::python::codegen(&input, &matches, &schema)?;
 
     // let csharp = target::csharp::Target::from_args(&matches)?;

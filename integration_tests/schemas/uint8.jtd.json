@@ -4,6 +4,10 @@
             "python": {
                 "MAIN_CLASS": "Uint8",
                 "CODEGEN_DIR": "uint8"
+            },
+            "typescript": {
+                "MAIN_CLASS": "Uint8",
+                "CODEGEN_DIR": "uint8"
             }
         }
     },

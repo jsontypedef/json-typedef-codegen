@@ -4,6 +4,10 @@
             "python": {
                 "MAIN_CLASS": "String",
                 "CODEGEN_DIR": "string"
+            },
+            "typescript": {
+                "MAIN_CLASS": "String",
+                "CODEGEN_DIR": "string"
             }
         }
     },

@@ -4,6 +4,10 @@
             "python": {
                 "CODEGEN_DIR": "whitespace",
                 "MAIN_CLASS": "Whitespace"
+            },
+            "typescript": {
+                "CODEGEN_DIR": "whitespace",
+                "MAIN_CLASS": "Whitespace"
             }
         },
         "description": "A description for whitespace."
