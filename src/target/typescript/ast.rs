@@ -4,19 +4,7 @@ use crate::naming_convention::{NamingConvention, SeparatorStyle};
 use crate::state::State;
 use clap::crate_version;
 use jtd::{form, Form, Schema};
-use lazy_static::lazy_static;
 use std::collections::BTreeMap;
-
-lazy_static! {
-    static ref ENUM_NAMING_CONVENTION: NamingConvention = NamingConvention::new(
-        SeparatorStyle::ScreamingSnakeCase,
-        include_str!("typescript_reserved_words.txt")
-            .lines()
-            .map(str::to_owned)
-            .collect(),
-        "default".to_owned(),
-    );
-}
 
 pub struct Ast {
     pub version: String,
