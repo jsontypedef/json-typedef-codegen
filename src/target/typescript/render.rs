@@ -1,6 +1,7 @@
 use super::ast;
 use anyhow::Result;
 use std::collections::BTreeMap;
+use crate::comment_fmt::surrounded_comment_block;
 use std::io::Write;
 
 struct IdState {
@@ -21,8 +22,22 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
     )?;
 
     for (type_name, type_) in &id_state.id_table {
+        writeln!(out)?;
+
         match type_ {
             ast::Type::TypeAlias(type_alias) => {
+                write!(
+                    out,
+                    "{}",
+                    surrounded_comment_block(
+                        80,
+                        "/**",
+                        " */",
+                        " * ",
+                        &type_alias.description
+                    )
+                )?;
+
                 writeln!(
                     out,
                     "export type {} = {};",
@@ -32,6 +47,17 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
             }
 
             ast::Type::Interface(interface) => {
+                write!(
+                    out,
+                    "{}",
+                    surrounded_comment_block(
+                        80,
+                        "/**",
+                        " */",
+                        " * ",
+                        &interface.description
+                    )
+                )?;
                 writeln!(out, "export interface {} {{", type_name)?;
                 for (field_name, field) in &interface.fields {
                     let blank_or_question = if field.optional { "?" } else { "" };
