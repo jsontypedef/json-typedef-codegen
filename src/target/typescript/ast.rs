@@ -16,14 +16,6 @@ lazy_static! {
             .collect(),
         "default".to_owned(),
     );
-    static ref FIELD_NAMING_CONVENTION: NamingConvention = NamingConvention::new(
-        SeparatorStyle::SnakeCase,
-        include_str!("typescript_reserved_words.txt")
-            .lines()
-            .map(str::to_owned)
-            .collect(),
-        "default".to_owned(),
-    );
 }
 
 pub struct Ast {
