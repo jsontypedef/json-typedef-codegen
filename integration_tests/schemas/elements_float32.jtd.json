@@ -1,6 +1,10 @@
 {
     "metadata": {
         "integration": {
+            "java": {
+                "MAIN_CLASS": "ElementsFloat32",
+                "CODEGEN_DIR": "elements_float32"
+            },
             "python": {
                 "MAIN_CLASS": "ElementsFloat32",
                 "CODEGEN_DIR": "elements_float32"

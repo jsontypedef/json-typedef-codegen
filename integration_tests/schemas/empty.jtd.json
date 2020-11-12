@@ -1,6 +1,10 @@
 {
     "metadata": {
         "integration": {
+            "java": {
+                "CODEGEN_DIR": "empty",
+                "MAIN_CLASS": "Empty"
+            },
             "python": {
                 "CODEGEN_DIR": "empty",
                 "MAIN_CLASS": "Empty"

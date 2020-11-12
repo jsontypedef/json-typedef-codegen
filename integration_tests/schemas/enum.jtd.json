@@ -1,6 +1,10 @@
 {
     "metadata": {
         "integration": {
+            "java": {
+                "MAIN_CLASS": "Enum_",
+                "CODEGEN_DIR": "enum"
+            },
             "python": {
                 "MAIN_CLASS": "Enum_",
                 "CODEGEN_DIR": "enum_"

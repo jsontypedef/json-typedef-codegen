@@ -1,6 +1,10 @@
 {
     "metadata": {
         "integration": {
+            "java": {
+                "CODEGEN_DIR": "whitespace",
+                "MAIN_CLASS": "Whitespace"
+            },
             "python": {
                 "CODEGEN_DIR": "whitespace",
                 "MAIN_CLASS": "Whitespace"
@@ -94,13 +98,25 @@
                     "metadata": {
                         "description": "A description for bar."
                     },
-                    "properties": {}
+                    "properties": {
+                        "quux": {
+                            "metadata": {
+                                "description": "A description for quux."
+                            }
+                        }
+                    }
                 },
                 "baz": {
                     "metadata": {
                         "description": "A description for baz."
                     },
-                    "properties": {}
+                    "properties": {
+                        "quux": {
+                            "metadata": {
+                                "description": "A description for quux."
+                            }
+                        }
+                    }
                 }
             }
         }

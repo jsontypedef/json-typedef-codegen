@@ -1,6 +1,10 @@
 {
     "metadata": {
         "integration": {
+            "java": {
+                "MAIN_CLASS": "Uint16",
+                "CODEGEN_DIR": "uint16"
+            },
             "python": {
                 "MAIN_CLASS": "Uint16",
                 "CODEGEN_DIR": "uint16"

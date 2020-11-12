@@ -1,6 +1,10 @@
 {
     "metadata": {
         "integration": {
+            "java": {
+                "MAIN_CLASS": "Timestamp",
+                "CODEGEN_DIR": "timestamp"
+            },
             "python": {
                 "MAIN_CLASS": "Timestamp",
                 "CODEGEN_DIR": "timestamp"

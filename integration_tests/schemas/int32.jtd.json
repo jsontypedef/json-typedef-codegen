@@ -1,6 +1,10 @@
 {
     "metadata": {
         "integration": {
+            "java": {
+                "MAIN_CLASS": "Int32",
+                "CODEGEN_DIR": "int32"
+            },
             "python": {
                 "MAIN_CLASS": "Int32",
                 "CODEGEN_DIR": "int32"

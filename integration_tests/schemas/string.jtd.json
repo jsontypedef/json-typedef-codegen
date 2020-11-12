@@ -1,6 +1,10 @@
 {
     "metadata": {
         "integration": {
+            "java": {
+                "MAIN_CLASS": "String_",
+                "CODEGEN_DIR": "string"
+            },
             "python": {
                 "MAIN_CLASS": "String",
                 "CODEGEN_DIR": "string"

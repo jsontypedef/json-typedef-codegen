@@ -1,6 +1,10 @@
 {
     "metadata": {
         "integration": {
+            "java": {
+                "CODEGEN_DIR": "nullable_discriminator",
+                "MAIN_CLASS": "NullableDiscriminator"
+            },
             "python": {
                 "CODEGEN_DIR": "nullable_discriminator",
                 "MAIN_CLASS": "NullableDiscriminator"

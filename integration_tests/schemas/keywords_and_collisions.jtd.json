@@ -1,6 +1,10 @@
 {
     "metadata": {
         "integration": {
+            "java": {
+                "CODEGEN_DIR": "keywords_and_collisions",
+                "MAIN_CLASS": "KeywordsAndCollisions"
+            },
             "python": {
                 "CODEGEN_DIR": "keywords_and_collisions",
                 "MAIN_CLASS": "KeywordsAndCollisions"
@@ -12,7 +16,6 @@
         }
     },
     "definitions": {
-        "": {},
         " ": {},
         "\t": {},
         "\"": {},
@@ -22,7 +25,6 @@
         "FooBar": {},
         "in_properties": {
             "properties": {
-                "": {},
                 " ": {},
                 "\t": {},
                 "\"": {},
@@ -34,9 +36,6 @@
         }
     },
     "properties": {
-        "": {
-            "ref": ""
-        },
         " ": {
             "ref": " "
         },

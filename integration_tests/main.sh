@@ -8,6 +8,13 @@ TEST_CASE_RUN_SCHEMAS=${TEST_CASE_RUN_SCHEMAS:-.*}
 # Prepare a new build of jtd-codegen
 cargo build
 
+build_java_image() {
+    docker build --quiet \
+        --build-arg MAIN_CLASS=$(jq -r .metadata.integration.java.MAIN_CLASS $1) \
+        --build-arg CODEGEN_DIR=$(jq -r .metadata.integration.java.CODEGEN_DIR $1) \
+        integration_tests/target/java
+}
+
 build_python_image() {
     docker build --quiet \
         --build-arg MAIN_CLASS=$(jq -r .metadata.integration.python.MAIN_CLASS $1) \
@@ -39,19 +46,23 @@ for schema in $(dirname $0)/schemas/*; do
     schema_name=$(basename $schema .jtd.json)
 
     # Directories where we will output code to
+    java_dir=integration_tests/target/java/codegen/$schema_name
     python_dir=integration_tests/target/python/codegen/$schema_name
     typescript_dir=integration_tests/target/typescript/codegen/$schema_name
 
     # Prepare output directories for jtd-codegen
-    mkdir -p $python_dir $typescript_dir
+    mkdir -p $java_dir $python_dir $typescript_dir
+    rm $java_dir/* $python_dir/* $typescript_dir/*
 
     # Generate code for this schema
     ./target/debug/jtd-codegen \
+        --java-out $java_dir --java-pkg com.example --java-json-lib jackson \
         --python-out $python_dir \
         --typescript-out $typescript_dir \
         -- $schema
 
     # Run integration tests
+    integration_test_image java $schema $(build_java_image $schema)
     integration_test_image python $schema $(build_python_image $schema)
     integration_test_image typescript $schema $(build_typescript_image $schema)
 done

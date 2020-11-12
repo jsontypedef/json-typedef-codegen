@@ -1,6 +1,10 @@
 {
     "metadata": {
         "integration": {
+            "java": {
+                "CODEGEN_DIR": "basic_properties",
+                "MAIN_CLASS": "BasicProperties"
+            },
             "python": {
                 "CODEGEN_DIR": "basic_properties",
                 "MAIN_CLASS": "BasicProperties"
@@ -13,14 +17,17 @@
     },
     "properties": {
         "a": {
-            "type": "string"
+            "type": "boolean"
         },
         "b": {
+            "type": "string"
+        },
+        "c": {
             "elements": {
                 "type": "string"
             }
         },
-        "c": {
+        "d": {
             "values": {
                 "type": "string"
             }

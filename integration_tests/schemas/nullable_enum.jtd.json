@@ -1,6 +1,10 @@
 {
     "metadata": {
         "integration": {
+            "java": {
+                "MAIN_CLASS": "NullableEnum",
+                "CODEGEN_DIR": "nullable_enum"
+            },
             "python": {
                 "MAIN_CLASS": "NullableEnum",
                 "CODEGEN_DIR": "nullable_enum"

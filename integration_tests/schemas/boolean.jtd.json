@@ -1,6 +1,10 @@
 {
     "metadata": {
         "integration": {
+            "java": {
+                "MAIN_CLASS": "Boolean",
+                "CODEGEN_DIR": "boolean"
+            },
             "python": {
                 "MAIN_CLASS": "Boolean",
                 "CODEGEN_DIR": "boolean"
