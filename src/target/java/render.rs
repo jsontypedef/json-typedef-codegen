@@ -69,8 +69,10 @@ pub fn render(out_dir: &str, ast_: ast::Ast) -> Result<()> {
                 writeln!(out, "import com.fasterxml.jackson.annotation.JsonCreator;")?;
                 writeln!(out, "import com.fasterxml.jackson.annotation.JsonValue;")?;
                 writeln!(out)?;
+                writeln!(out, "import java.io.Serializable;")?;
+                writeln!(out)?;
 
-                writeln!(out, "public class {} {{", type_name)?;
+                writeln!(out, "public class {} implements Serializable {{", type_name)?;
                 writeln!(out, "    @JsonValue")?;
                 writeln!(
                     out,
@@ -98,8 +100,13 @@ pub fn render(out_dir: &str, ast_: ast::Ast) -> Result<()> {
                 writeln!(out, "}}")?;
             }
             ast::Type::Enum(enum_) => {
+                writeln!(out, "import com.fasterxml.jackson.annotation.JsonProperty;")?;
+                writeln!(out)?;
+                writeln!(out, "import java.io.Serializable;")?;
+                writeln!(out)?;
+
                 render_javadoc_indent0(&mut out, &enum_.description)?;
-                writeln!(out, "public enum {} {{", type_name)?;
+                writeln!(out, "public enum {} implements Serializable {{", type_name)?;
                 for (index, (member_name, member)) in enum_.members.iter().enumerate() {
                     if index != 0 {
                         writeln!(out)?;
@@ -108,7 +115,7 @@ pub fn render(out_dir: &str, ast_: ast::Ast) -> Result<()> {
                     render_javadoc_indent1(&mut out, &member.description)?;
                     writeln!(
                         out,
-                        "    @com.fasterxml.jackson.annotation.JsonProperty({})",
+                        "    @JsonProperty({})",
                         member.value
                     )?;
                     writeln!(out, "    {},", member_name)?;
