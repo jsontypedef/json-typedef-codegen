@@ -74,9 +74,10 @@ pub fn render(out_dir: &str, ast_: ast::Ast) -> Result<()> {
                 writeln!(out, "    @JsonValue")?;
                 writeln!(
                     out,
-                    "    public {} value;",
+                    "    private {} value;",
                     render_type_ref(&id_state, &type_wrapper.type_)
                 )?;
+                writeln!(out)?;
                 writeln!(out, "    @JsonCreator")?;
                 writeln!(
                     out,
@@ -84,6 +85,14 @@ pub fn render(out_dir: &str, ast_: ast::Ast) -> Result<()> {
                     type_name,
                     render_type_ref(&id_state, &type_wrapper.type_)
                 )?;
+                writeln!(out, "        this.value = value;")?;
+                writeln!(out, "    }}")?;
+                writeln!(out)?;
+                writeln!(out, "    public {} getValue() {{", render_type_ref(&id_state, &type_wrapper.type_))?;
+                writeln!(out, "        return value;")?;
+                writeln!(out, "    }}")?;
+                writeln!(out)?;
+                writeln!(out, "    public void setValue({} value) {{", render_type_ref(&id_state, &type_wrapper.type_))?;
                 writeln!(out, "        this.value = value;")?;
                 writeln!(out, "    }}")?;
                 writeln!(out, "}}")?;

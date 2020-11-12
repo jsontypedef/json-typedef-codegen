@@ -2,7 +2,7 @@
     "metadata": {
         "integration": {
             "java": {
-                "MAIN_CLASS": "Boolean",
+                "MAIN_CLASS": "Boolean_",
                 "CODEGEN_DIR": "boolean"
             },
             "python": {
