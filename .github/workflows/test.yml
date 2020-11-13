@@ -9,9 +9,8 @@ jobs:
           toolchain: stable
       - run: cargo test
       - run: |
-          wget https://github.com/jsontypedef/json-typedef-fuzz/releases/download/v0.1.14/x86_64-unknown-linux-gnu.zip -o jtd-fuzz.zip
-          wget https://github.com/jsontypedef/json-typedef-validate/releases/download/v0.1.1/x86_64-unknown-linux-gnu.zip -o jtd-validate.zip
+          wget https://github.com/jsontypedef/json-typedef-fuzz/releases/download/v0.1.14/x86_64-unknown-linux-gnu.zip -O jtd-fuzz.zip
+          wget https://github.com/jsontypedef/json-typedef-validate/releases/download/v0.1.1/x86_64-unknown-linux-gnu.zip -O jtd-validate.zip
           unzip jtd-fuzz.zip -d /usr/local/bin
           unzip jtd-validate.zip -d /usr/local/bin
-
       - run: ./integration_tests/main.sh
