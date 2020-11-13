@@ -98,10 +98,6 @@ impl<T> State<T> {
         self.priority
     }
 
-    pub fn data(&self) -> &T {
-        &self.data
-    }
-
     pub fn data_mut(&mut self) -> &mut T {
         &mut self.data
     }
@@ -125,13 +121,21 @@ mod tests {
             "default".to_owned(),
         );
 
-        let mut state = State::new(convention, vec!["foo".to_owned()]);
+        let state = State::new(convention, vec!["foo".to_owned()]);
 
         // Test initial state.
         assert_eq!(state.name(), "default".to_owned());
         assert_eq!(state.must_emit(), false);
         assert_eq!(state.priority(), 0);
-        assert_eq!(state.data(), &["foo".to_owned()]);
+        assert_eq!(state.into_data(), &["foo".to_owned()]);
+
+        let convention = NamingConvention::new(
+            SeparatorStyle::SnakeCase,
+            vec!["keyword".to_owned()].into_iter().collect(),
+            "default".to_owned(),
+        );
+
+        let mut state = State::new(convention, vec!["foo".to_owned()]);
 
         // Test that the with_* functions give back their return values.
         assert_eq!(42, state.with_singularize(|_| 42));
