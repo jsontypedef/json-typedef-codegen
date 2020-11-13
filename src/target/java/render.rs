@@ -90,11 +90,19 @@ pub fn render(out_dir: &str, ast_: ast::Ast) -> Result<()> {
                 writeln!(out, "        this.value = value;")?;
                 writeln!(out, "    }}")?;
                 writeln!(out)?;
-                writeln!(out, "    public {} getValue() {{", render_type_ref(&id_state, &type_wrapper.type_))?;
+                writeln!(
+                    out,
+                    "    public {} getValue() {{",
+                    render_type_ref(&id_state, &type_wrapper.type_)
+                )?;
                 writeln!(out, "        return value;")?;
                 writeln!(out, "    }}")?;
                 writeln!(out)?;
-                writeln!(out, "    public void setValue({} value) {{", render_type_ref(&id_state, &type_wrapper.type_))?;
+                writeln!(
+                    out,
+                    "    public void setValue({} value) {{",
+                    render_type_ref(&id_state, &type_wrapper.type_)
+                )?;
                 writeln!(out, "        this.value = value;")?;
                 writeln!(out, "    }}")?;
                 writeln!(out, "}}")?;
@@ -113,11 +121,7 @@ pub fn render(out_dir: &str, ast_: ast::Ast) -> Result<()> {
                     }
 
                     render_javadoc_indent1(&mut out, &member.description)?;
-                    writeln!(
-                        out,
-                        "    @JsonProperty({})",
-                        member.value
-                    )?;
+                    writeln!(out, "    @JsonProperty({})", member.value)?;
                     writeln!(out, "    {},", member_name)?;
                 }
                 writeln!(out, "}}")?;
@@ -139,7 +143,10 @@ pub fn render(out_dir: &str, ast_: ast::Ast) -> Result<()> {
                 }
 
                 if bean.ignore_unknown {
-                    writeln!(out, "import com.fasterxml.jackson.annotation.JsonIgnoreProperties;")?;
+                    writeln!(
+                        out,
+                        "import com.fasterxml.jackson.annotation.JsonIgnoreProperties;"
+                    )?;
                 }
                 writeln!(out)?;
                 writeln!(out, "import java.io.Serializable;")?;

@@ -121,6 +121,7 @@ pub struct Dataclass {
 pub struct DataclassField {
     pub description: String,
     pub json_name: String,
+    pub is_optional: bool,
     pub type_: TypeRef,
 }
 
@@ -246,6 +247,7 @@ fn emit_ast(state: &mut State<Ast>, schema: &Schema) -> TypeRef {
                         state.with_path_segment(name, |state| DataclassField {
                             description: metadata::description(sub_schema),
                             json_name: format!("{:?}", name),
+                            is_optional: false,
                             type_: emit_ast(state, sub_schema),
                         }),
                     );
@@ -260,6 +262,7 @@ fn emit_ast(state: &mut State<Ast>, schema: &Schema) -> TypeRef {
                         state.with_path_segment(name, |state| DataclassField {
                             description: metadata::description(sub_schema),
                             json_name: format!("{:?}", name),
+                            is_optional: true,
                             type_: TypeRef::Optional(Box::new(emit_ast(state, sub_schema))),
                         }),
                     );

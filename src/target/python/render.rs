@@ -122,26 +122,44 @@ pub fn render(out: &mut dyn Write, ast_: ast::Ast) -> Result<()> {
                 render_heredoc_indent2(out, FROM_JSON_HEREDOC)?;
                 writeln!(out, "        return cls(")?;
                 for (_, field) in &dataclass.fields {
-                    writeln!(
-                        out,
-                        "            _from_json({}, data[{}]),",
-                        render_type_ref(&id_state, &field.type_),
-                        field.json_name,
-                    )?;
+                    if field.is_optional {
+                        writeln!(
+                            out,
+                            "            _from_json({}, data.get({})),",
+                            render_type_ref(&id_state, &field.type_),
+                            field.json_name,
+                        )?;
+                    } else {
+                        writeln!(
+                            out,
+                            "            _from_json({}, data[{}]),",
+                            render_type_ref(&id_state, &field.type_),
+                            field.json_name,
+                        )?;
+                    }
                 }
                 writeln!(out, "        )")?;
                 writeln!(out)?;
                 writeln!(out, "    def to_json(self):")?;
                 render_heredoc_indent2(out, TO_JSON_HEREDOC)?;
-                writeln!(out, "        return {{")?;
+                writeln!(out, "        out = {{}}")?;
                 for (field_name, field) in &dataclass.fields {
-                    writeln!(
-                        out,
-                        "            {}: _to_json(self.{}),",
-                        field.json_name, field_name,
-                    )?;
+                    if field.is_optional {
+                        writeln!(out, "        if self.{} is not None:", field_name)?;
+                        writeln!(
+                            out,
+                            "                out[{}] = _to_json(self.{})",
+                            field.json_name, field_name,
+                        )?;
+                    } else {
+                        writeln!(
+                            out,
+                            "        out[{}] = _to_json(self.{})",
+                            field.json_name, field_name,
+                        )?;
+                    }
                 }
-                writeln!(out, "        }}")?;
+                writeln!(out, "        return out")?;
             }
 
             ast::Class::Discriminator(discriminator) => {
