@@ -52,7 +52,7 @@ for schema in $(dirname $0)/schemas/*; do
 
     # Prepare output directories for jtd-codegen
     mkdir -p $java_dir $python_dir $typescript_dir
-    rm $java_dir/* $python_dir/* $typescript_dir/*
+    rm -f $java_dir/* $python_dir/* $typescript_dir/*
 
     # Generate code for this schema
     ./target/debug/jtd-codegen \

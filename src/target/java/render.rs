@@ -124,11 +124,32 @@ pub fn render(out_dir: &str, ast_: ast::Ast) -> Result<()> {
             }
             ast::Type::Bean(bean) => {
                 writeln!(out, "import com.fasterxml.jackson.annotation.JsonProperty;")?;
+
+                // If any of the fields are omit_if_null, then we'll need JsonInclude
+                let needs_json_include = bean.fields.iter().any(|(_, field)| {
+                    if let ast::BeanField::Declaration(declaration) = field {
+                        declaration.omit_if_null
+                    } else {
+                        false
+                    }
+                });
+
+                if needs_json_include {
+                    writeln!(out, "import com.fasterxml.jackson.annotation.JsonInclude;")?;
+                }
+
+                if bean.ignore_unknown {
+                    writeln!(out, "import com.fasterxml.jackson.annotation.JsonIgnoreProperties;")?;
+                }
                 writeln!(out)?;
                 writeln!(out, "import java.io.Serializable;")?;
                 writeln!(out)?;
 
                 render_javadoc_indent0(&mut out, &bean.description)?;
+
+                if bean.ignore_unknown {
+                    writeln!(out, "@JsonIgnoreProperties(ignoreUnknown = true)")?;
+                }
 
                 writeln!(out, "public class {} implements Serializable {{", type_name)?;
                 for (index, (field_name, field)) in bean.fields.iter().enumerate() {
@@ -137,6 +158,9 @@ pub fn render(out_dir: &str, ast_: ast::Ast) -> Result<()> {
                             writeln!(out)?;
                         }
 
+                        if declaration.omit_if_null {
+                            writeln!(out, "    @JsonInclude(JsonInclude.Include.NON_ABSENT)")?;
+                        }
                         writeln!(out, "    @JsonProperty({:?})", declaration.json_name)?;
                         writeln!(
                             out,

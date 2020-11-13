@@ -1,0 +1,55 @@
+{
+    "metadata": {
+        "integration": {
+            "java": {
+                "CODEGEN_DIR": "properties",
+                "MAIN_CLASS": "Properties"
+            },
+            "python": {
+                "CODEGEN_DIR": "properties",
+                "MAIN_CLASS": "Properties"
+            },
+            "typescript": {
+                "CODEGEN_DIR": "properties",
+                "MAIN_CLASS": "Properties"
+            }
+        }
+    },
+    "properties": {
+        "a": {
+            "type": "boolean"
+        },
+        "b": {
+            "type": "string"
+        },
+        "c": {
+            "elements": {
+                "type": "string"
+            }
+        },
+        "d": {
+            "values": {
+                "type": "string"
+            }
+        }
+    },
+    "optionalProperties": {
+        "e": {
+            "type": "boolean"
+        },
+        "f": {
+            "type": "string"
+        },
+        "g": {
+            "elements": {
+                "type": "string"
+            }
+        },
+        "h": {
+            "values": {
+                "type": "string"
+            }
+        }
+    },
+    "additionalProperties": true
+}

@@ -116,6 +116,7 @@ pub struct EnumMember {
 
 pub struct Bean {
     pub description: String,
+    pub ignore_unknown: bool,
     pub fields: BTreeMap<String, BeanField>,
 }
 
@@ -139,6 +140,7 @@ pub enum BeanField {
 
 pub struct BeanFieldDeclaration {
     pub json_name: String,
+    pub omit_if_null: bool,
     pub type_: TypeRef,
 }
 
@@ -153,14 +155,6 @@ pub struct BeanFieldSetter {
     pub ivar_name: String,
     pub type_: TypeRef,
 }
-
-// pub struct BeanField {
-//     pub description: String,
-//     pub json_name: String,
-//     pub getter_name: String,
-//     pub setter_name: String,
-//     pub type_: TypeRef,
-// }
 
 #[derive(Clone)]
 pub enum TypeRef {
@@ -263,6 +257,7 @@ fn emit_ast(state: &mut State<Ast>, schema: &Schema) -> TypeRef {
                     name,
                     Type::Bean(Bean {
                         description: metadata::description(schema),
+                        ignore_unknown: properties.additional,
                         fields,
                     }),
                 ))
@@ -331,6 +326,7 @@ fn properties_fields(
     struct InstanceVar {
         type_: TypeRef,
         json_name: String,
+        omit_if_null: bool,
         description: String,
     }
 
@@ -345,6 +341,7 @@ fn properties_fields(
             InstanceVar {
                 type_,
                 json_name: name.clone(),
+                omit_if_null: false,
                 description: metadata::description(sub_schema),
             },
         );
@@ -360,6 +357,7 @@ fn properties_fields(
             InstanceVar {
                 type_,
                 json_name: name.clone(),
+                omit_if_null: true,
                 description: metadata::description(sub_schema),
             },
         );
@@ -373,6 +371,7 @@ fn properties_fields(
             ivar_name.clone(),
             BeanField::Declaration(BeanFieldDeclaration {
                 json_name: ivar.json_name.clone(),
+                omit_if_null: ivar.omit_if_null,
                 type_: ivar.type_.clone(),
             }),
         );
