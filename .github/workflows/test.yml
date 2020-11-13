@@ -8,3 +8,4 @@ jobs:
         with:
           toolchain: stable
       - run: cargo test
+      - run: ./integration_tests/main.sh
