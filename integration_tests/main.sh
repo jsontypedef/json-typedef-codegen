@@ -46,9 +46,9 @@ for schema in $(dirname $0)/schemas/*; do
     schema_name=$(basename $schema .jtd.json)
 
     # Directories where we will output code to
-    java_dir=integration_tests/target/java/codegen/$schema_name
-    python_dir=integration_tests/target/python/codegen/$schema_name
-    typescript_dir=integration_tests/target/typescript/codegen/$schema_name
+    java_dir=integration_tests/target/java/codegen/$(jq -r .metadata.integration.java.CODEGEN_DIR $schema)
+    python_dir=integration_tests/target/python/codegen/$(jq -r .metadata.integration.python.CODEGEN_DIR $schema)
+    typescript_dir=integration_tests/target/typescript/codegen/$(jq -r .metadata.integration.typescript.CODEGEN_DIR $schema)
 
     # Prepare output directories for jtd-codegen
     mkdir -p $java_dir $python_dir $typescript_dir
