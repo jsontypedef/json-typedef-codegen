@@ -1,0 +1,7 @@
+[package]
+name = "jtd_codegen_cli"
+version = "0.1.0"
+authors = ["Ulysse Carion <ulysse@segment.com>"]
+edition = "2018"
+
+[dependencies]
