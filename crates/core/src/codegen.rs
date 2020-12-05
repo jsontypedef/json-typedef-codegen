@@ -166,28 +166,31 @@ pub fn codegen<T: Target>(
         .collect();
 
     let global_state = GlobalState {
-        file_partitioning: T::file_partitioning(),
+        file_partitioning: target.file_partitioning(),
         target,
         defs: &defs,
         out_dir,
     };
 
-    for (_, def_ast) in definitions {
-        let mut file_state = FileState {
-            buf: vec![],
-            target_state: T::FileState::default(),
-        };
-
-        _codegen(&global_state, &mut file_state, def_ast)?;
-    }
-
     let mut file_state = FileState {
-        buf: vec![],
+        buf: Vec::new(),
         target_state: T::FileState::default(),
     };
 
-    let out = _codegen(&global_state, &mut file_state, root)?;
-    Ok(out)
+    for (_, def_ast) in definitions {
+        _codegen(&global_state, &mut file_state, def_ast)?;
+    }
+
+    let root_expr = _codegen(&global_state, &mut file_state, root)?;
+
+    // If we are doing single-file file partitioning, then no schema will ever
+    // write itself out to a file. We will need to flush the single file out
+    // here, now that all code has been generated.
+    if let FilePartitioning::SingleFile(_) = global_state.file_partitioning {
+        write_out_file(&global_state, &mut file_state, &root_expr)?;
+    }
+
+    Ok(root_expr)
 }
 
 struct GlobalState<'a, T: Target> {
@@ -219,99 +222,203 @@ fn _codegen<'a, T: Target>(
             global.target.elements_of(&mut file.target_state, sub_expr)
         }
         ast::Ast::Alias(alias) => {
-            // TODO: here we assume we're doing per-file partitioning
+            with_subfile_state(global, Some(file), |file| {
+                let sub_expr = _codegen(global, file, *alias.type_)?;
+                global.target.write_alias(
+                    &mut file.target_state,
+                    &mut file.buf,
+                    Alias {
+                        name: alias.name.clone(),
+                        description: alias.description,
+                        type_: sub_expr,
+                    },
+                )
+            })?
 
-            // We will generate this data into a new file, which requires a new
-            // file state.
-            let mut sub_file = FileState {
-                buf: Vec::new(),
-                target_state: T::FileState::default(),
-            };
+            // // TODO: here we assume we're doing per-file partitioning
 
-            // Write out the alias
-            let sub_expr = _codegen(global, &mut sub_file, *alias.type_)?;
-            let expr = global.target.write_alias(
-                &mut sub_file.target_state,
-                &mut sub_file.buf,
-                Alias {
-                    name: alias.name.clone(),
-                    description: alias.description,
-                    type_: sub_expr,
-                },
-            )?;
+            // // We will generate this data into a new file, which requires a new
+            // // file state.
+            // let mut sub_file = FileState {
+            //     buf: Vec::new(),
+            //     target_state: T::FileState::default(),
+            // };
 
-            // With the alias prepared, now write it out to a file.
-            let extension =
-                if let FilePartitioning::FilePerType(ref extension) = global.file_partitioning {
-                    extension
-                } else {
-                    todo!()
-                };
+            // // Write out the alias
+            // let sub_expr = _codegen(global, &mut sub_file, *alias.type_)?;
+            // let expr = global.target.write_alias(
+            //     &mut sub_file.target_state,
+            //     &mut sub_file.buf,
+            //     Alias {
+            //         name: alias.name.clone(),
+            //         description: alias.description,
+            //         type_: sub_expr,
+            //     },
+            // )?;
 
-            let mut out_file = File::create(
-                global
-                    .out_dir
-                    .join(Path::new(&alias.name).with_extension(extension)),
-            )?;
+            // // With the alias prepared, now write it out to a file.
+            // let extension =
+            //     if let FilePartitioning::FilePerType(ref extension) = global.file_partitioning {
+            //         extension
+            //     } else {
+            //         todo!()
+            //     };
 
-            global
-                .target
-                .write_preamble(&mut sub_file.target_state, &mut out_file)?;
-            out_file.write_all(&sub_file.buf)?;
+            // let mut out_file = File::create(
+            //     global
+            //         .out_dir
+            //         .join(Path::new(&alias.name).with_extension(extension)),
+            // )?;
 
-            expr
+            // global
+            //     .target
+            //     .write_preamble(&mut sub_file.target_state, &mut out_file)?;
+            // out_file.write_all(&sub_file.buf)?;
+
+            // expr
         }
         ast::Ast::Struct(struct_) => {
-            // TODO: here we assume we're doing per-file partitioning
+            with_subfile_state(global, Some(file), |file| {
+                let mut fields = Vec::new();
+                for field in struct_.fields {
+                    fields.push(StructField {
+                        name: field.name,
+                        json_name: field.json_name,
+                        description: "".into(),
+                        optional: field.optional,
+                        type_: _codegen(global, file, field.type_)?,
+                    });
+                }
 
-            // We will generate this data into a new file, which requires a new
-            // file state.
-            let mut sub_file = FileState {
-                buf: Vec::new(),
-                target_state: T::FileState::default(),
-            };
+                global.target.write_struct(
+                    &mut file.target_state,
+                    &mut file.buf,
+                    Struct {
+                        name: struct_.name.clone(),
+                        description: struct_.description,
+                        has_additional: struct_.has_additional,
+                        fields,
+                    },
+                )
+            })?
 
-            let mut fields = Vec::new();
-            for field in struct_.fields {
-                fields.push(StructField {
-                    name: field.name,
-                    json_name: field.json_name,
-                    description: "".into(),
-                    optional: field.optional,
-                    type_: _codegen(global, &mut sub_file, field.type_)?,
-                });
-            }
+            // // TODO: here we assume we're doing per-file partitioning
 
-            let expr = global.target.write_struct(
-                &mut sub_file.target_state,
-                &mut sub_file.buf,
-                Struct {
-                    name: struct_.name.clone(),
-                    description: struct_.description,
-                    has_additional: struct_.has_additional,
-                    fields,
-                },
-            )?;
+            // // We will generate this data into a new file, which requires a new
+            // // file state.
+            // let mut sub_file = FileState {
+            //     buf: Vec::new(),
+            //     target_state: T::FileState::default(),
+            // };
 
-            let extension =
-                if let FilePartitioning::FilePerType(ref extension) = global.file_partitioning {
-                    extension
-                } else {
-                    todo!()
-                };
+            // let mut fields = Vec::new();
+            // for field in struct_.fields {
+            //     fields.push(StructField {
+            //         name: field.name,
+            //         json_name: field.json_name,
+            //         description: "".into(),
+            //         optional: field.optional,
+            //         type_: _codegen(global, &mut sub_file, field.type_)?,
+            //     });
+            // }
 
-            let mut out_file = File::create(
-                global
-                    .out_dir
-                    .join(Path::new(&struct_.name).with_extension(extension)),
-            )?;
+            // let expr = global.target.write_struct(
+            //     &mut sub_file.target_state,
+            //     &mut sub_file.buf,
+            //     Struct {
+            //         name: struct_.name.clone(),
+            //         description: struct_.description,
+            //         has_additional: struct_.has_additional,
+            //         fields,
+            //     },
+            // )?;
 
-            global
-                .target
-                .write_preamble(&mut sub_file.target_state, &mut out_file)?;
-            out_file.write_all(&sub_file.buf)?;
+            // let extension =
+            //     if let FilePartitioning::FilePerType(ref extension) = global.file_partitioning {
+            //         extension
+            //     } else {
+            //         todo!()
+            //     };
 
-            expr
+            // let mut out_file = File::create(
+            //     global
+            //         .out_dir
+            //         .join(Path::new(&struct_.name).with_extension(extension)),
+            // )?;
+
+            // global
+            //     .target
+            //     .write_preamble(&mut sub_file.target_state, &mut out_file)?;
+            // out_file.write_all(&sub_file.buf)?;
+
+            // expr
         }
     })
+}
+
+fn with_subfile_state<'a, T: Target, F: FnOnce(&mut FileState<T>) -> Result<Expr<T::ExprMeta>>>(
+    global: &GlobalState<'a, T>,
+    file_state: Option<&mut FileState<T>>,
+    f: F,
+) -> Result<Expr<T::ExprMeta>> {
+    let mut default_file_state = FileState {
+        buf: Vec::new(),
+        target_state: T::FileState::default(),
+    };
+
+    let (mut subfile_state, should_write_out) = match global.file_partitioning {
+        FilePartitioning::FilePerType(_) => (&mut default_file_state, true),
+        FilePartitioning::SingleFile(_) => {
+            let should_write_out = file_state.is_none();
+            (
+                file_state.unwrap_or(&mut default_file_state),
+                should_write_out,
+            )
+        }
+    };
+
+    let expr = f(subfile_state)?;
+
+    if should_write_out {
+        write_out_file(global, &mut subfile_state, &expr)?;
+        // let out_file_name = match global.file_partitioning {
+        //     FilePartitioning::FilePerType(ref extension) => {
+        //         Path::new(&expr.expr).with_extension(extension)
+        //     }
+        //     FilePartitioning::SingleFile(ref file_name) => Path::new(file_name).to_path_buf(),
+        // };
+
+        // dbg!(&out_file_name);
+
+        // let mut out_file = File::create(global.out_dir.join(out_file_name))?;
+
+        // global
+        //     .target
+        //     .write_preamble(&mut subfile_state.target_state, &mut out_file)?;
+        // out_file.write_all(&subfile_state.buf)?;
+    }
+
+    Ok(expr)
+}
+
+fn write_out_file<'a, T: Target>(
+    global: &GlobalState<'a, T>,
+    file: &mut FileState<T>,
+    expr: &Expr<T::ExprMeta>,
+) -> Result<()> {
+    let out_file_name = match global.file_partitioning {
+        FilePartitioning::FilePerType(ref extension) => {
+            Path::new(&expr.expr).with_extension(extension)
+        }
+        FilePartitioning::SingleFile(ref file_name) => Path::new(file_name).to_path_buf(),
+    };
+
+    let mut out_file = File::create(global.out_dir.join(out_file_name))?;
+
+    global
+        .target
+        .write_preamble(&mut file.target_state, &mut out_file)?;
+    out_file.write_all(&file.buf)?;
+
+    Ok(())
 }

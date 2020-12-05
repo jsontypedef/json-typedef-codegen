@@ -30,7 +30,7 @@ impl jtd_codegen::Target for Target {
     type FileState = FileState;
     type ExprMeta = ExprMeta;
 
-    fn file_partitioning() -> FilePartitioning {
+    fn file_partitioning(&self) -> FilePartitioning {
         FilePartitioning::FilePerType("cs".into())
     }
 

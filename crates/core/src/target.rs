@@ -5,7 +5,7 @@ pub trait Target {
     type FileState: Default;
     type ExprMeta: ExprMeta;
 
-    fn file_partitioning() -> FilePartitioning;
+    fn file_partitioning(&self) -> FilePartitioning;
 
     fn name_type(&self, name_parts: &[String]) -> String;
     fn name_field(&self, name_parts: &[String]) -> String;

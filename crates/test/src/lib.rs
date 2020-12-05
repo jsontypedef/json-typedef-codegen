@@ -85,7 +85,7 @@ fn assert_roundtrip<T: Target>(
         .spawn()
         .expect("spawn docker build");
 
-    // Ensure docker build succeeds.
+    // Ensure docker build succeeds. TODO: do this for docker run as well
     assert!(
         docker_build.wait().expect("wait docker build").success(),
         "docker build failed"
