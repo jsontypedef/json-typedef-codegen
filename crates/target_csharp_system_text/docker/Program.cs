@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace JtdCodegen.Demo
+namespace JtdCodegenE2E
 {
     class Program
     {

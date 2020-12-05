@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-namespace JtdCodegen.Demo
+namespace JtdCodegenE2E
 {
     public class Root
     {

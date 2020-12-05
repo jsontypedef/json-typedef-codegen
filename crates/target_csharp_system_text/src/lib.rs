@@ -169,7 +169,7 @@ mod tests {
 
     #[test]
     fn test_common_test_cases() {
-        let target = Target::new("JtdCodegen.Demo".into());
+        let target = Target::new("JtdCodegenE2E".into());
         jtd_codegen_test::assert_common_test_cases(env!("CARGO_MANIFEST_DIR"), &target);
     }
 }
