@@ -95,15 +95,39 @@ impl jtd_codegen::Target for Target {
         out: &mut dyn Write,
         alias: Alias<ExprMeta>,
     ) -> Result<Expr<ExprMeta>> {
+        state
+            .imports
+            .insert("System".into());
+
+        state
+            .imports
+            .insert("System.Text.Json".into());
+
+        state
+            .imports
+            .insert("System.Text.Json.Serialization".into());
+
         writeln!(out, "namespace {}", self.namespace)?;
         writeln!(out, "{{")?;
+        writeln!(out, "    [JsonConverter(typeof({}.JsonConverter))]", alias.name)?;
         writeln!(out, "    public class {}", alias.name)?;
         writeln!(out, "    {{")?;
         writeln!(
             out,
-            "        public Value {} {{ get; set; }}",
+            "        public {} Value {{ get; set; }}",
             alias.type_.expr
         )?;
+        writeln!(out, "        public class JsonConverter : JsonConverter<{}>", alias.name)?;
+        writeln!(out, "        {{")?;
+        writeln!(out, "            public override {} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)", alias.name)?;
+        writeln!(out, "            {{")?;
+        writeln!(out, "                return new {} {{ Value = JsonSerializer.Deserialize<{}>(ref reader, options) }};", alias.name, alias.type_.expr)?;
+        writeln!(out, "            }}")?;
+        writeln!(out, "            public override void Write(Utf8JsonWriter writer, {} value, JsonSerializerOptions options)", alias.name)?;
+        writeln!(out, "            {{")?;
+        writeln!(out, "                JsonSerializer.Serialize<{}>(writer, value.Value, options);", alias.type_.expr)?;
+        writeln!(out, "            }}")?;
+        writeln!(out, "        }}")?;
         writeln!(out, "    }}")?;
         writeln!(out, "}}")?;
 

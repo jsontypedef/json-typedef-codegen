@@ -11,29 +11,34 @@ use std::path::Path;
 use std::process::{Command, Stdio};
 
 pub fn assert_common_test_cases<T: Target>(target_crate_base_dir: &str, target: &T) {
-    // todo: do other test cases
-    let schema = File::open(
-        Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("schemas")
-            .join(Path::new("basic_properties").with_extension("jtd.json")),
-    )
-    .expect("open schema file");
+    let schemas_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("schemas");
+    for entry in schemas_dir.read_dir().expect("read schemas dir") {
+        let schema_path = entry.expect("read schemas dir entry").path();
+        let schema_name = schema_path
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .split(".")
+            .nth(0)
+            .unwrap();
 
-    let schema: SerdeSchema = serde_json::from_reader(schema).expect("deserialize schema");
-    let schema: Schema = schema.try_into().expect("validate schema");
+        let schema = File::open(&schema_path).expect("open schema file");
+        let schema: SerdeSchema = serde_json::from_reader(schema).expect("deserialize schema");
+        let schema: Schema = schema.try_into().expect("validate schema");
 
-    // todo: verifying stability only makes sense for common test cases, custom
-    // test cases will need to provide test case name somehow.
-    let tempdir = assert_roundtrip(target_crate_base_dir, target, &schema, 8927);
-    assert_stable(target_crate_base_dir, "basic_properties", tempdir);
+        // todo: verifying stability only makes sense for common test cases, custom
+        // test cases will need to provide test case name somehow.
+        let (tempdir, root_name) = generate_code(target, &schema);
+
+        // Check stability first, so that developers can easily see what
+        // generated code ultimately gets tested in assert_roundtrip.
+        assert_stable(target_crate_base_dir, schema_name, &tempdir);
+        assert_roundtrip(target_crate_base_dir, &tempdir, &root_name, &schema, 8927);
+    }
 }
 
-fn assert_roundtrip<T: Target>(
-    target_crate_base_dir: &str,
-    target: &T,
-    schema: &Schema,
-    seed: u64,
-) -> tempfile::TempDir {
+fn generate_code<T: Target>(target: &T, schema: &Schema) -> (tempfile::TempDir, String) {
     // The dir where we'll do all of our work.
     let tempdir = tempfile::tempdir().expect("create temp dir");
 
@@ -45,6 +50,16 @@ fn assert_roundtrip<T: Target>(
     let main = jtd_codegen::codegen(target, "Root".to_owned(), &schema, &codegen_dir)
         .expect("generate code");
 
+    (tempdir, main.expr)
+}
+
+fn assert_roundtrip(
+    target_crate_base_dir: &str,
+    tempdir: &tempfile::TempDir,
+    root_name: &str,
+    schema: &Schema,
+    seed: u64,
+) {
     // Copy over the target crate's docker data into the temp dir.
     let crate_docker_dir = Path::new(target_crate_base_dir).join("docker");
     for entry in fs::read_dir(crate_docker_dir).expect("read crate docker dir") {
@@ -79,7 +94,7 @@ fn assert_roundtrip<T: Target>(
         .arg("build")
         .arg("--quiet")
         .arg("--build-arg")
-        .arg(format!("MAIN={}", main.expr))
+        .arg(format!("MAIN={}", root_name))
         .arg(tempdir.path())
         .stdout(Stdio::piped())
         .spawn()
@@ -143,12 +158,9 @@ fn assert_roundtrip<T: Target>(
             errors,
         );
     }
-
-    // Return the tempdir where we generated data into.
-    tempdir
 }
 
-fn assert_stable(target_crate_base_dir: &str, test_case_name: &str, tempdir: tempfile::TempDir) {
+fn assert_stable(target_crate_base_dir: &str, test_case_name: &str, tempdir: &tempfile::TempDir) {
     let output_dir = tempdir.path().join("gen");
     let reference_dir = Path::new(target_crate_base_dir)
         .join("output")
