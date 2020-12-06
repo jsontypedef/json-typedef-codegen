@@ -1,8 +1,8 @@
 mod codegen;
 mod error;
 mod inflector;
-mod target;
 mod namespace;
+mod target;
 
 pub use codegen::codegen;
 pub use error::{Error, Result};

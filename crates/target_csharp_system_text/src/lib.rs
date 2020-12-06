@@ -196,13 +196,20 @@ impl jtd_codegen::Target for Target {
         writeln!(out, "    {{")?;
         writeln!(out, "        public override {} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)", enum_.name)?;
         writeln!(out, "        {{")?;
-        writeln!(out, "            string value = JsonSerializer.Deserialize<string>(ref reader, options);")?;
+        writeln!(
+            out,
+            "            string value = JsonSerializer.Deserialize<string>(ref reader, options);"
+        )?;
         writeln!(out, "            switch (value)")?;
         writeln!(out, "            {{")?;
 
         for variant in &enum_.variants {
             writeln!(out, "                case {:?}:", variant.json_value)?;
-            writeln!(out, "                    return {}.{};", enum_.name, variant.name)?;
+            writeln!(
+                out,
+                "                    return {}.{};",
+                enum_.name, variant.name
+            )?;
         }
 
         writeln!(out, "                default:")?;
@@ -215,7 +222,11 @@ impl jtd_codegen::Target for Target {
         writeln!(out, "            {{")?;
         for variant in enum_.variants {
             writeln!(out, "                case {}.{}:", enum_.name, variant.name)?;
-            writeln!(out, "                    JsonSerializer.Serialize<string>(writer, {:?}, options);", variant.json_value)?;
+            writeln!(
+                out,
+                "                    JsonSerializer.Serialize<string>(writer, {:?}, options);",
+                variant.json_value
+            )?;
             writeln!(out, "                    return;")?;
         }
         writeln!(out, "            }}")?;

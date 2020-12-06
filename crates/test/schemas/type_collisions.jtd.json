@@ -1,0 +1,22 @@
+{
+    "properties": {
+        "foo": {
+            "properties": {
+                "bar": {
+                    "properties": {
+                        "x": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "foo_bar": {
+            "properties": {
+                "x": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

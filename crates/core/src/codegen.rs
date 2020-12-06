@@ -1,3 +1,4 @@
+use crate::namespace::Namespace;
 use crate::target::*;
 use crate::Result;
 use jtd::form::{self, TypeValue};
@@ -7,7 +8,6 @@ use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
-use crate::namespace::Namespace;
 
 mod ast {
     use crate::Target;
@@ -200,9 +200,10 @@ pub fn codegen<T: Target>(
         })
         .collect();
 
-    let global_state = GlobalState {
+    let mut global_state = GlobalState {
         file_partitioning: target.file_partitioning(),
         enum_strategy: target.enum_strategy(),
+        names: Namespace::new(),
         target,
         defs: &defs,
         out_dir,
@@ -214,10 +215,10 @@ pub fn codegen<T: Target>(
     };
 
     for (_, def_ast) in definitions {
-        _codegen(&global_state, &mut file_state, def_ast)?;
+        _codegen(&mut global_state, &mut file_state, def_ast)?;
     }
 
-    let root_expr = _codegen(&global_state, &mut file_state, root)?;
+    let root_expr = _codegen(&mut global_state, &mut file_state, root)?;
 
     // If we are doing single-file file partitioning, then no schema will ever
     // write itself out to a file. We will need to flush the single file out
@@ -232,6 +233,7 @@ pub fn codegen<T: Target>(
 struct GlobalState<'a, T: Target> {
     file_partitioning: FilePartitioning,
     enum_strategy: EnumStrategy,
+    names: Namespace,
     target: &'a T,
     defs: &'a BTreeMap<String, String>,
     out_dir: &'a Path,
@@ -243,7 +245,7 @@ struct FileState<T: Target> {
 }
 
 fn _codegen<'a, T: Target>(
-    global: &GlobalState<'a, T>,
+    global: &mut GlobalState<'a, T>,
     file: &mut FileState<T>,
     ast_: ast::Ast,
 ) -> Result<Expr<T::ExprMeta>> {
@@ -258,7 +260,7 @@ fn _codegen<'a, T: Target>(
             let sub_expr = _codegen(global, file, *sub_ast)?;
             global.target.elements_of(&mut file.target_state, sub_expr)
         }
-        ast::Ast::Alias(alias) => with_subfile_state(global, Some(file), |file| {
+        ast::Ast::Alias(alias) => with_subfile_state(global, Some(file), |global, file| {
             let sub_expr = _codegen(global, file, *alias.type_)?;
             global.target.write_alias(
                 &mut file.target_state,
@@ -270,7 +272,7 @@ fn _codegen<'a, T: Target>(
                 },
             )
         })?,
-        ast::Ast::Enum(enum_) => with_subfile_state(global, Some(file), |file| {
+        ast::Ast::Enum(enum_) => with_subfile_state(global, Some(file), |global, file| {
             let mut variant_names = Namespace::new();
             let mut variants = vec![];
 
@@ -298,13 +300,13 @@ fn _codegen<'a, T: Target>(
                 &mut file.target_state,
                 &mut file.buf,
                 Enum {
-                    name: enum_.name,
+                    name: global.names.get(enum_.name),
                     description: enum_.description,
                     variants: variants,
                 },
             )
         })?,
-        ast::Ast::Struct(struct_) => with_subfile_state(global, Some(file), |file| {
+        ast::Ast::Struct(struct_) => with_subfile_state(global, Some(file), |global, file| {
             let mut field_names = Namespace::new();
             let mut fields = Vec::new();
 
@@ -324,7 +326,7 @@ fn _codegen<'a, T: Target>(
                 &mut file.target_state,
                 &mut file.buf,
                 Struct {
-                    name: struct_.name.clone(),
+                    name: global.names.get(struct_.name),
                     description: struct_.description,
                     has_additional: struct_.has_additional,
                     fields,
@@ -334,8 +336,12 @@ fn _codegen<'a, T: Target>(
     })
 }
 
-fn with_subfile_state<'a, T: Target, F: FnOnce(&mut FileState<T>) -> Result<Expr<T::ExprMeta>>>(
-    global: &GlobalState<'a, T>,
+fn with_subfile_state<
+    'a,
+    T: Target,
+    F: FnOnce(&mut GlobalState<'a, T>, &mut FileState<T>) -> Result<Expr<T::ExprMeta>>,
+>(
+    global: &mut GlobalState<'a, T>,
     file_state: Option<&mut FileState<T>>,
     f: F,
 ) -> Result<Expr<T::ExprMeta>> {
@@ -355,25 +361,10 @@ fn with_subfile_state<'a, T: Target, F: FnOnce(&mut FileState<T>) -> Result<Expr
         }
     };
 
-    let expr = f(subfile_state)?;
+    let expr = f(global, subfile_state)?;
 
     if should_write_out {
         write_out_file(global, &mut subfile_state, &expr)?;
-        // let out_file_name = match global.file_partitioning {
-        //     FilePartitioning::FilePerType(ref extension) => {
-        //         Path::new(&expr.expr).with_extension(extension)
-        //     }
-        //     FilePartitioning::SingleFile(ref file_name) => Path::new(file_name).to_path_buf(),
-        // };
-
-        // dbg!(&out_file_name);
-
-        // let mut out_file = File::create(global.out_dir.join(out_file_name))?;
-
-        // global
-        //     .target
-        //     .write_preamble(&mut subfile_state.target_state, &mut out_file)?;
-        // out_file.write_all(&subfile_state.buf)?;
     }
 
     Ok(expr)
