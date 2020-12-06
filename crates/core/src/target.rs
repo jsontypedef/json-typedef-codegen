@@ -43,13 +43,6 @@ pub trait Target {
         enum_: Enum,
     ) -> Result<Expr<Self::ExprMeta>>;
 
-    fn write_enum_variant(
-        &self,
-        state: &mut Self::FileState,
-        out: &mut dyn Write,
-        enum_variant: EnumVariant,
-    ) -> Result<Expr<Self::ExprMeta>>;
-
     fn write_struct<'a>(
         &self,
         state: &mut Self::FileState,

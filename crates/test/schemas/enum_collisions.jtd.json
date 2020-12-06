@@ -1,0 +1,20 @@
+{
+    "properties": {
+        "foo": {
+            "properties": {
+                "bar": {
+                    "enum": [
+                        "x",
+                        "y"
+                    ]
+                }
+            }
+        },
+        "foo_bar": {
+            "enum": [
+                "x",
+                "y"
+            ]
+        }
+    }
+}

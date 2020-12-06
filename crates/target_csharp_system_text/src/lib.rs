@@ -149,15 +149,6 @@ impl jtd_codegen::Target for Target {
         })
     }
 
-    fn write_enum_variant(
-        &self,
-        state: &mut Self::FileState,
-        out: &mut dyn Write,
-        variant: EnumVariant,
-    ) -> Result<Expr<ExprMeta>> {
-        unreachable!()
-    }
-
     fn write_enum(
         &self,
         state: &mut Self::FileState,

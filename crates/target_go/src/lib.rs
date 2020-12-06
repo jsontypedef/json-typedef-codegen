@@ -106,19 +106,6 @@ impl jtd_codegen::Target for Target {
         })
     }
 
-    fn write_enum_variant(
-        &self,
-        state: &mut Self::FileState,
-        out: &mut dyn Write,
-        variant: EnumVariant,
-    ) -> Result<Expr<ExprMeta>> {
-        writeln!(out, "const {} = {:?}", variant.name, variant.json_value)?;
-        Ok(Expr {
-            expr: variant.name,
-            meta: ExprMeta { nullable: false },
-        })
-    }
-
     fn write_enum(
         &self,
         state: &mut Self::FileState,
@@ -126,6 +113,13 @@ impl jtd_codegen::Target for Target {
         enum_: Enum,
     ) -> Result<Expr<ExprMeta>> {
         writeln!(out, "type {} string", enum_.name)?;
+
+        writeln!(out, "const (")?;
+        for variant in enum_.variants {
+            writeln!(out, "\t{} {} = {:?}", variant.name, enum_.name, variant.json_value)?;
+        }
+        writeln!(out, ")")?;
+
         Ok(Expr {
             expr: enum_.name,
             meta: ExprMeta { nullable: false },

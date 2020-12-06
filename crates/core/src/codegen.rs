@@ -277,23 +277,16 @@ fn _codegen<'a, T: Target>(
             let mut variants = vec![];
 
             for variant in enum_.variants {
-                let name = variant_names.get(variant.name);
+                let name = match global.enum_strategy {
+                    EnumStrategy::Modularized => variant_names.get(variant.name),
+                    EnumStrategy::Unmodularized => global.names.get(variant.name),
+                };
 
                 variants.push(EnumVariant {
                     name,
                     description: variant.description,
                     json_value: variant.json_value,
                 })
-            }
-
-            if let EnumStrategy::Unmodularized = global.enum_strategy {
-                for variant in &variants {
-                    global.target.write_enum_variant(
-                        &mut file.target_state,
-                        &mut file.buf,
-                        variant.clone(),
-                    )?;
-                }
             }
 
             global.target.write_enum(
