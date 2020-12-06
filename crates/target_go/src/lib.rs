@@ -58,7 +58,16 @@ impl jtd_codegen::Target for Target {
     fn string(&self, state: &mut Self::FileState) -> Expr<ExprMeta> {
         Expr {
             expr: format!("string"),
-            meta: ExprMeta { nullable: true },
+            meta: ExprMeta { nullable: false },
+        }
+    }
+
+    fn timestamp(&self, state: &mut Self::FileState) -> Expr<ExprMeta> {
+        state.imports.insert("time".into());
+
+        Expr {
+            expr: format!("time.Time"),
+            meta: ExprMeta { nullable: false },
         }
     }
 
@@ -116,7 +125,11 @@ impl jtd_codegen::Target for Target {
 
         writeln!(out, "const (")?;
         for variant in enum_.variants {
-            writeln!(out, "\t{} {} = {:?}", variant.name, enum_.name, variant.json_value)?;
+            writeln!(
+                out,
+                "\t{} {} = {:?}",
+                variant.name, enum_.name, variant.json_value
+            )?;
         }
         writeln!(out, ")")?;
 

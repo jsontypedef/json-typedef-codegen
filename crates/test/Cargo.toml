@@ -9,6 +9,6 @@ jtd_codegen = { path = "../core" }
 jtd = "0.2.1"
 serde_json = "1.0"
 tempfile = "3"
-jtd-fuzz = "0.1.19"
+jtd-fuzz = "0.1.21"
 rand = "0.7"
 rand_pcg = "0.2"

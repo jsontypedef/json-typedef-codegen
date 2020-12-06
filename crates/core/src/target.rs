@@ -14,6 +14,7 @@ pub trait Target {
 
     fn boolean(&self, state: &mut Self::FileState) -> Expr<Self::ExprMeta>;
     fn string(&self, state: &mut Self::FileState) -> Expr<Self::ExprMeta>;
+    fn timestamp(&self, state: &mut Self::FileState) -> Expr<Self::ExprMeta>;
 
     fn nullable_of(
         &self,

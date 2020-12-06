@@ -130,9 +130,9 @@ dependencies = [
 
 [[package]]
 name = "jtd-fuzz"
-version = "0.1.19"
+version = "0.1.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93c33f66706d6ee96d56a264106f09dc5913f95c00a7cf9a69bd6fdc86202347"
+checksum = "3c66b25b6c9ab341dc33866ab5c8328811ff6436107888687acaa4f93a120205"
 dependencies = [
  "anyhow",
  "chrono",

@@ -64,6 +64,15 @@ impl jtd_codegen::Target for Target {
         }
     }
 
+    fn timestamp(&self, state: &mut Self::FileState) -> Expr<ExprMeta> {
+        state.imports.insert("System".into());
+
+        Expr {
+            expr: format!("DateTimeOffset"),
+            meta: ExprMeta { nullable: true },
+        }
+    }
+
     fn nullable_of(&self, state: &mut Self::FileState, expr: Expr<ExprMeta>) -> Expr<ExprMeta> {
         // It's already nullable, no need to do it again.
         if expr.meta.nullable {

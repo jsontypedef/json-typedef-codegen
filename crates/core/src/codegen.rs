@@ -21,7 +21,9 @@ mod ast {
         Ref(String),
         Boolean,
         String,
+        Timestamp,
         ElementsOf(Box<Ast>),
+        NullableOf(Box<Ast>),
         Alias(Alias),
         Enum(Enum),
         Struct(Struct),
@@ -99,13 +101,26 @@ mod ast {
 
     fn _from_schema<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) -> Ast {
         match schema.form {
-            Form::Ref(form::Ref { ref definition, .. }) => Ast::Ref(definition.clone()),
-            Form::Type(form::Type { ref type_value, .. }) => match type_value {
-                TypeValue::Boolean => Ast::Boolean,
-                TypeValue::String => Ast::String,
-                _ => todo!(),
-            },
-            Form::Enum(form::Enum { ref values, .. }) => {
+            Form::Ref(form::Ref {
+                ref definition,
+                nullable,
+            }) => with_nullable(nullable, Ast::Ref(definition.clone())),
+            Form::Type(form::Type {
+                ref type_value,
+                nullable,
+            }) => with_nullable(
+                nullable,
+                match type_value {
+                    TypeValue::Boolean => Ast::Boolean,
+                    TypeValue::String => Ast::String,
+                    TypeValue::Timestamp => Ast::Timestamp,
+                    _ => todo!(),
+                },
+            ),
+            Form::Enum(form::Enum {
+                ref values,
+                nullable,
+            }) => {
                 let mut variants = vec![];
                 for value in values {
                     path.push(value.into());
@@ -118,11 +133,14 @@ mod ast {
                 }
 
                 let name = target.name_type(path);
-                Ast::Enum(Enum {
-                    name,
-                    description: "".into(),
-                    variants,
-                })
+                with_nullable(
+                    nullable,
+                    Ast::Enum(Enum {
+                        name,
+                        description: "".into(),
+                        variants,
+                    }),
+                )
             }
             Form::Elements(form::Elements {
                 ref schema,
@@ -134,12 +152,16 @@ mod ast {
                 let last = path.pop().expect("todo: top-level elements");
                 path.push(to_singular(&last));
 
-                Ast::ElementsOf(Box::new(_from_schema(target, path, schema)))
+                with_nullable(
+                    nullable,
+                    Ast::ElementsOf(Box::new(_from_schema(target, path, schema))),
+                )
             }
             Form::Properties(form::Properties {
                 ref required,
                 ref optional,
                 additional,
+                nullable,
                 ..
             }) => {
                 let struct_name = target.name_type(path);
@@ -166,14 +188,25 @@ mod ast {
                     });
                 }
 
-                Ast::Struct(Struct {
-                    name: struct_name,
-                    description: "".into(),
-                    has_additional: additional,
-                    fields,
-                })
+                with_nullable(
+                    nullable,
+                    Ast::Struct(Struct {
+                        name: struct_name,
+                        description: "".into(),
+                        has_additional: additional,
+                        fields,
+                    }),
+                )
             }
             _ => todo!(),
+        }
+    }
+
+    fn with_nullable(nullable: bool, ast: Ast) -> Ast {
+        if nullable {
+            Ast::NullableOf(Box::new(ast))
+        } else {
+            ast
         }
     }
 }
@@ -256,9 +289,14 @@ fn _codegen<'a, T: Target>(
         },
         ast::Ast::Boolean => global.target.boolean(&mut file.target_state),
         ast::Ast::String => global.target.string(&mut file.target_state),
+        ast::Ast::Timestamp => global.target.timestamp(&mut file.target_state),
         ast::Ast::ElementsOf(sub_ast) => {
             let sub_expr = _codegen(global, file, *sub_ast)?;
             global.target.elements_of(&mut file.target_state, sub_expr)
+        }
+        ast::Ast::NullableOf(sub_ast) => {
+            let sub_expr = _codegen(global, file, *sub_ast)?;
+            global.target.nullable_of(&mut file.target_state, sub_expr)
         }
         ast::Ast::Alias(alias) => with_subfile_state(global, Some(file), |global, file| {
             let sub_expr = _codegen(global, file, *alias.type_)?;

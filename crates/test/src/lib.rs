@@ -12,7 +12,13 @@ use std::process::{Command, Stdio};
 
 pub fn assert_common_test_cases<T: Target>(target_crate_base_dir: &str, target: &T) {
     let schemas_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("schemas");
-    for entry in schemas_dir.read_dir().expect("read schemas dir") {
+
+    let roundtrip_exact_dir = schemas_dir.join("roundtrip_exact");
+    let roundtrip_inexact_dir= schemas_dir.join("roundtrip_inexact");
+
+    // TODO: Get rid of duplication in these two for loops.
+
+    for entry in roundtrip_exact_dir.read_dir().expect("read schemas dir") {
         let schema_path = entry.expect("read schemas dir entry").path();
         let schema_name = schema_path
             .file_name()
@@ -34,7 +40,50 @@ pub fn assert_common_test_cases<T: Target>(target_crate_base_dir: &str, target: 
         // Check stability first, so that developers can easily see what
         // generated code ultimately gets tested in assert_roundtrip.
         assert_stable(target_crate_base_dir, schema_name, &tempdir);
-        assert_roundtrip(target_crate_base_dir, &tempdir, &root_name, &schema, 8927);
+
+        // TODO: How to determine which schemas are expected to be exact
+        // roundtrips?
+        assert_roundtrip(
+            target_crate_base_dir,
+            &tempdir,
+            &root_name,
+            &schema,
+            true,
+            8927,
+        );
+    }
+
+    for entry in roundtrip_inexact_dir.read_dir().expect("read schemas dir") {
+        let schema_path = entry.expect("read schemas dir entry").path();
+        let schema_name = schema_path
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .split(".")
+            .nth(0)
+            .unwrap();
+
+        let schema = File::open(&schema_path).expect("open schema file");
+        let schema: SerdeSchema = serde_json::from_reader(schema).expect("deserialize schema");
+        let schema: Schema = schema.try_into().expect("validate schema");
+
+        // todo: verifying stability only makes sense for common test cases, custom
+        // test cases will need to provide test case name somehow.
+        let (tempdir, root_name) = generate_code(target, &schema);
+
+        // Check stability first, so that developers can easily see what
+        // generated code ultimately gets tested in assert_roundtrip.
+        assert_stable(target_crate_base_dir, schema_name, &tempdir);
+
+        assert_roundtrip(
+            target_crate_base_dir,
+            &tempdir,
+            &root_name,
+            &schema,
+            false,
+            8927,
+        );
     }
 }
 
@@ -58,6 +107,7 @@ fn assert_roundtrip(
     tempdir: &tempfile::TempDir,
     root_name: &str,
     schema: &Schema,
+    exact_roundtrip: bool,
     seed: u64,
 ) {
     // Copy over the target crate's docker data into the temp dir.
@@ -75,13 +125,6 @@ fn assert_roundtrip(
             ),
         )
         .expect("copy crate docker dir entry to temp dir");
-    }
-
-    // Fuzz some data against the schema.
-    let mut rng = Pcg32::seed_from_u64(seed);
-    let mut input = Vec::new();
-    for _ in 0..1000 {
-        writeln!(input, "{}", jtd_fuzz::fuzz(schema, &mut rng)).unwrap();
     }
 
     // Build the docker container. We pipe stdout so we can get back the image
@@ -113,6 +156,17 @@ fn assert_roundtrip(
         .unwrap()
         .read_to_string(&mut image)
         .expect("read docker build stdout");
+
+    // Fuzz some data against the schema.
+    let mut rng = Pcg32::seed_from_u64(seed);
+    let mut input_instances = Vec::new();
+    let mut input = Vec::new();
+
+    for _ in 0..1000 {
+        let instance = jtd_fuzz::fuzz(schema, &mut rng);
+        writeln!(input, "{}", &instance).unwrap();
+        input_instances.push(instance);
+    }
 
     // Run the docker container, with the input piped in.
     let mut docker_run = Command::new("docker")
@@ -146,7 +200,7 @@ fn assert_roundtrip(
         max_errors: None,
     };
 
-    for value in Deserializer::from_str(&output).into_iter() {
+    for (index, value) in Deserializer::from_str(&output).into_iter().enumerate() {
         let value: Value = value.expect("parse docker run output");
         let errors = validator.validate(schema, &value).unwrap();
 
@@ -157,6 +211,14 @@ fn assert_roundtrip(
             value,
             errors,
         );
+
+        if exact_roundtrip {
+            assert_eq!(
+                &value, &input_instances[index],
+                "data did not round-trip exactly, index: {:?}",
+                index
+            );
+        }
     }
 }
 
