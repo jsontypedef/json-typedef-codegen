@@ -1,0 +1,8 @@
+{
+    "properties": {
+        "foo": {
+            "type": "timestamp",
+            "nullable": true
+        }
+    }
+}

@@ -69,7 +69,7 @@ impl jtd_codegen::Target for Target {
 
         Expr {
             expr: format!("DateTimeOffset"),
-            meta: ExprMeta { nullable: true },
+            meta: ExprMeta { nullable: false },
         }
     }
 
