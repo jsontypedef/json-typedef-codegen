@@ -2,6 +2,7 @@ mod codegen;
 mod error;
 mod inflector;
 mod target;
+mod namespace;
 
 pub use codegen::codegen;
 pub use error::{Error, Result};

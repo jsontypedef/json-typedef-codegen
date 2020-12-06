@@ -7,6 +7,7 @@ use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use crate::namespace::Namespace;
 
 mod ast {
     use crate::Target;
@@ -300,10 +301,14 @@ fn _codegen<'a, T: Target>(
             )
         })?,
         ast::Ast::Struct(struct_) => with_subfile_state(global, Some(file), |file| {
+            let mut field_names = Namespace::new();
             let mut fields = Vec::new();
+
             for field in struct_.fields {
+                let name = field_names.get(field.name);
+
                 fields.push(StructField {
-                    name: field.name,
+                    name: name,
                     json_name: field.json_name,
                     description: "".into(),
                     optional: field.optional,
