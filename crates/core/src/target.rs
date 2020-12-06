@@ -6,6 +6,7 @@ pub trait Target {
     type ExprMeta: ExprMeta;
 
     fn file_partitioning(&self) -> FilePartitioning;
+    fn enum_strategy(&self) -> EnumStrategy;
 
     fn name_type(&self, name_parts: &[String]) -> String;
     fn name_field(&self, name_parts: &[String]) -> String;
@@ -35,18 +36,20 @@ pub trait Target {
         alias: Alias<Self::ExprMeta>,
     ) -> Result<Expr<Self::ExprMeta>>;
 
-    // fn write_enum_variant<'a>(
-    //     &self,
-    //     state: &mut Self::FileState,
-    //     out: &mut dyn Write,
-    //     enum_variant: EnumVariant<'a>,
-    // ) -> Result<()>;
-    // fn write_enum<'a>(
-    //     &self,
-    //     state: &mut Self::FileState,
-    //     out: &mut dyn Write,
-    //     enum_: Enum<'a>,
-    // ) -> Result<()>;
+    fn write_enum(
+        &self,
+        state: &mut Self::FileState,
+        out: &mut dyn Write,
+        enum_: Enum,
+    ) -> Result<Expr<Self::ExprMeta>>;
+
+    fn write_enum_variant(
+        &self,
+        state: &mut Self::FileState,
+        out: &mut dyn Write,
+        enum_variant: EnumVariant,
+    ) -> Result<Expr<Self::ExprMeta>>;
+
     fn write_struct<'a>(
         &self,
         state: &mut Self::FileState,
@@ -77,10 +80,14 @@ pub trait ExprMeta: PartialEq + Clone {
     fn universally_usable() -> Self;
 }
 
-#[derive(PartialEq, Eq)]
 pub enum FilePartitioning {
     SingleFile(String),
     FilePerType(String),
+}
+
+pub enum EnumStrategy {
+    Modularized,
+    Unmodularized,
 }
 
 pub struct Alias<T> {
@@ -89,17 +96,18 @@ pub struct Alias<T> {
     pub type_: Expr<T>,
 }
 
-// pub struct EnumVariant<'a> {
-//     pub name: String,
-//     pub description: &'a str,
-//     pub json_value: &'a str,
-// }
+pub struct Enum {
+    pub name: String,
+    pub description: String,
+    pub variants: Vec<EnumVariant>,
+}
 
-// pub struct Enum<'a> {
-//     pub name: String,
-//     pub description: &'a str,
-//     pub variants: &'a [EnumVariant<'a>],
-// }
+#[derive(Clone)]
+pub struct EnumVariant {
+    pub name: String,
+    pub description: String,
+    pub json_value: String,
+}
 
 pub struct Struct<T> {
     pub name: String,

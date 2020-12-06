@@ -34,6 +34,10 @@ impl jtd_codegen::Target for Target {
         FilePartitioning::FilePerType("cs".into())
     }
 
+    fn enum_strategy(&self) -> EnumStrategy {
+        EnumStrategy::Modularized
+    }
+
     fn name_type(&self, name_parts: &[String]) -> String {
         TYPE_NAMING_CONVENTION.inflect(name_parts)
     }
@@ -95,13 +99,9 @@ impl jtd_codegen::Target for Target {
         out: &mut dyn Write,
         alias: Alias<ExprMeta>,
     ) -> Result<Expr<ExprMeta>> {
-        state
-            .imports
-            .insert("System".into());
+        state.imports.insert("System".into());
 
-        state
-            .imports
-            .insert("System.Text.Json".into());
+        state.imports.insert("System.Text.Json".into());
 
         state
             .imports
@@ -109,7 +109,11 @@ impl jtd_codegen::Target for Target {
 
         writeln!(out, "namespace {}", self.namespace)?;
         writeln!(out, "{{")?;
-        writeln!(out, "    [JsonConverter(typeof({}.JsonConverter))]", alias.name)?;
+        writeln!(
+            out,
+            "    [JsonConverter(typeof({}.JsonConverter))]",
+            alias.name
+        )?;
         writeln!(out, "    public class {}", alias.name)?;
         writeln!(out, "    {{")?;
         writeln!(
@@ -117,7 +121,11 @@ impl jtd_codegen::Target for Target {
             "        public {} Value {{ get; set; }}",
             alias.type_.expr
         )?;
-        writeln!(out, "        public class JsonConverter : JsonConverter<{}>", alias.name)?;
+        writeln!(
+            out,
+            "        public class JsonConverter : JsonConverter<{}>",
+            alias.name
+        )?;
         writeln!(out, "        {{")?;
         writeln!(out, "            public override {} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)", alias.name)?;
         writeln!(out, "            {{")?;
@@ -125,7 +133,11 @@ impl jtd_codegen::Target for Target {
         writeln!(out, "            }}")?;
         writeln!(out, "            public override void Write(Utf8JsonWriter writer, {} value, JsonSerializerOptions options)", alias.name)?;
         writeln!(out, "            {{")?;
-        writeln!(out, "                JsonSerializer.Serialize<{}>(writer, value.Value, options);", alias.type_.expr)?;
+        writeln!(
+            out,
+            "                JsonSerializer.Serialize<{}>(writer, value.Value, options);",
+            alias.type_.expr
+        )?;
         writeln!(out, "            }}")?;
         writeln!(out, "        }}")?;
         writeln!(out, "    }}")?;
@@ -134,6 +146,86 @@ impl jtd_codegen::Target for Target {
         Ok(Expr {
             expr: alias.name,
             meta: ExprMeta { nullable: true },
+        })
+    }
+
+    fn write_enum_variant(
+        &self,
+        state: &mut Self::FileState,
+        out: &mut dyn Write,
+        variant: EnumVariant,
+    ) -> Result<Expr<ExprMeta>> {
+        unreachable!()
+    }
+
+    fn write_enum(
+        &self,
+        state: &mut Self::FileState,
+        out: &mut dyn Write,
+        enum_: Enum,
+    ) -> Result<Expr<ExprMeta>> {
+        state.imports.insert("System".into());
+
+        state.imports.insert("System.Text.Json".into());
+
+        state
+            .imports
+            .insert("System.Text.Json.Serialization".into());
+
+        writeln!(out, "namespace {}", self.namespace)?;
+        writeln!(out, "{{")?;
+        writeln!(
+            out,
+            "    [JsonConverter(typeof({}JsonConverter))]",
+            enum_.name
+        )?;
+        writeln!(out, "    public enum {}", enum_.name)?;
+        writeln!(out, "    {{")?;
+
+        for variant in &enum_.variants {
+            writeln!(out, "        {},", variant.name)?;
+        }
+
+        writeln!(out, "    }}")?;
+
+        writeln!(
+            out,
+            "    public class {}JsonConverter : JsonConverter<{}>",
+            enum_.name, enum_.name
+        )?;
+        writeln!(out, "    {{")?;
+        writeln!(out, "        public override {} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)", enum_.name)?;
+        writeln!(out, "        {{")?;
+        writeln!(out, "            string value = JsonSerializer.Deserialize<string>(ref reader, options);")?;
+        writeln!(out, "            switch (value)")?;
+        writeln!(out, "            {{")?;
+
+        for variant in &enum_.variants {
+            writeln!(out, "                case {:?}:", variant.json_value)?;
+            writeln!(out, "                    return {}.{};", enum_.name, variant.name)?;
+        }
+
+        writeln!(out, "                default:")?;
+        writeln!(out, "                    throw new ArgumentException(String.Format(\"Bad {} value: {{0}}\", value));", enum_.name)?;
+        writeln!(out, "            }}")?;
+        writeln!(out, "        }}")?;
+        writeln!(out, "        public override void Write(Utf8JsonWriter writer, {} value, JsonSerializerOptions options)", enum_.name)?;
+        writeln!(out, "        {{")?;
+        writeln!(out, "            switch (value)")?;
+        writeln!(out, "            {{")?;
+        for variant in enum_.variants {
+            writeln!(out, "                case {}.{}:", enum_.name, variant.name)?;
+            writeln!(out, "                    JsonSerializer.Serialize<string>(writer, {:?}, options);", variant.json_value)?;
+            writeln!(out, "                    return;")?;
+        }
+        writeln!(out, "            }}")?;
+        writeln!(out, "        }}")?;
+        writeln!(out, "    }}")?;
+        writeln!(out, "}}")?;
+
+        Ok(Expr {
+            expr: enum_.name,
+            meta: ExprMeta { nullable: false },
         })
     }
 

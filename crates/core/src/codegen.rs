@@ -22,6 +22,7 @@ mod ast {
         String,
         ElementsOf(Box<Ast>),
         Alias(Alias),
+        Enum(Enum),
         Struct(Struct),
     }
 
@@ -30,6 +31,20 @@ mod ast {
         pub name: String,
         pub description: String,
         pub type_: Box<Ast>,
+    }
+
+    #[derive(Debug)]
+    pub struct Enum {
+        pub name: String,
+        pub description: String,
+        pub variants: Vec<EnumVariant>,
+    }
+
+    #[derive(Debug)]
+    pub struct EnumVariant {
+        pub name: String,
+        pub description: String,
+        pub json_value: String,
     }
 
     #[derive(Debug)]
@@ -72,7 +87,7 @@ mod ast {
     fn from_schema_top_level<T: Target>(target: &T, name: String, schema: &Schema) -> Ast {
         let ast = _from_schema(target, &mut vec![name.clone()], schema);
         match ast {
-            Ast::Alias(_) | Ast::Struct(_) => ast,
+            Ast::Alias(_) | Ast::Enum(_) | Ast::Struct(_) => ast,
             _ => Ast::Alias(Alias {
                 name: target.name_type(&[name]),
                 description: "".into(),
@@ -89,6 +104,25 @@ mod ast {
                 TypeValue::String => Ast::String,
                 _ => todo!(),
             },
+            Form::Enum(form::Enum { ref values, .. }) => {
+                let mut variants = vec![];
+                for value in values {
+                    path.push(value.into());
+                    variants.push(EnumVariant {
+                        name: target.name_enum_variant(path),
+                        description: "".into(),
+                        json_value: value.into(),
+                    });
+                    path.pop();
+                }
+
+                let name = target.name_type(path);
+                Ast::Enum(Enum {
+                    name,
+                    description: "".into(),
+                    variants,
+                })
+            }
             Form::Elements(form::Elements {
                 ref schema,
                 nullable,
@@ -167,6 +201,7 @@ pub fn codegen<T: Target>(
 
     let global_state = GlobalState {
         file_partitioning: target.file_partitioning(),
+        enum_strategy: target.enum_strategy(),
         target,
         defs: &defs,
         out_dir,
@@ -195,6 +230,7 @@ pub fn codegen<T: Target>(
 
 struct GlobalState<'a, T: Target> {
     file_partitioning: FilePartitioning,
+    enum_strategy: EnumStrategy,
     target: &'a T,
     defs: &'a BTreeMap<String, String>,
     out_dir: &'a Path,
@@ -221,138 +257,71 @@ fn _codegen<'a, T: Target>(
             let sub_expr = _codegen(global, file, *sub_ast)?;
             global.target.elements_of(&mut file.target_state, sub_expr)
         }
-        ast::Ast::Alias(alias) => {
-            with_subfile_state(global, Some(file), |file| {
-                let sub_expr = _codegen(global, file, *alias.type_)?;
-                global.target.write_alias(
-                    &mut file.target_state,
-                    &mut file.buf,
-                    Alias {
-                        name: alias.name.clone(),
-                        description: alias.description,
-                        type_: sub_expr,
-                    },
-                )
-            })?
+        ast::Ast::Alias(alias) => with_subfile_state(global, Some(file), |file| {
+            let sub_expr = _codegen(global, file, *alias.type_)?;
+            global.target.write_alias(
+                &mut file.target_state,
+                &mut file.buf,
+                Alias {
+                    name: alias.name.clone(),
+                    description: alias.description,
+                    type_: sub_expr,
+                },
+            )
+        })?,
+        ast::Ast::Enum(enum_) => with_subfile_state(global, Some(file), |file| {
+            let mut variants = vec![];
+            for variant in enum_.variants {
+                variants.push(EnumVariant {
+                    name: variant.name,
+                    description: variant.description,
+                    json_value: variant.json_value,
+                })
+            }
 
-            // // TODO: here we assume we're doing per-file partitioning
-
-            // // We will generate this data into a new file, which requires a new
-            // // file state.
-            // let mut sub_file = FileState {
-            //     buf: Vec::new(),
-            //     target_state: T::FileState::default(),
-            // };
-
-            // // Write out the alias
-            // let sub_expr = _codegen(global, &mut sub_file, *alias.type_)?;
-            // let expr = global.target.write_alias(
-            //     &mut sub_file.target_state,
-            //     &mut sub_file.buf,
-            //     Alias {
-            //         name: alias.name.clone(),
-            //         description: alias.description,
-            //         type_: sub_expr,
-            //     },
-            // )?;
-
-            // // With the alias prepared, now write it out to a file.
-            // let extension =
-            //     if let FilePartitioning::FilePerType(ref extension) = global.file_partitioning {
-            //         extension
-            //     } else {
-            //         todo!()
-            //     };
-
-            // let mut out_file = File::create(
-            //     global
-            //         .out_dir
-            //         .join(Path::new(&alias.name).with_extension(extension)),
-            // )?;
-
-            // global
-            //     .target
-            //     .write_preamble(&mut sub_file.target_state, &mut out_file)?;
-            // out_file.write_all(&sub_file.buf)?;
-
-            // expr
-        }
-        ast::Ast::Struct(struct_) => {
-            with_subfile_state(global, Some(file), |file| {
-                let mut fields = Vec::new();
-                for field in struct_.fields {
-                    fields.push(StructField {
-                        name: field.name,
-                        json_name: field.json_name,
-                        description: "".into(),
-                        optional: field.optional,
-                        type_: _codegen(global, file, field.type_)?,
-                    });
+            if let EnumStrategy::Unmodularized = global.enum_strategy {
+                for variant in &variants {
+                    global.target.write_enum_variant(
+                        &mut file.target_state,
+                        &mut file.buf,
+                        variant.clone(),
+                    )?;
                 }
+            }
 
-                global.target.write_struct(
-                    &mut file.target_state,
-                    &mut file.buf,
-                    Struct {
-                        name: struct_.name.clone(),
-                        description: struct_.description,
-                        has_additional: struct_.has_additional,
-                        fields,
-                    },
-                )
-            })?
+            global.target.write_enum(
+                &mut file.target_state,
+                &mut file.buf,
+                Enum {
+                    name: enum_.name,
+                    description: enum_.description,
+                    variants: variants,
+                },
+            )
+        })?,
+        ast::Ast::Struct(struct_) => with_subfile_state(global, Some(file), |file| {
+            let mut fields = Vec::new();
+            for field in struct_.fields {
+                fields.push(StructField {
+                    name: field.name,
+                    json_name: field.json_name,
+                    description: "".into(),
+                    optional: field.optional,
+                    type_: _codegen(global, file, field.type_)?,
+                });
+            }
 
-            // // TODO: here we assume we're doing per-file partitioning
-
-            // // We will generate this data into a new file, which requires a new
-            // // file state.
-            // let mut sub_file = FileState {
-            //     buf: Vec::new(),
-            //     target_state: T::FileState::default(),
-            // };
-
-            // let mut fields = Vec::new();
-            // for field in struct_.fields {
-            //     fields.push(StructField {
-            //         name: field.name,
-            //         json_name: field.json_name,
-            //         description: "".into(),
-            //         optional: field.optional,
-            //         type_: _codegen(global, &mut sub_file, field.type_)?,
-            //     });
-            // }
-
-            // let expr = global.target.write_struct(
-            //     &mut sub_file.target_state,
-            //     &mut sub_file.buf,
-            //     Struct {
-            //         name: struct_.name.clone(),
-            //         description: struct_.description,
-            //         has_additional: struct_.has_additional,
-            //         fields,
-            //     },
-            // )?;
-
-            // let extension =
-            //     if let FilePartitioning::FilePerType(ref extension) = global.file_partitioning {
-            //         extension
-            //     } else {
-            //         todo!()
-            //     };
-
-            // let mut out_file = File::create(
-            //     global
-            //         .out_dir
-            //         .join(Path::new(&struct_.name).with_extension(extension)),
-            // )?;
-
-            // global
-            //     .target
-            //     .write_preamble(&mut sub_file.target_state, &mut out_file)?;
-            // out_file.write_all(&sub_file.buf)?;
-
-            // expr
-        }
+            global.target.write_struct(
+                &mut file.target_state,
+                &mut file.buf,
+                Struct {
+                    name: struct_.name.clone(),
+                    description: struct_.description,
+                    has_additional: struct_.has_additional,
+                    fields,
+                },
+            )
+        })?,
     })
 }
 

@@ -5,6 +5,8 @@ use std::io::Write;
 
 // todo: use keyword-avoiding inflectors
 lazy_static! {
+    // todo: more of an "item" naming convention, containing both types and
+    // consts. What is the proper name for this, per the Go spec?
     static ref TYPE_NAMING_CONVENTION: Box<dyn Inflector + Send + Sync> =
         Box::new(CombiningInflector::new(Case::PascalCase));
     static ref FIELD_NAMING_CONVENTION: Box<dyn Inflector + Send + Sync> =
@@ -30,6 +32,10 @@ impl jtd_codegen::Target for Target {
         FilePartitioning::SingleFile(format!("{}.go", self.package))
     }
 
+    fn enum_strategy(&self) -> EnumStrategy {
+        EnumStrategy::Unmodularized
+    }
+
     fn name_type(&self, name_parts: &[String]) -> String {
         TYPE_NAMING_CONVENTION.inflect(name_parts)
     }
@@ -39,7 +45,7 @@ impl jtd_codegen::Target for Target {
     }
 
     fn name_enum_variant(&self, name_parts: &[String]) -> String {
-        todo!()
+        TYPE_NAMING_CONVENTION.inflect(name_parts)
     }
 
     fn boolean(&self, state: &mut Self::FileState) -> Expr<ExprMeta> {
@@ -97,6 +103,32 @@ impl jtd_codegen::Target for Target {
         Ok(Expr {
             expr: alias.name,
             meta: alias.type_.meta,
+        })
+    }
+
+    fn write_enum_variant(
+        &self,
+        state: &mut Self::FileState,
+        out: &mut dyn Write,
+        variant: EnumVariant,
+    ) -> Result<Expr<ExprMeta>> {
+        writeln!(out, "const {} = {:?}", variant.name, variant.json_value)?;
+        Ok(Expr {
+            expr: variant.name,
+            meta: ExprMeta { nullable: false },
+        })
+    }
+
+    fn write_enum(
+        &self,
+        state: &mut Self::FileState,
+        out: &mut dyn Write,
+        enum_: Enum,
+    ) -> Result<Expr<ExprMeta>> {
+        writeln!(out, "type {} string", enum_.name)?;
+        Ok(Expr {
+            expr: enum_.name,
+            meta: ExprMeta { nullable: false },
         })
     }
 
