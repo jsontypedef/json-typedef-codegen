@@ -271,10 +271,14 @@ fn _codegen<'a, T: Target>(
             )
         })?,
         ast::Ast::Enum(enum_) => with_subfile_state(global, Some(file), |file| {
+            let mut variant_names = Namespace::new();
             let mut variants = vec![];
+
             for variant in enum_.variants {
+                let name = variant_names.get(variant.name);
+
                 variants.push(EnumVariant {
-                    name: variant.name,
+                    name,
                     description: variant.description,
                     json_value: variant.json_value,
                 })
