@@ -160,6 +160,85 @@ impl jtd_codegen::Target for Target {
             meta: ExprMeta { nullable: false },
         })
     }
+
+    fn write_discriminator_variant(
+        &self,
+        state: &mut Self::FileState,
+        out: &mut dyn Write,
+        variant: DiscriminatorVariant<ExprMeta>,
+    ) -> Result<Expr<ExprMeta>> {
+        writeln!(out, "type {} struct {{", variant.name)?;
+        writeln!(
+            out,
+            "\t{} string `json:{:?}`",
+            variant.tag_name, variant.tag_json_name
+        )?;
+        for field in variant.fields {
+            writeln!(
+                out,
+                "\t{} {} `json:{:?}`",
+                field.name, field.type_.expr, field.json_name
+            )?;
+        }
+        writeln!(out, "}}")?;
+
+        Ok(Expr {
+            expr: variant.name,
+            meta: ExprMeta { nullable: true },
+        })
+    }
+
+    fn write_discriminator(
+        &self,
+        state: &mut Self::FileState,
+        out: &mut dyn Write,
+        discriminator: Discriminator<ExprMeta>,
+    ) -> Result<Expr<ExprMeta>> {
+        state.imports.insert("encoding/json".into());
+        state.imports.insert("fmt".into());
+
+        writeln!(out, "type {} struct {{", discriminator.name)?;
+
+        writeln!(out, "\t{} string", discriminator.tag_name)?;
+        for (_tag_value, variant) in &discriminator.variants {
+            writeln!(out, "\t{} {}", variant.expr, variant.expr)?;
+        }
+
+        writeln!(out, "}}")?;
+
+        writeln!(out, "func (v {}) MarshalJSON() ([]byte, error) {{", discriminator.name)?;
+        writeln!(out, "\tswitch (v.{}) {{", discriminator.tag_name)?;
+        for (tag_value, variant) in &discriminator.variants {
+            writeln!(out, "\tcase {:?}:", tag_value)?;
+            writeln!(out, "\t\treturn json.Marshal(struct {{ T string `json:{:?}`; {} }}{{ v.{}, v.{} }})", discriminator.tag_json_name, variant.expr, discriminator.tag_name, variant.expr)?;
+        }
+        writeln!(out, "\t}}")?;
+        writeln!(out, "\treturn nil, fmt.Errorf(\"bad {} value: %s\", v.{})", discriminator.tag_name, discriminator.tag_name)?;
+        writeln!(out, "}}")?;
+
+        writeln!(out, "func (v *{}) UnmarshalJSON(b []byte) error {{", discriminator.name)?;
+        writeln!(out, "\tvar t struct {{ T string `json:{:?}` }}", discriminator.tag_json_name)?;
+        writeln!(out, "\tif err := json.Unmarshal(b, &t); err != nil {{")?;
+        writeln!(out, "\t\treturn err")?;
+        writeln!(out, "\t}}")?;
+        writeln!(out, "\tswitch t.T {{")?;
+        for (tag_value, variant) in &discriminator.variants {
+            writeln!(out, "\tcase {:?}:", tag_value)?;
+            writeln!(out, "\t\tif err := json.Unmarshal(b, &v.{}); err != nil {{", variant.expr)?;
+            writeln!(out, "\t\t\treturn err")?;
+            writeln!(out, "\t\t}}")?;
+            writeln!(out, "\t\tv.{} = {:?}", discriminator.tag_name, tag_value)?;
+            writeln!(out, "\t\treturn nil")?;
+        }
+        writeln!(out, "\t}}")?;
+        writeln!(out, "\treturn fmt.Errorf(\"bad {} value: %s\", t.T)", discriminator.tag_name)?;
+        writeln!(out, "}}")?;
+
+        Ok(Expr {
+            expr: discriminator.name,
+            meta: ExprMeta { nullable: true },
+        })
+    }
 }
 
 #[derive(Default)]

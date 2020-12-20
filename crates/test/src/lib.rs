@@ -180,6 +180,7 @@ fn assert_roundtrip<T: Target>(
     // Send the input JSON in.
     docker_run
         .stdin
+        .take()
         .unwrap()
         .write_all(&input)
         .expect("write docker run stdin");
@@ -188,6 +189,7 @@ fn assert_roundtrip<T: Target>(
     let mut output = String::new();
     docker_run
         .stdout
+        .take()
         .unwrap()
         .read_to_string(&mut output)
         .expect("read docker run stdout");
@@ -219,6 +221,11 @@ fn assert_roundtrip<T: Target>(
             );
         }
     }
+
+    assert!(
+        docker_run.wait().expect("wait docker run").success(),
+        "docker run failed"
+    );
 }
 
 fn assert_stable(target_crate_base_dir: &str, test_case_name: &str, tempdir: &tempfile::TempDir) {
