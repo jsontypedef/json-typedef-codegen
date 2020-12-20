@@ -1,4 +1,5 @@
 use crate::{Inflector, Result};
+use std::collections::BTreeMap;
 use std::io::Write;
 
 pub trait Target {
@@ -44,24 +45,26 @@ pub trait Target {
         enum_: Enum,
     ) -> Result<Expr<Self::ExprMeta>>;
 
-    fn write_struct<'a>(
+    fn write_struct(
         &self,
         state: &mut Self::FileState,
         out: &mut dyn Write,
         struct_: Struct<Self::ExprMeta>,
     ) -> Result<Expr<Self::ExprMeta>>;
-    // fn write_discriminator_variant<'a>(
-    //     &self,
-    //     state: &mut Self::FileState,
-    //     out: &mut dyn Write,
-    //     discriminator_variant: DiscriminatorVariant<'a, Self::Expr>,
-    // ) -> Result<()>;
-    // fn write_discriminator<'a>(
-    //     &self,
-    //     state: &mut Self::FileState,
-    //     out: &mut dyn Write,
-    //     discriminator: Discriminator<'a, Self::Expr>,
-    // ) -> Result<()>;
+
+    fn write_discriminator_variant(
+        &self,
+        state: &mut Self::FileState,
+        out: &mut dyn Write,
+        struct_: DiscriminatorVariant<Self::ExprMeta>,
+    ) -> Result<Expr<Self::ExprMeta>>;
+
+    fn write_discriminator(
+        &self,
+        state: &mut Self::FileState,
+        out: &mut dyn Write,
+        struct_: Discriminator<Self::ExprMeta>,
+    ) -> Result<Expr<Self::ExprMeta>>;
 }
 
 #[derive(Clone)]
@@ -118,18 +121,20 @@ pub struct StructField<T> {
     pub type_: Expr<T>,
 }
 
-// pub struct DiscriminatorVariant<'a, T> {
-//     pub name: String,
-//     pub description: &'a str,
-//     pub parent_name: &'a str,
-//     pub discriminator_value: &'a str,
-//     pub struct_: Struct<'a, T>,
-// }
+pub struct DiscriminatorVariant<T> {
+    pub name: String,
+    pub description: String,
+    pub parent_name: String,
+    pub tag_name: String,
+    pub tag_json_name: String,
+    pub tag_json_value: String,
+    pub fields: Vec<StructField<T>>,
+}
 
-// pub struct Discriminator<'a, T> {
-//     pub name: String,
-//     pub description: &'a str,
-//     pub discriminator_field_name: &'a str,
-//     pub discriminator_json_name: &'a str,
-//     pub struct_: Struct<'a, T>,
-// }
+pub struct Discriminator<T> {
+    pub name: String,
+    pub description: String,
+    pub tag_name: String,
+    pub tag_json_name: String,
+    pub variants: BTreeMap<String, Expr<T>>,
+}

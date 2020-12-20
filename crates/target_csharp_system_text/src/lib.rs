@@ -272,6 +272,98 @@ impl jtd_codegen::Target for Target {
             meta: ExprMeta { nullable: true },
         })
     }
+
+    fn write_discriminator_variant(
+        &self,
+        state: &mut Self::FileState,
+        out: &mut dyn Write,
+        variant: DiscriminatorVariant<ExprMeta>,
+    ) -> Result<Expr<ExprMeta>> {
+        state
+            .imports
+            .insert("System.Text.Json.Serialization".into());
+
+        writeln!(out, "namespace {}", self.namespace)?;
+        writeln!(out, "{{")?;
+        writeln!(out, "    public class {} : {}", variant.name, variant.parent_name)?;
+        writeln!(out, "    {{")?;
+        writeln!(out, "        [JsonPropertyName({:?})]", variant.tag_json_name)?;
+        writeln!(out, "        public string {} {{ get => {:?}; }}", variant.tag_name, variant.tag_json_value)?;
+
+        for field in variant.fields {
+            writeln!(out, "        [JsonPropertyName({:?})]", field.json_name)?;
+            writeln!(
+                out,
+                "        public {} {} {{ get; set; }}",
+                field.type_.expr, field.name
+            )?;
+        }
+
+        writeln!(out, "    }}")?;
+        writeln!(out, "}}")?;
+
+        Ok(Expr {
+            expr: variant.name,
+            meta: ExprMeta { nullable: true },
+        })
+    }
+
+    fn write_discriminator(
+        &self,
+        state: &mut Self::FileState,
+        out: &mut dyn Write,
+        discriminator: Discriminator<ExprMeta>,
+    ) -> Result<Expr<ExprMeta>> {
+        state.imports.insert("System".into());
+
+        state.imports.insert("System.Text.Json".into());
+
+        state
+            .imports
+            .insert("System.Text.Json.Serialization".into());
+
+        writeln!(out, "namespace {}", self.namespace)?;
+        writeln!(out, "{{")?;
+        writeln!(
+            out,
+            "    [JsonConverter(typeof({}JsonConverter))]",
+            discriminator.name
+        )?;
+        writeln!(out, "    public abstract class {}", discriminator.name)?;
+        writeln!(out, "    {{")?;
+        writeln!(out, "    }}")?;
+        writeln!(
+            out,
+            "    public class {}JsonConverter : JsonConverter<{}>",
+            discriminator.name, discriminator.name
+        )?;
+        writeln!(out, "    {{")?;
+        writeln!(out, "        public override {} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)", discriminator.name)?;
+        writeln!(out, "        {{")?;
+        writeln!(out, "            var readerCopy = reader;")?;
+        writeln!(out, "            var tagValue = JsonDocument.ParseValue(ref reader).RootElement.GetProperty({:?}).GetString();", discriminator.tag_json_name)?;
+        writeln!(out, "            switch (tagValue)")?;
+        writeln!(out, "            {{")?;
+        for (tag_value, variant) in discriminator.variants {
+            writeln!(out, "                case {:?}:", tag_value)?;
+            writeln!(out, "                    return JsonSerializer.Deserialize<{}>(ref readerCopy, options);", variant.expr)?;
+        }
+        writeln!(out, "                default:")?;
+        writeln!(out, "                    throw new ArgumentException(String.Format(\"Bad {} value: {{0}}\", tagValue));", discriminator.tag_name)?;
+        writeln!(out, "            }}")?;
+        writeln!(out, "        }}")?;
+        writeln!(out, "        public override void Write(Utf8JsonWriter writer, {} value, JsonSerializerOptions options)", discriminator.name)?;
+        writeln!(out, "        {{")?;
+        writeln!(out, "            JsonSerializer.Serialize(writer, value, value.GetType(), options);")?;
+        writeln!(out, "        }}")?;
+        writeln!(out, "    }}")?;
+        writeln!(out, "}}")?;
+
+        Ok(Expr {
+            expr: discriminator.name,
+            meta: ExprMeta { nullable: true },
+        })
+    }
 }
 
 #[derive(Default)]
@@ -292,11 +384,7 @@ impl jtd_codegen::ExprMeta for ExprMeta {
 
 #[cfg(test)]
 mod tests {
-    use super::Target;
-
-    #[test]
-    fn test_common_test_cases() {
-        let target = Target::new("JtdCodegenE2E".into());
-        jtd_codegen_test::assert_common_test_cases(env!("CARGO_MANIFEST_DIR"), &target);
+    mod std_tests {
+        jtd_codegen_test::std_test_cases!(&crate::Target::new("JtdCodegenE2E".into()));
     }
 }

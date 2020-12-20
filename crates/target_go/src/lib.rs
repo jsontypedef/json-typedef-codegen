@@ -180,11 +180,7 @@ impl jtd_codegen::ExprMeta for ExprMeta {
 
 #[cfg(test)]
 mod tests {
-    use super::Target;
-
-    #[test]
-    fn test_common_test_cases() {
-        let target = Target::new("jtd_codegen_e2e".into());
-        jtd_codegen_test::assert_common_test_cases(env!("CARGO_MANIFEST_DIR"), &target);
+    mod std_tests {
+        jtd_codegen_test::std_test_cases!(&crate::Target::new("jtd_codegen_e2e".into()));
     }
 }

@@ -10,81 +10,79 @@ use std::io::{Read, Write};
 use std::path::Path;
 use std::process::{Command, Stdio};
 
-pub fn assert_common_test_cases<T: Target>(target_crate_base_dir: &str, target: &T) {
-    let schemas_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("schemas");
+#[macro_export]
+macro_rules! std_test_cases {
+    ($target: expr) => {
+        $crate::strict_std_test_case!($target, basic_discriminator);
+        $crate::strict_std_test_case!($target, basic_enum);
+        $crate::strict_std_test_case!($target, basic_properties);
+        $crate::strict_std_test_case!($target, enum_collisions);
+        $crate::strict_std_test_case!($target, enum_variant_collisions);
+        $crate::strict_std_test_case!($target, property_name_collisions);
+        $crate::strict_std_test_case!($target, root_nullable_string);
+        $crate::strict_std_test_case!($target, root_string);
+        $crate::strict_std_test_case!($target, type_collisions);
 
-    let roundtrip_exact_dir = schemas_dir.join("roundtrip_exact");
-    let roundtrip_inexact_dir= schemas_dir.join("roundtrip_inexact");
+        $crate::loose_std_test_case!($target, nullable_timestamp_property);
+        $crate::loose_std_test_case!($target, root_nullable_timestamp);
+        $crate::loose_std_test_case!($target, root_timestamp);
+    };
+}
 
-    // TODO: Get rid of duplication in these two for loops.
+#[macro_export]
+macro_rules! strict_std_test_case {
+    ($target: expr, $name: ident) => {
+        #[test]
+        fn $name() {
+            let base_dir = env!("CARGO_MANIFEST_DIR");
+            $crate::assert_std_test_case(base_dir, $target, stringify!($name), true);
+        }
+    };
+}
 
-    for entry in roundtrip_exact_dir.read_dir().expect("read schemas dir") {
-        let schema_path = entry.expect("read schemas dir entry").path();
-        let schema_name = schema_path
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .split(".")
-            .nth(0)
-            .unwrap();
+#[macro_export]
+macro_rules! loose_std_test_case {
+    ($target: expr, $name: ident) => {
+        #[test]
+        fn $name() {
+            let base_dir = env!("CARGO_MANIFEST_DIR");
+            $crate::assert_std_test_case(base_dir, $target, stringify!($name), false);
+        }
+    };
+}
 
-        let schema = File::open(&schema_path).expect("open schema file");
-        let schema: SerdeSchema = serde_json::from_reader(schema).expect("deserialize schema");
-        let schema: Schema = schema.try_into().expect("validate schema");
+pub fn assert_std_test_case<T: Target>(
+    target_crate_base_dir: &str,
+    target: &T,
+    name: &str,
+    strict: bool,
+) {
+    let schema_path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("schemas")
+        .join(if strict {
+            "roundtrip_strict"
+        } else {
+            "roundtrip_loose"
+        })
+        .join(format!("{}.jtd.json", name));
 
-        // todo: verifying stability only makes sense for common test cases, custom
-        // test cases will need to provide test case name somehow.
-        let (tempdir, root_name) = generate_code(target, &schema);
+    let schema = File::open(&schema_path).expect("open schema file");
+    let schema: SerdeSchema = serde_json::from_reader(schema).expect("deserialize schema");
+    let schema: Schema = schema.try_into().expect("validate schema");
 
-        // Check stability first, so that developers can easily see what
-        // generated code ultimately gets tested in assert_roundtrip.
-        assert_stable(target_crate_base_dir, schema_name, &tempdir);
+    let (temp_dir, root_name) = generate_code(target, &schema);
 
-        // TODO: How to determine which schemas are expected to be exact
-        // roundtrips?
-        assert_roundtrip(
-            target_crate_base_dir,
-            &tempdir,
-            &root_name,
-            &schema,
-            true,
-            8927,
-        );
-    }
+    assert_stable(target_crate_base_dir, name, &temp_dir);
 
-    for entry in roundtrip_inexact_dir.read_dir().expect("read schemas dir") {
-        let schema_path = entry.expect("read schemas dir entry").path();
-        let schema_name = schema_path
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .split(".")
-            .nth(0)
-            .unwrap();
-
-        let schema = File::open(&schema_path).expect("open schema file");
-        let schema: SerdeSchema = serde_json::from_reader(schema).expect("deserialize schema");
-        let schema: Schema = schema.try_into().expect("validate schema");
-
-        // todo: verifying stability only makes sense for common test cases, custom
-        // test cases will need to provide test case name somehow.
-        let (tempdir, root_name) = generate_code(target, &schema);
-
-        // Check stability first, so that developers can easily see what
-        // generated code ultimately gets tested in assert_roundtrip.
-        assert_stable(target_crate_base_dir, schema_name, &tempdir);
-
-        assert_roundtrip(
-            target_crate_base_dir,
-            &tempdir,
-            &root_name,
-            &schema,
-            false,
-            8927,
-        );
-    }
+    assert_roundtrip(
+        target_crate_base_dir,
+        target,
+        &schema,
+        temp_dir.path(),
+        &root_name,
+        8927,
+        strict,
+    );
 }
 
 fn generate_code<T: Target>(target: &T, schema: &Schema) -> (tempfile::TempDir, String) {
@@ -102,13 +100,14 @@ fn generate_code<T: Target>(target: &T, schema: &Schema) -> (tempfile::TempDir, 
     (tempdir, main.expr)
 }
 
-fn assert_roundtrip(
+fn assert_roundtrip<T: Target>(
     target_crate_base_dir: &str,
-    tempdir: &tempfile::TempDir,
-    root_name: &str,
+    target: &T,
     schema: &Schema,
-    exact_roundtrip: bool,
+    temp_dir: &Path,
+    root_name: &str,
     seed: u64,
+    strict: bool,
 ) {
     // Copy over the target crate's docker data into the temp dir.
     let crate_docker_dir = Path::new(target_crate_base_dir).join("docker");
@@ -117,7 +116,7 @@ fn assert_roundtrip(
 
         fs::copy(
             entry.path(),
-            tempdir.path().join(
+            temp_dir.join(
                 entry
                     .path()
                     .file_name()
@@ -138,7 +137,7 @@ fn assert_roundtrip(
         .arg("--quiet")
         .arg("--build-arg")
         .arg(format!("MAIN={}", root_name))
-        .arg(tempdir.path())
+        .arg(temp_dir)
         .stdout(Stdio::piped())
         .spawn()
         .expect("spawn docker build");
@@ -212,7 +211,7 @@ fn assert_roundtrip(
             errors,
         );
 
-        if exact_roundtrip {
+        if strict {
             assert_eq!(
                 &value, &input_instances[index],
                 "data did not round-trip exactly, index: {:?}",

@@ -27,6 +27,7 @@ mod ast {
         Alias(Alias),
         Enum(Enum),
         Struct(Struct),
+        Discriminator(Discriminator),
     }
 
     #[derive(Debug)]
@@ -67,6 +68,25 @@ mod ast {
         pub type_: Ast,
     }
 
+    #[derive(Debug)]
+    pub struct Discriminator {
+        pub name: String,
+        pub description: String,
+        pub tag_name: String,
+        pub tag_json_name: String,
+        pub variants: BTreeMap<String, DiscriminatorVariant>, // key is tag value
+    }
+
+    #[derive(Debug)]
+    pub struct DiscriminatorVariant {
+        pub name: String,
+        pub description: String,
+        pub tag_name: String,
+        pub tag_json_name: String,
+        pub tag_json_value: String,
+        pub fields: Vec<StructField>,
+    }
+
     pub fn from_schema<T: Target>(
         target: &T,
         root_name: String,
@@ -90,7 +110,7 @@ mod ast {
     fn from_schema_top_level<T: Target>(target: &T, name: String, schema: &Schema) -> Ast {
         let ast = _from_schema(target, &mut vec![name.clone()], schema);
         match ast {
-            Ast::Alias(_) | Ast::Enum(_) | Ast::Struct(_) => ast,
+            Ast::Alias(_) | Ast::Enum(_) | Ast::Struct(_) | Ast::Discriminator(_) => ast,
             _ => Ast::Alias(Alias {
                 name: target.name_type(&[name]),
                 description: "".into(),
@@ -195,6 +215,54 @@ mod ast {
                         description: "".into(),
                         has_additional: additional,
                         fields,
+                    }),
+                )
+            }
+            Form::Discriminator(form::Discriminator {
+                ref discriminator,
+                ref mapping,
+                nullable,
+            }) => {
+                let discriminator_name = target.name_type(path);
+
+                path.push(discriminator.clone());
+                let tag_name = target.name_field(path);
+                path.pop();
+
+                let mut variants = BTreeMap::new();
+                for (tag_value, sub_schema) in mapping {
+                    path.push(tag_value.clone());
+                    let sub_expr = _from_schema(target, path, sub_schema);
+                    path.pop();
+
+                    // We know we are returning a struct here, because
+                    // sub_schema must be of the properties form.
+                    let struct_ = match sub_expr {
+                        Ast::Struct(s) => s,
+                        _ => unreachable!(),
+                    };
+
+                    variants.insert(
+                        tag_value.clone(),
+                        DiscriminatorVariant {
+                            name: struct_.name,
+                            description: struct_.description,
+                            tag_name: tag_name.clone(),
+                            tag_json_name: discriminator.clone(),
+                            tag_json_value: tag_value.clone(),
+                            fields: struct_.fields,
+                        },
+                    );
+                }
+
+                with_nullable(
+                    nullable,
+                    Ast::Discriminator(Discriminator {
+                        name: discriminator_name,
+                        tag_name: tag_name.clone(),
+                        tag_json_name: discriminator.clone(),
+                        description: "".into(),
+                        variants,
                     }),
                 )
             }
@@ -364,6 +432,71 @@ fn _codegen<'a, T: Target>(
                 },
             )
         })?,
+        ast::Ast::Discriminator(discriminator) => {
+            with_subfile_state(global, Some(file), |global, file| {
+                let discriminator_name = global.names.get(discriminator.name);
+
+                // Clone these as variables to avoid issues with partial moves
+                // of discriminator.
+                let tag_name = discriminator.tag_name.clone();
+                let tag_json_name = discriminator.tag_json_name.clone();
+
+                let mut variants = BTreeMap::new();
+                for (tag_value, variant) in discriminator.variants {
+                    variants.insert(
+                        tag_value,
+                        with_subfile_state(global, Some(file), |global, file| {
+                            // todo: dedupe this logic with struct stuff above?
+                            let mut field_names = Namespace::new();
+                            let mut fields = Vec::new();
+
+                            // Set aside a name for the discriminator tag,
+                            // because it will probably be in the same namespace
+                            // as the fields of the variant.
+                            let tag_name = field_names.get(tag_name.clone());
+
+                            for field in variant.fields {
+                                let name = field_names.get(field.name);
+
+                                fields.push(StructField {
+                                    name: name,
+                                    json_name: field.json_name,
+                                    description: "".into(),
+                                    optional: field.optional,
+                                    type_: _codegen(global, file, field.type_)?,
+                                });
+                            }
+
+                            global.target.write_discriminator_variant(
+                                &mut file.target_state,
+                                &mut file.buf,
+                                DiscriminatorVariant {
+                                    name: global.names.get(variant.name),
+                                    description: variant.description,
+                                    parent_name: discriminator_name.clone(),
+                                    tag_name,
+                                    tag_json_name: tag_json_name.clone(),
+                                    tag_json_value: variant.tag_json_value,
+                                    fields,
+                                },
+                            )
+                        })?,
+                    );
+                }
+
+                global.target.write_discriminator(
+                    &mut file.target_state,
+                    &mut file.buf,
+                    Discriminator {
+                        name: discriminator_name,
+                        description: discriminator.description,
+                        tag_name: discriminator.tag_name,
+                        tag_json_name: discriminator.tag_json_name,
+                        variants,
+                    },
+                )
+            })?
+        }
     })
 }
 
