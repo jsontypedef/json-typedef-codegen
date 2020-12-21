@@ -98,7 +98,7 @@ fn generate_code<T: Target>(target: &T, schema: &Schema) -> (tempfile::TempDir, 
     let main = jtd_codegen::codegen(target, "Root".to_owned(), &schema, &codegen_dir)
         .expect("generate code");
 
-    (tempdir, main.expr)
+    (tempdir, main)
 }
 
 fn assert_roundtrip<T: Target>(

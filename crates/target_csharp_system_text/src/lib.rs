@@ -28,102 +28,79 @@ impl Target {
 
 impl jtd_codegen::Target for Target {
     type FileState = FileState;
-    type ExprMeta = ExprMeta;
 
-    fn file_partitioning(&self) -> FilePartitioning {
+    fn file_partitioning() -> FilePartitioning {
         FilePartitioning::FilePerType("cs".into())
     }
 
-    fn enum_strategy(&self) -> EnumStrategy {
+    fn enum_strategy() -> EnumStrategy {
         EnumStrategy::Modularized
     }
 
-    fn name_type(&self, name_parts: &[String]) -> String {
+    fn name_type( name_parts: &[String]) -> String {
         TYPE_NAMING_CONVENTION.inflect(name_parts)
     }
 
-    fn name_field(&self, name_parts: &[String]) -> String {
+    fn name_field( name_parts: &[String]) -> String {
         FIELD_NAMING_CONVENTION.inflect(name_parts)
     }
 
-    fn name_enum_variant(&self, name_parts: &[String]) -> String {
+    fn name_enum_variant( name_parts: &[String]) -> String {
         ENUM_VARIANT_NAMING_CONVENTION.inflect(name_parts)
     }
 
-    fn booleans_are_nullable(&self) -> bool {
+    fn booleans_are_nullable() -> bool {
         false
     }
 
-    fn strings_are_nullable(&self) -> bool {
+    fn strings_are_nullable() -> bool {
         true
     }
 
-    fn timestamps_are_nullable(&self) -> bool {
+    fn timestamps_are_nullable() -> bool {
         false
     }
 
-    fn arrays_are_nullable(&self) -> bool {
+    fn arrays_are_nullable() -> bool {
         true
     }
 
-    fn aliases_are_nullable(&self) -> bool {
+    fn aliases_are_nullable() -> bool {
         true
     }
 
-    fn enums_are_nullable(&self) -> bool {
+    fn enums_are_nullable() -> bool {
         false
     }
 
-    fn structs_are_nullable(&self) -> bool {
+    fn structs_are_nullable() -> bool {
         true
     }
 
-    fn discriminators_are_nullable(&self) -> bool {
+    fn discriminators_are_nullable() -> bool {
         true
     }
 
-    fn boolean(&self, state: &mut Self::FileState) -> Expr<ExprMeta> {
-        Expr {
-            expr: format!("bool"),
-            meta: ExprMeta { nullable: false },
-        }
+    fn boolean(&self, state: &mut Self::FileState) -> String {
+        format!("bool")
     }
 
-    fn string(&self, state: &mut Self::FileState) -> Expr<ExprMeta> {
-        Expr {
-            expr: format!("string"),
-            meta: ExprMeta { nullable: true },
-        }
+    fn string(&self, state: &mut Self::FileState) -> String {
+        format!("string")
     }
 
-    fn timestamp(&self, state: &mut Self::FileState) -> Expr<ExprMeta> {
+    fn timestamp(&self, state: &mut Self::FileState) -> String {
         state.imports.insert("System".into());
-
-        Expr {
-            expr: format!("DateTimeOffset"),
-            meta: ExprMeta { nullable: false },
-        }
+        format!("DateTimeOffset")
     }
 
-    fn nullable_of(&self, state: &mut Self::FileState, expr: Expr<ExprMeta>) -> Expr<ExprMeta> {
-        // It's already nullable, no need to do it again.
-        if expr.meta.nullable {
-            return expr;
-        }
-
-        Expr {
-            expr: format!("{}?", expr.expr),
-            meta: ExprMeta { nullable: true },
-        }
+    fn nullable_of(&self, state: &mut Self::FileState, type_: String) -> String {
+        format!("{}?", type_)
     }
 
-    fn array_of(&self, state: &mut Self::FileState, expr: Expr<ExprMeta>) -> Expr<ExprMeta> {
+    fn array_of(&self, state: &mut Self::FileState, type_: String) -> String {
         state.imports.insert("System.Collections.Generic".into());
-
-        Expr {
-            expr: format!("IList<{}>", expr.expr),
-            meta: ExprMeta { nullable: true },
-        }
+        format!("IList<{}>", type_)
     }
 
     fn write_preamble(&self, state: &mut Self::FileState, out: &mut dyn Write) -> Result<()> {
@@ -138,8 +115,8 @@ impl jtd_codegen::Target for Target {
         &self,
         state: &mut Self::FileState,
         out: &mut dyn Write,
-        alias: Alias<ExprMeta>,
-    ) -> Result<Expr<ExprMeta>> {
+        alias: Alias,
+    ) -> Result<String> {
         state.imports.insert("System".into());
 
         state.imports.insert("System.Text.Json".into());
@@ -160,7 +137,7 @@ impl jtd_codegen::Target for Target {
         writeln!(
             out,
             "        public {} Value {{ get; set; }}",
-            alias.type_.expr
+            alias.type_
         )?;
         writeln!(
             out,
@@ -170,24 +147,21 @@ impl jtd_codegen::Target for Target {
         writeln!(out, "        {{")?;
         writeln!(out, "            public override {} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)", alias.name)?;
         writeln!(out, "            {{")?;
-        writeln!(out, "                return new {} {{ Value = JsonSerializer.Deserialize<{}>(ref reader, options) }};", alias.name, alias.type_.expr)?;
+        writeln!(out, "                return new {} {{ Value = JsonSerializer.Deserialize<{}>(ref reader, options) }};", alias.name, alias.type_)?;
         writeln!(out, "            }}")?;
         writeln!(out, "            public override void Write(Utf8JsonWriter writer, {} value, JsonSerializerOptions options)", alias.name)?;
         writeln!(out, "            {{")?;
         writeln!(
             out,
             "                JsonSerializer.Serialize<{}>(writer, value.Value, options);",
-            alias.type_.expr
+            alias.type_
         )?;
         writeln!(out, "            }}")?;
         writeln!(out, "        }}")?;
         writeln!(out, "    }}")?;
         writeln!(out, "}}")?;
 
-        Ok(Expr {
-            expr: alias.name,
-            meta: ExprMeta { nullable: true },
-        })
+        Ok(alias.name)
     }
 
     fn write_enum(
@@ -195,7 +169,7 @@ impl jtd_codegen::Target for Target {
         state: &mut Self::FileState,
         out: &mut dyn Write,
         enum_: Enum,
-    ) -> Result<Expr<ExprMeta>> {
+    ) -> Result<String> {
         state.imports.insert("System".into());
 
         state.imports.insert("System.Text.Json".into());
@@ -266,18 +240,15 @@ impl jtd_codegen::Target for Target {
         writeln!(out, "    }}")?;
         writeln!(out, "}}")?;
 
-        Ok(Expr {
-            expr: enum_.name,
-            meta: ExprMeta { nullable: false },
-        })
+        Ok(enum_.name)
     }
 
     fn write_struct(
         &self,
         state: &mut Self::FileState,
         out: &mut dyn Write,
-        struct_: Struct<ExprMeta>,
-    ) -> Result<Expr<ExprMeta>> {
+        struct_: Struct,
+    ) -> Result<String> {
         state
             .imports
             .insert("System.Text.Json.Serialization".into());
@@ -292,25 +263,22 @@ impl jtd_codegen::Target for Target {
             writeln!(
                 out,
                 "        public {} {} {{ get; set; }}",
-                field.type_.expr, field.name
+                field.type_, field.name
             )?;
         }
 
         writeln!(out, "    }}")?;
         writeln!(out, "}}")?;
 
-        Ok(Expr {
-            expr: struct_.name,
-            meta: ExprMeta { nullable: true },
-        })
+        Ok(struct_.name)
     }
 
     fn write_discriminator_variant(
         &self,
         state: &mut Self::FileState,
         out: &mut dyn Write,
-        variant: DiscriminatorVariant<ExprMeta>,
-    ) -> Result<Expr<ExprMeta>> {
+        variant: DiscriminatorVariant,
+    ) -> Result<String> {
         state
             .imports
             .insert("System.Text.Json.Serialization".into());
@@ -339,25 +307,22 @@ impl jtd_codegen::Target for Target {
             writeln!(
                 out,
                 "        public {} {} {{ get; set; }}",
-                field.type_.expr, field.name
+                field.type_, field.name
             )?;
         }
 
         writeln!(out, "    }}")?;
         writeln!(out, "}}")?;
 
-        Ok(Expr {
-            expr: variant.name,
-            meta: ExprMeta { nullable: true },
-        })
+        Ok(variant.name)
     }
 
     fn write_discriminator(
         &self,
         state: &mut Self::FileState,
         out: &mut dyn Write,
-        discriminator: Discriminator<ExprMeta>,
-    ) -> Result<Expr<ExprMeta>> {
+        discriminator: Discriminator,
+    ) -> Result<String> {
         state.imports.insert("System".into());
 
         state.imports.insert("System.Text.Json".into());
@@ -390,7 +355,7 @@ impl jtd_codegen::Target for Target {
         writeln!(out, "            {{")?;
         for (tag_value, variant) in discriminator.variants {
             writeln!(out, "                case {:?}:", tag_value)?;
-            writeln!(out, "                    return JsonSerializer.Deserialize<{}>(ref readerCopy, options);", variant.expr)?;
+            writeln!(out, "                    return JsonSerializer.Deserialize<{}>(ref readerCopy, options);", variant)?;
         }
         writeln!(out, "                default:")?;
         writeln!(out, "                    throw new ArgumentException(String.Format(\"Bad {} value: {{0}}\", tagValue));", discriminator.tag_name)?;
@@ -406,27 +371,13 @@ impl jtd_codegen::Target for Target {
         writeln!(out, "    }}")?;
         writeln!(out, "}}")?;
 
-        Ok(Expr {
-            expr: discriminator.name,
-            meta: ExprMeta { nullable: true },
-        })
+        Ok(discriminator.name)
     }
 }
 
 #[derive(Default)]
 pub struct FileState {
     imports: BTreeSet<String>,
-}
-
-#[derive(PartialEq, Clone)]
-pub struct ExprMeta {
-    nullable: bool,
-}
-
-impl jtd_codegen::ExprMeta for ExprMeta {
-    fn universally_usable() -> Self {
-        Self { nullable: true }
-    }
 }
 
 #[cfg(test)]

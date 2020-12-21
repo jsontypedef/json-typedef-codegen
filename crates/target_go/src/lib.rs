@@ -25,96 +25,78 @@ impl Target {
 
 impl jtd_codegen::Target for Target {
     type FileState = FileState;
-    type ExprMeta = ExprMeta;
 
-    fn file_partitioning(&self) -> FilePartitioning {
-        // todo: make sure this is a valid file name
-        FilePartitioning::SingleFile(format!("{}.go", self.package))
+    fn file_partitioning() -> FilePartitioning {
+        FilePartitioning::SingleFile("index.go".into())
     }
 
-    fn enum_strategy(&self) -> EnumStrategy {
+    fn enum_strategy() -> EnumStrategy {
         EnumStrategy::Unmodularized
     }
 
-    fn name_type(&self, name_parts: &[String]) -> String {
+    fn name_type(name_parts: &[String]) -> String {
         TYPE_NAMING_CONVENTION.inflect(name_parts)
     }
 
-    fn name_field(&self, name_parts: &[String]) -> String {
+    fn name_field(name_parts: &[String]) -> String {
         FIELD_NAMING_CONVENTION.inflect(name_parts)
     }
 
-    fn name_enum_variant(&self, name_parts: &[String]) -> String {
+    fn name_enum_variant(name_parts: &[String]) -> String {
         TYPE_NAMING_CONVENTION.inflect(name_parts)
     }
 
-    fn booleans_are_nullable(&self) -> bool {
+    fn booleans_are_nullable() -> bool {
         false
     }
 
-    fn strings_are_nullable(&self) -> bool {
+    fn strings_are_nullable() -> bool {
         false
     }
 
-    fn timestamps_are_nullable(&self) -> bool {
+    fn timestamps_are_nullable() -> bool {
         false
     }
 
-    fn arrays_are_nullable(&self) -> bool {
+    fn arrays_are_nullable() -> bool {
         true
     }
 
-    fn aliases_are_nullable(&self) -> bool {
+    fn aliases_are_nullable() -> bool {
         false
     }
 
-    fn enums_are_nullable(&self) -> bool {
+    fn enums_are_nullable() -> bool {
         false
     }
 
-    fn structs_are_nullable(&self) -> bool {
+    fn structs_are_nullable() -> bool {
         false
     }
 
-    fn discriminators_are_nullable(&self) -> bool {
+    fn discriminators_are_nullable() -> bool {
         false
     }
 
-    fn boolean(&self, state: &mut Self::FileState) -> Expr<ExprMeta> {
-        Expr {
-            expr: format!("bool"),
-            meta: ExprMeta { nullable: false },
-        }
+    fn boolean(&self, state: &mut Self::FileState) -> String {
+        format!("bool")
     }
 
-    fn string(&self, state: &mut Self::FileState) -> Expr<ExprMeta> {
-        Expr {
-            expr: format!("string"),
-            meta: ExprMeta { nullable: false },
-        }
+    fn string(&self, state: &mut Self::FileState) -> String {
+        format!("string")
     }
 
-    fn timestamp(&self, state: &mut Self::FileState) -> Expr<ExprMeta> {
+    fn timestamp(&self, state: &mut Self::FileState) -> String {
         state.imports.insert("time".into());
-
-        Expr {
-            expr: format!("time.Time"),
-            meta: ExprMeta { nullable: false },
-        }
+        "time.Time".into()
     }
 
-    fn nullable_of(&self, state: &mut Self::FileState, expr: Expr<ExprMeta>) -> Expr<ExprMeta> {
-        Expr {
-            expr: format!("*{}", expr.expr),
-            meta: ExprMeta { nullable: true },
-        }
+    fn nullable_of(&self, state: &mut Self::FileState, type_: String) -> String {
+        format!("*{}", type_)
     }
 
-    fn array_of(&self, state: &mut Self::FileState, expr: Expr<ExprMeta>) -> Expr<ExprMeta> {
-        Expr {
-            expr: format!("[]{}", expr.expr),
-            meta: ExprMeta { nullable: true },
-        }
+    fn array_of(&self, state: &mut Self::FileState, type_: String) -> String {
+        format!("[]{}", type_)
     }
 
     fn write_preamble(&self, state: &mut Self::FileState, out: &mut dyn Write) -> Result<()> {
@@ -131,13 +113,10 @@ impl jtd_codegen::Target for Target {
         &self,
         state: &mut Self::FileState,
         out: &mut dyn Write,
-        alias: Alias<ExprMeta>,
-    ) -> Result<Expr<ExprMeta>> {
-        writeln!(out, "type {} = {}", alias.name, alias.type_.expr)?;
-        Ok(Expr {
-            expr: alias.name,
-            meta: alias.type_.meta,
-        })
+        alias: Alias,
+    ) -> Result<String> {
+        writeln!(out, "type {} = {}", alias.name, alias.type_)?;
+        Ok(alias.name)
     }
 
     fn write_enum(
@@ -145,7 +124,7 @@ impl jtd_codegen::Target for Target {
         state: &mut Self::FileState,
         out: &mut dyn Write,
         enum_: Enum,
-    ) -> Result<Expr<ExprMeta>> {
+    ) -> Result<String> {
         writeln!(out, "type {} string", enum_.name)?;
 
         writeln!(out, "const (")?;
@@ -158,40 +137,34 @@ impl jtd_codegen::Target for Target {
         }
         writeln!(out, ")")?;
 
-        Ok(Expr {
-            expr: enum_.name,
-            meta: ExprMeta { nullable: false },
-        })
+        Ok(enum_.name)
     }
 
     fn write_struct(
         &self,
         state: &mut Self::FileState,
         out: &mut dyn Write,
-        struct_: Struct<ExprMeta>,
-    ) -> Result<Expr<ExprMeta>> {
+        struct_: Struct,
+    ) -> Result<String> {
         writeln!(out, "type {} struct {{", struct_.name)?;
         for field in struct_.fields {
             writeln!(
                 out,
                 "\t{} {} `json:{:?}`",
-                field.name, field.type_.expr, field.json_name
+                field.name, field.type_, field.json_name
             )?;
         }
         writeln!(out, "}}")?;
 
-        Ok(Expr {
-            expr: struct_.name,
-            meta: ExprMeta { nullable: false },
-        })
+        Ok(struct_.name)
     }
 
     fn write_discriminator_variant(
         &self,
         state: &mut Self::FileState,
         out: &mut dyn Write,
-        variant: DiscriminatorVariant<ExprMeta>,
-    ) -> Result<Expr<ExprMeta>> {
+        variant: DiscriminatorVariant,
+    ) -> Result<String> {
         writeln!(out, "type {} struct {{", variant.name)?;
         writeln!(
             out,
@@ -202,23 +175,20 @@ impl jtd_codegen::Target for Target {
             writeln!(
                 out,
                 "\t{} {} `json:{:?}`",
-                field.name, field.type_.expr, field.json_name
+                field.name, field.type_, field.json_name
             )?;
         }
         writeln!(out, "}}")?;
 
-        Ok(Expr {
-            expr: variant.name,
-            meta: ExprMeta { nullable: true },
-        })
+        Ok(variant.name)
     }
 
     fn write_discriminator(
         &self,
         state: &mut Self::FileState,
         out: &mut dyn Write,
-        discriminator: Discriminator<ExprMeta>,
-    ) -> Result<Expr<ExprMeta>> {
+        discriminator: Discriminator,
+    ) -> Result<String> {
         state.imports.insert("encoding/json".into());
         state.imports.insert("fmt".into());
 
@@ -226,7 +196,7 @@ impl jtd_codegen::Target for Target {
 
         writeln!(out, "\t{} string", discriminator.tag_name)?;
         for (_tag_value, variant) in &discriminator.variants {
-            writeln!(out, "\t{} {}", variant.expr, variant.expr)?;
+            writeln!(out, "\t{} {}", variant, variant)?;
         }
 
         writeln!(out, "}}")?;
@@ -242,7 +212,7 @@ impl jtd_codegen::Target for Target {
             writeln!(
                 out,
                 "\t\treturn json.Marshal(struct {{ T string `json:{:?}`; {} }}{{ v.{}, v.{} }})",
-                discriminator.tag_json_name, variant.expr, discriminator.tag_name, variant.expr
+                discriminator.tag_json_name, variant, discriminator.tag_name, variant
             )?;
         }
         writeln!(out, "\t}}")?;
@@ -272,7 +242,7 @@ impl jtd_codegen::Target for Target {
             writeln!(
                 out,
                 "\t\tif err := json.Unmarshal(b, &v.{}); err != nil {{",
-                variant.expr
+                variant
             )?;
             writeln!(out, "\t\t\treturn err")?;
             writeln!(out, "\t\t}}")?;
@@ -287,27 +257,13 @@ impl jtd_codegen::Target for Target {
         )?;
         writeln!(out, "}}")?;
 
-        Ok(Expr {
-            expr: discriminator.name,
-            meta: ExprMeta { nullable: true },
-        })
+        Ok(discriminator.name)
     }
 }
 
 #[derive(Default)]
 pub struct FileState {
     imports: BTreeSet<String>,
-}
-
-#[derive(PartialEq, Clone)]
-pub struct ExprMeta {
-    nullable: bool,
-}
-
-impl jtd_codegen::ExprMeta for ExprMeta {
-    fn universally_usable() -> Self {
-        Self { nullable: true }
-    }
 }
 
 #[cfg(test)]

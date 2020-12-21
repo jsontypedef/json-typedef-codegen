@@ -1,3 +1,4 @@
+mod ast;
 mod codegen;
 mod error;
 mod inflector;
