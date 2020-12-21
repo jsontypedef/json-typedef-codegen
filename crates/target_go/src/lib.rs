@@ -48,6 +48,38 @@ impl jtd_codegen::Target for Target {
         TYPE_NAMING_CONVENTION.inflect(name_parts)
     }
 
+    fn booleans_are_nullable(&self) -> bool {
+        false
+    }
+
+    fn strings_are_nullable(&self) -> bool {
+        false
+    }
+
+    fn timestamps_are_nullable(&self) -> bool {
+        false
+    }
+
+    fn arrays_are_nullable(&self) -> bool {
+        true
+    }
+
+    fn aliases_are_nullable(&self) -> bool {
+        false
+    }
+
+    fn enums_are_nullable(&self) -> bool {
+        false
+    }
+
+    fn structs_are_nullable(&self) -> bool {
+        false
+    }
+
+    fn discriminators_are_nullable(&self) -> bool {
+        false
+    }
+
     fn boolean(&self, state: &mut Self::FileState) -> Expr<ExprMeta> {
         Expr {
             expr: format!("bool"),
@@ -72,18 +104,13 @@ impl jtd_codegen::Target for Target {
     }
 
     fn nullable_of(&self, state: &mut Self::FileState, expr: Expr<ExprMeta>) -> Expr<ExprMeta> {
-        // It's already nullable, no need to do it again.
-        if expr.meta.nullable {
-            return expr;
-        }
-
         Expr {
             expr: format!("*{}", expr.expr),
             meta: ExprMeta { nullable: true },
         }
     }
 
-    fn elements_of(&self, state: &mut Self::FileState, expr: Expr<ExprMeta>) -> Expr<ExprMeta> {
+    fn array_of(&self, state: &mut Self::FileState, expr: Expr<ExprMeta>) -> Expr<ExprMeta> {
         Expr {
             expr: format!("[]{}", expr.expr),
             meta: ExprMeta { nullable: true },
@@ -106,8 +133,6 @@ impl jtd_codegen::Target for Target {
         out: &mut dyn Write,
         alias: Alias<ExprMeta>,
     ) -> Result<Expr<ExprMeta>> {
-        // todo: deal with weirdness around what types are correct to alias vs
-        // embed (vs other techniques?)
         writeln!(out, "type {} = {}", alias.name, alias.type_.expr)?;
         Ok(Expr {
             expr: alias.name,
@@ -206,32 +231,60 @@ impl jtd_codegen::Target for Target {
 
         writeln!(out, "}}")?;
 
-        writeln!(out, "func (v {}) MarshalJSON() ([]byte, error) {{", discriminator.name)?;
+        writeln!(
+            out,
+            "func (v {}) MarshalJSON() ([]byte, error) {{",
+            discriminator.name
+        )?;
         writeln!(out, "\tswitch (v.{}) {{", discriminator.tag_name)?;
         for (tag_value, variant) in &discriminator.variants {
             writeln!(out, "\tcase {:?}:", tag_value)?;
-            writeln!(out, "\t\treturn json.Marshal(struct {{ T string `json:{:?}`; {} }}{{ v.{}, v.{} }})", discriminator.tag_json_name, variant.expr, discriminator.tag_name, variant.expr)?;
+            writeln!(
+                out,
+                "\t\treturn json.Marshal(struct {{ T string `json:{:?}`; {} }}{{ v.{}, v.{} }})",
+                discriminator.tag_json_name, variant.expr, discriminator.tag_name, variant.expr
+            )?;
         }
         writeln!(out, "\t}}")?;
-        writeln!(out, "\treturn nil, fmt.Errorf(\"bad {} value: %s\", v.{})", discriminator.tag_name, discriminator.tag_name)?;
+        writeln!(
+            out,
+            "\treturn nil, fmt.Errorf(\"bad {} value: %s\", v.{})",
+            discriminator.tag_name, discriminator.tag_name
+        )?;
         writeln!(out, "}}")?;
 
-        writeln!(out, "func (v *{}) UnmarshalJSON(b []byte) error {{", discriminator.name)?;
-        writeln!(out, "\tvar t struct {{ T string `json:{:?}` }}", discriminator.tag_json_name)?;
+        writeln!(
+            out,
+            "func (v *{}) UnmarshalJSON(b []byte) error {{",
+            discriminator.name
+        )?;
+        writeln!(
+            out,
+            "\tvar t struct {{ T string `json:{:?}` }}",
+            discriminator.tag_json_name
+        )?;
         writeln!(out, "\tif err := json.Unmarshal(b, &t); err != nil {{")?;
         writeln!(out, "\t\treturn err")?;
         writeln!(out, "\t}}")?;
         writeln!(out, "\tswitch t.T {{")?;
         for (tag_value, variant) in &discriminator.variants {
             writeln!(out, "\tcase {:?}:", tag_value)?;
-            writeln!(out, "\t\tif err := json.Unmarshal(b, &v.{}); err != nil {{", variant.expr)?;
+            writeln!(
+                out,
+                "\t\tif err := json.Unmarshal(b, &v.{}); err != nil {{",
+                variant.expr
+            )?;
             writeln!(out, "\t\t\treturn err")?;
             writeln!(out, "\t\t}}")?;
             writeln!(out, "\t\tv.{} = {:?}", discriminator.tag_name, tag_value)?;
             writeln!(out, "\t\treturn nil")?;
         }
         writeln!(out, "\t}}")?;
-        writeln!(out, "\treturn fmt.Errorf(\"bad {} value: %s\", t.T)", discriminator.tag_name)?;
+        writeln!(
+            out,
+            "\treturn fmt.Errorf(\"bad {} value: %s\", t.T)",
+            discriminator.tag_name
+        )?;
         writeln!(out, "}}")?;
 
         Ok(Expr {

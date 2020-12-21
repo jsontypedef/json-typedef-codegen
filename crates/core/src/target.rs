@@ -9,6 +9,15 @@ pub trait Target {
     fn file_partitioning(&self) -> FilePartitioning;
     fn enum_strategy(&self) -> EnumStrategy;
 
+    fn booleans_are_nullable(&self) -> bool;
+    fn strings_are_nullable(&self) -> bool;
+    fn timestamps_are_nullable(&self) -> bool;
+    fn arrays_are_nullable(&self) -> bool;
+    fn aliases_are_nullable(&self) -> bool;
+    fn enums_are_nullable(&self) -> bool;
+    fn structs_are_nullable(&self) -> bool;
+    fn discriminators_are_nullable(&self) -> bool;
+
     fn name_type(&self, name_parts: &[String]) -> String;
     fn name_field(&self, name_parts: &[String]) -> String;
     fn name_enum_variant(&self, name_parts: &[String]) -> String;
@@ -23,7 +32,7 @@ pub trait Target {
         expr: Expr<Self::ExprMeta>,
     ) -> Expr<Self::ExprMeta>;
 
-    fn elements_of(
+    fn array_of(
         &self,
         state: &mut Self::FileState,
         expr: Expr<Self::ExprMeta>,

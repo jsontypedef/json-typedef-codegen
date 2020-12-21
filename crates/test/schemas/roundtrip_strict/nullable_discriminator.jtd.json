@@ -1,0 +1,20 @@
+{
+    "nullable": true,
+    "discriminator": "foo",
+    "mapping": {
+        "bar": {
+            "properties": {
+                "baz": {
+                    "type": "string"
+                }
+            }
+        },
+        "quux": {
+            "properties": {
+                "quuz": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

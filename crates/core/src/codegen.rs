@@ -22,7 +22,7 @@ mod ast {
         Boolean,
         String,
         Timestamp,
-        ElementsOf(Box<Ast>),
+        ArrayOf(Box<Ast>),
         NullableOf(Box<Ast>),
         Alias(Alias),
         Enum(Enum),
@@ -124,11 +124,12 @@ mod ast {
             Form::Ref(form::Ref {
                 ref definition,
                 nullable,
-            }) => with_nullable(nullable, Ast::Ref(definition.clone())),
+            }) => with_nullable(target, nullable, Ast::Ref(definition.clone())),
             Form::Type(form::Type {
                 ref type_value,
                 nullable,
             }) => with_nullable(
+                target,
                 nullable,
                 match type_value {
                     TypeValue::Boolean => Ast::Boolean,
@@ -154,6 +155,7 @@ mod ast {
 
                 let name = target.name_type(path);
                 with_nullable(
+                    target,
                     nullable,
                     Ast::Enum(Enum {
                         name,
@@ -173,8 +175,9 @@ mod ast {
                 path.push(to_singular(&last));
 
                 with_nullable(
+                    target,
                     nullable,
-                    Ast::ElementsOf(Box::new(_from_schema(target, path, schema))),
+                    Ast::ArrayOf(Box::new(_from_schema(target, path, schema))),
                 )
             }
             Form::Properties(form::Properties {
@@ -209,6 +212,7 @@ mod ast {
                 }
 
                 with_nullable(
+                    target,
                     nullable,
                     Ast::Struct(Struct {
                         name: struct_name,
@@ -256,6 +260,7 @@ mod ast {
                 }
 
                 with_nullable(
+                    target,
                     nullable,
                     Ast::Discriminator(Discriminator {
                         name: discriminator_name,
@@ -270,8 +275,24 @@ mod ast {
         }
     }
 
-    fn with_nullable(nullable: bool, ast: Ast) -> Ast {
-        if nullable {
+    fn with_nullable<T: Target>(target: &T, nullable: bool, ast: Ast) -> Ast {
+        // We need to wrap ast in NullableOf if the caller passed in nullable
+        // and if ast isn't already nullable to begin with.
+        let needs_nullable = nullable
+            && match ast {
+                Ast::Boolean => !target.booleans_are_nullable(),
+                Ast::String => !target.strings_are_nullable(),
+                Ast::Timestamp => !target.timestamps_are_nullable(),
+                Ast::ArrayOf(_) => !target.arrays_are_nullable(),
+                Ast::Alias(_) => !target.aliases_are_nullable(),
+                Ast::Enum(_) => !target.enums_are_nullable(),
+                Ast::Struct(_) => !target.structs_are_nullable(),
+                Ast::Discriminator(_) => !target.discriminators_are_nullable(),
+                Ast::Ref(_) => true,
+                Ast::NullableOf(_) => false,
+            };
+
+        if needs_nullable {
             Ast::NullableOf(Box::new(ast))
         } else {
             ast
@@ -286,7 +307,7 @@ pub fn codegen<T: Target>(
     out_dir: &Path,
 ) -> Result<Expr<T::ExprMeta>> {
     let (root, definitions) = ast::from_schema(target, root_name, schema);
-
+    dbg!(&root, &definitions);
     let defs = definitions
         .iter()
         .map(|(name, ast)| {
@@ -358,9 +379,9 @@ fn _codegen<'a, T: Target>(
         ast::Ast::Boolean => global.target.boolean(&mut file.target_state),
         ast::Ast::String => global.target.string(&mut file.target_state),
         ast::Ast::Timestamp => global.target.timestamp(&mut file.target_state),
-        ast::Ast::ElementsOf(sub_ast) => {
+        ast::Ast::ArrayOf(sub_ast) => {
             let sub_expr = _codegen(global, file, *sub_ast)?;
-            global.target.elements_of(&mut file.target_state, sub_expr)
+            global.target.array_of(&mut file.target_state, sub_expr)
         }
         ast::Ast::NullableOf(sub_ast) => {
             let sub_expr = _codegen(global, file, *sub_ast)?;
@@ -372,7 +393,7 @@ fn _codegen<'a, T: Target>(
                 &mut file.target_state,
                 &mut file.buf,
                 Alias {
-                    name: alias.name.clone(),
+                    name: global.names.get(alias.name),
                     description: alias.description,
                     type_: sub_expr,
                 },

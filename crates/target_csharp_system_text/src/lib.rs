@@ -50,6 +50,38 @@ impl jtd_codegen::Target for Target {
         ENUM_VARIANT_NAMING_CONVENTION.inflect(name_parts)
     }
 
+    fn booleans_are_nullable(&self) -> bool {
+        false
+    }
+
+    fn strings_are_nullable(&self) -> bool {
+        true
+    }
+
+    fn timestamps_are_nullable(&self) -> bool {
+        false
+    }
+
+    fn arrays_are_nullable(&self) -> bool {
+        true
+    }
+
+    fn aliases_are_nullable(&self) -> bool {
+        true
+    }
+
+    fn enums_are_nullable(&self) -> bool {
+        false
+    }
+
+    fn structs_are_nullable(&self) -> bool {
+        true
+    }
+
+    fn discriminators_are_nullable(&self) -> bool {
+        true
+    }
+
     fn boolean(&self, state: &mut Self::FileState) -> Expr<ExprMeta> {
         Expr {
             expr: format!("bool"),
@@ -85,7 +117,7 @@ impl jtd_codegen::Target for Target {
         }
     }
 
-    fn elements_of(&self, state: &mut Self::FileState, expr: Expr<ExprMeta>) -> Expr<ExprMeta> {
+    fn array_of(&self, state: &mut Self::FileState, expr: Expr<ExprMeta>) -> Expr<ExprMeta> {
         state.imports.insert("System.Collections.Generic".into());
 
         Expr {
@@ -285,10 +317,22 @@ impl jtd_codegen::Target for Target {
 
         writeln!(out, "namespace {}", self.namespace)?;
         writeln!(out, "{{")?;
-        writeln!(out, "    public class {} : {}", variant.name, variant.parent_name)?;
+        writeln!(
+            out,
+            "    public class {} : {}",
+            variant.name, variant.parent_name
+        )?;
         writeln!(out, "    {{")?;
-        writeln!(out, "        [JsonPropertyName({:?})]", variant.tag_json_name)?;
-        writeln!(out, "        public string {} {{ get => {:?}; }}", variant.tag_name, variant.tag_json_value)?;
+        writeln!(
+            out,
+            "        [JsonPropertyName({:?})]",
+            variant.tag_json_name
+        )?;
+        writeln!(
+            out,
+            "        public string {} {{ get => {:?}; }}",
+            variant.tag_name, variant.tag_json_value
+        )?;
 
         for field in variant.fields {
             writeln!(out, "        [JsonPropertyName({:?})]", field.json_name)?;
@@ -354,7 +398,10 @@ impl jtd_codegen::Target for Target {
         writeln!(out, "        }}")?;
         writeln!(out, "        public override void Write(Utf8JsonWriter writer, {} value, JsonSerializerOptions options)", discriminator.name)?;
         writeln!(out, "        {{")?;
-        writeln!(out, "            JsonSerializer.Serialize(writer, value, value.GetType(), options);")?;
+        writeln!(
+            out,
+            "            JsonSerializer.Serialize(writer, value, value.GetType(), options);"
+        )?;
         writeln!(out, "        }}")?;
         writeln!(out, "    }}")?;
         writeln!(out, "}}")?;
