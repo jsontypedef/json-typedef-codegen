@@ -1,4 +1,4 @@
-use crate::{Inflector, Result};
+use crate::Result;
 use std::collections::BTreeMap;
 use std::io::Write;
 

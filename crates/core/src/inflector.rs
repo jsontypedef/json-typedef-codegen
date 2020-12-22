@@ -1,39 +1,5 @@
-use std::collections::BTreeSet;
-
 pub trait Inflector {
     fn inflect(&self, name_parts: &[String]) -> String;
-}
-
-pub struct KeywordAvoidingInflector<I> {
-    keywords: BTreeSet<String>,
-    inflector: I,
-}
-
-impl<I> KeywordAvoidingInflector<I> {
-    pub fn new(keywords: BTreeSet<String>, inflector: I) -> Self {
-        Self {
-            keywords,
-            inflector,
-        }
-    }
-}
-
-// todo: remove this, use file naming convention instead
-pub struct AppendingInflector<I> {
-    suffix: String,
-    inflector: I,
-}
-
-impl<I> AppendingInflector<I> {
-    pub fn new(suffix: String, inflector: I) -> Self {
-        Self { suffix, inflector }
-    }
-}
-
-impl<I: Inflector> Inflector for AppendingInflector<I> {
-    fn inflect(&self, name_parts: &[String]) -> String {
-        format!("{}{}", self.inflector.inflect(name_parts), self.suffix)
-    }
 }
 
 pub struct CombiningInflector {

@@ -2,13 +2,13 @@ use crate::ast;
 use crate::namespace::Namespace;
 use crate::target::*;
 use crate::Result;
-use jtd::form::{self, TypeValue};
-use jtd::{Form, Schema};
-use std::borrow::Cow;
+
+use jtd::Schema;
+
 use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 pub fn codegen<T: Target>(
     target: &T,

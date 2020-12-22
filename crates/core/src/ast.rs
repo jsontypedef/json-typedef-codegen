@@ -112,12 +112,11 @@ fn _from_schema<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) 
         Form::Ref(form::Ref {
             ref definition,
             nullable,
-        }) => with_nullable(target, nullable, Ast::Ref(definition.clone())),
+        }) => with_nullable::<T>(nullable, Ast::Ref(definition.clone())),
         Form::Type(form::Type {
             ref type_value,
             nullable,
-        }) => with_nullable(
-            target,
+        }) => with_nullable::<T>(
             nullable,
             match type_value {
                 TypeValue::Boolean => Ast::Boolean,
@@ -142,8 +141,7 @@ fn _from_schema<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) 
             }
 
             let name = T::name_type(path);
-            with_nullable(
-                target,
+            with_nullable::<T>(
                 nullable,
                 Ast::Enum(Enum {
                     name,
@@ -162,15 +160,14 @@ fn _from_schema<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) 
             let last = path.pop().expect("todo: top-level elements");
             path.push(to_singular(&last));
 
-            with_nullable(
-                target,
+            with_nullable::<T>(
                 nullable,
                 Ast::ArrayOf(Box::new(_from_schema(target, path, schema))),
             )
         }
         Form::Properties(form::Properties {
             ref required,
-            ref optional,
+            optional: _,
             additional,
             nullable,
             ..
@@ -199,8 +196,7 @@ fn _from_schema<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) 
                 });
             }
 
-            with_nullable(
-                target,
+            with_nullable::<T>(
                 nullable,
                 Ast::Struct(Struct {
                     name: struct_name,
@@ -247,8 +243,7 @@ fn _from_schema<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) 
                 );
             }
 
-            with_nullable(
-                target,
+            with_nullable::<T>(
                 nullable,
                 Ast::Discriminator(Discriminator {
                     name: discriminator_name,
@@ -263,7 +258,7 @@ fn _from_schema<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) 
     }
 }
 
-fn with_nullable<T: Target>(target: &T, nullable: bool, ast: Ast) -> Ast {
+fn with_nullable<T: Target>(nullable: bool, ast: Ast) -> Ast {
     // We need to wrap ast in NullableOf if the caller passed in nullable
     // and if ast isn't already nullable to begin with.
     let needs_nullable = nullable

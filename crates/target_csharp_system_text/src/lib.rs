@@ -5,9 +5,6 @@ use std::io::Write;
 
 // todo: use keyword-avoiding inflectors
 lazy_static! {
-    static ref FILE_NAMING_CONVENTION: Box<dyn Inflector + Send + Sync> = Box::new(
-        AppendingInflector::new(".cs".into(), TailInflector::new(Case::PascalCase))
-    );
     static ref TYPE_NAMING_CONVENTION: Box<dyn Inflector + Send + Sync> =
         Box::new(CombiningInflector::new(Case::PascalCase));
     static ref FIELD_NAMING_CONVENTION: Box<dyn Inflector + Send + Sync> =
@@ -37,15 +34,15 @@ impl jtd_codegen::Target for Target {
         EnumStrategy::Modularized
     }
 
-    fn name_type( name_parts: &[String]) -> String {
+    fn name_type(name_parts: &[String]) -> String {
         TYPE_NAMING_CONVENTION.inflect(name_parts)
     }
 
-    fn name_field( name_parts: &[String]) -> String {
+    fn name_field(name_parts: &[String]) -> String {
         FIELD_NAMING_CONVENTION.inflect(name_parts)
     }
 
-    fn name_enum_variant( name_parts: &[String]) -> String {
+    fn name_enum_variant(name_parts: &[String]) -> String {
         ENUM_VARIANT_NAMING_CONVENTION.inflect(name_parts)
     }
 
@@ -134,11 +131,7 @@ impl jtd_codegen::Target for Target {
         )?;
         writeln!(out, "    public class {}", alias.name)?;
         writeln!(out, "    {{")?;
-        writeln!(
-            out,
-            "        public {} Value {{ get; set; }}",
-            alias.type_
-        )?;
+        writeln!(out, "        public {} Value {{ get; set; }}", alias.type_)?;
         writeln!(
             out,
             "        public class JsonConverter : JsonConverter<{}>",
