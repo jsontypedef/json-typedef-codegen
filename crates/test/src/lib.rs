@@ -77,7 +77,6 @@ pub fn assert_std_test_case<T: Target>(
 
     assert_roundtrip(
         target_crate_base_dir,
-        target,
         &schema,
         temp_dir.path(),
         &root_name,
@@ -101,9 +100,8 @@ fn generate_code<T: Target>(target: &T, schema: &Schema) -> (tempfile::TempDir, 
     (tempdir, main)
 }
 
-fn assert_roundtrip<T: Target>(
+fn assert_roundtrip(
     target_crate_base_dir: &str,
-    target: &T,
     schema: &Schema,
     temp_dir: &Path,
     root_name: &str,

@@ -78,11 +78,11 @@ impl jtd_codegen::Target for Target {
         true
     }
 
-    fn boolean(&self, state: &mut Self::FileState) -> String {
+    fn boolean(&self, _state: &mut Self::FileState) -> String {
         format!("bool")
     }
 
-    fn string(&self, state: &mut Self::FileState) -> String {
+    fn string(&self, _state: &mut Self::FileState) -> String {
         format!("string")
     }
 
@@ -91,7 +91,7 @@ impl jtd_codegen::Target for Target {
         format!("DateTimeOffset")
     }
 
-    fn nullable_of(&self, state: &mut Self::FileState, type_: String) -> String {
+    fn nullable_of(&self, _state: &mut Self::FileState, type_: String) -> String {
         format!("{}?", type_)
     }
 

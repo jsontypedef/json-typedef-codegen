@@ -78,11 +78,11 @@ impl jtd_codegen::Target for Target {
         false
     }
 
-    fn boolean(&self, state: &mut Self::FileState) -> String {
+    fn boolean(&self, _state: &mut Self::FileState) -> String {
         format!("bool")
     }
 
-    fn string(&self, state: &mut Self::FileState) -> String {
+    fn string(&self, _state: &mut Self::FileState) -> String {
         format!("string")
     }
 
@@ -91,11 +91,11 @@ impl jtd_codegen::Target for Target {
         "time.Time".into()
     }
 
-    fn nullable_of(&self, state: &mut Self::FileState, type_: String) -> String {
+    fn nullable_of(&self, _state: &mut Self::FileState, type_: String) -> String {
         format!("*{}", type_)
     }
 
-    fn array_of(&self, state: &mut Self::FileState, type_: String) -> String {
+    fn array_of(&self, _state: &mut Self::FileState, type_: String) -> String {
         format!("[]{}", type_)
     }
 
@@ -111,7 +111,7 @@ impl jtd_codegen::Target for Target {
 
     fn write_alias(
         &self,
-        state: &mut Self::FileState,
+        _state: &mut Self::FileState,
         out: &mut dyn Write,
         alias: Alias,
     ) -> Result<String> {
@@ -121,7 +121,7 @@ impl jtd_codegen::Target for Target {
 
     fn write_enum(
         &self,
-        state: &mut Self::FileState,
+        _state: &mut Self::FileState,
         out: &mut dyn Write,
         enum_: Enum,
     ) -> Result<String> {
@@ -142,7 +142,7 @@ impl jtd_codegen::Target for Target {
 
     fn write_struct(
         &self,
-        state: &mut Self::FileState,
+        _state: &mut Self::FileState,
         out: &mut dyn Write,
         struct_: Struct,
     ) -> Result<String> {
@@ -161,7 +161,7 @@ impl jtd_codegen::Target for Target {
 
     fn write_discriminator_variant(
         &self,
-        state: &mut Self::FileState,
+        _state: &mut Self::FileState,
         out: &mut dyn Write,
         variant: DiscriminatorVariant,
     ) -> Result<String> {
