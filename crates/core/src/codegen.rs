@@ -95,18 +95,22 @@ fn _codegen<'a, T: Target>(
             global.target.nullable_of(&mut file.target_state, sub_expr)
         }
         ast::Ast::Alias(alias) => with_subfile_state(global, Some(file), |global, file| {
+            let alias_name = global.names.get(alias.name);
             let sub_expr = _codegen(global, file, *alias.type_)?;
+
             global.target.write_alias(
                 &mut file.target_state,
                 &mut file.buf,
                 Alias {
-                    name: global.names.get(alias.name),
+                    name: alias_name,
                     description: alias.description,
                     type_: sub_expr,
                 },
             )
         })?,
         ast::Ast::Enum(enum_) => with_subfile_state(global, Some(file), |global, file| {
+            let enum_name = global.names.get(enum_.name);
+
             let mut variant_names = Namespace::new();
             let mut variants = vec![];
 
@@ -127,13 +131,15 @@ fn _codegen<'a, T: Target>(
                 &mut file.target_state,
                 &mut file.buf,
                 Enum {
-                    name: global.names.get(enum_.name),
+                    name: enum_name,
                     description: enum_.description,
                     variants: variants,
                 },
             )
         })?,
         ast::Ast::Struct(struct_) => with_subfile_state(global, Some(file), |global, file| {
+            let struct_name = global.names.get(struct_.name);
+
             let mut field_names = Namespace::new();
             let mut fields = Vec::new();
 
@@ -153,7 +159,7 @@ fn _codegen<'a, T: Target>(
                 &mut file.target_state,
                 &mut file.buf,
                 Struct {
-                    name: global.names.get(struct_.name),
+                    name: struct_name,
                     description: struct_.description,
                     has_additional: struct_.has_additional,
                     fields,

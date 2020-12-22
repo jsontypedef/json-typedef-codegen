@@ -1,8 +1,8 @@
 package jtd_codegen_e2e
-type Root string
+type Root0 string
 const (
-	RootBar Root = "Bar"
-	RootBaz Root = "Baz"
-	RootFoo Root = "Foo"
+	RootBar Root0 = "Bar"
+	RootBaz Root0 = "Baz"
+	RootFoo Root0 = "Foo"
 )
-type Root0 = *Root
+type Root = *Root0

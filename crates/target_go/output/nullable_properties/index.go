@@ -1,8 +1,8 @@
 package jtd_codegen_e2e
-type Root struct {
+type Root0 struct {
 	Bar string `json:"bar"`
 	Baz []bool `json:"baz"`
 	Foo bool `json:"foo"`
 	Quux []bool `json:"quux"`
 }
-type Root0 = *Root
+type Root = *Root0

@@ -9,12 +9,12 @@ type RootQuux struct {
 	Foo string `json:"foo"`
 	Quuz string `json:"quuz"`
 }
-type Root struct {
+type Root0 struct {
 	Foo string
 	RootBar RootBar
 	RootQuux RootQuux
 }
-func (v Root) MarshalJSON() ([]byte, error) {
+func (v Root0) MarshalJSON() ([]byte, error) {
 	switch (v.Foo) {
 	case "bar":
 		return json.Marshal(struct { T string `json:"foo"`; RootBar }{ v.Foo, v.RootBar })
@@ -23,7 +23,7 @@ func (v Root) MarshalJSON() ([]byte, error) {
 	}
 	return nil, fmt.Errorf("bad Foo value: %s", v.Foo)
 }
-func (v *Root) UnmarshalJSON(b []byte) error {
+func (v *Root0) UnmarshalJSON(b []byte) error {
 	var t struct { T string `json:"foo"` }
 	if err := json.Unmarshal(b, &t); err != nil {
 		return err
@@ -44,4 +44,4 @@ func (v *Root) UnmarshalJSON(b []byte) error {
 	}
 	return fmt.Errorf("bad Foo value: %s", t.T)
 }
-type Root0 = *Root
+type Root = *Root0
