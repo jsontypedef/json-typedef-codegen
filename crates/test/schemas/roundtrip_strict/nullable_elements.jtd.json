@@ -1,0 +1,6 @@
+{
+    "nullable": true,
+    "elements": {
+        "type": "string"
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "nullable": true,
+    "enum": [
+        "Foo",
+        "Bar",
+        "Baz"
+    ]
+}

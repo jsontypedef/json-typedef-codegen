@@ -1,0 +1,21 @@
+{
+    "nullable": true,
+    "properties": {
+        "foo": {
+            "type": "boolean"
+        },
+        "bar": {
+            "type": "string"
+        },
+        "baz": {
+            "elements": {
+                "type": "boolean"
+            }
+        },
+        "quux": {
+            "elements": {
+                "type": "boolean"
+            }
+        }
+    }
+}
