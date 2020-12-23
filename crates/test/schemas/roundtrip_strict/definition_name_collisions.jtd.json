@@ -1,0 +1,17 @@
+{
+    "definitions": {
+        "foo": {
+            "ref": "FOO"
+        },
+        "FOO": {
+            "ref": "BAR"
+        },
+        "BAR": {
+            "ref": "bar"
+        },
+        "bar": {
+            "type": "string"
+        }
+    },
+    "ref": "foo"
+}

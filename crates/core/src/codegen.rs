@@ -17,27 +17,20 @@ pub fn codegen<T: Target>(
     out_dir: &Path,
 ) -> Result<String> {
     let (root, definitions) = ast::from_schema(target, root_name, schema);
-    dbg!(&root, &definitions);
-    let defs = definitions
+
+    let mut global_namespace = Namespace::new();
+    let root_name = ast_name(&mut global_namespace, &root);
+    let definition_names = definitions
         .iter()
-        .map(|(name, ast)| {
-            (
-                name.clone(),
-                match ast {
-                    ast::Ast::Struct(s) => s.name.clone(),
-                    ast::Ast::Alias(a) => a.name.clone(),
-                    _ => unreachable!(),
-                },
-            )
-        })
+        .map(|(name, ast)| (name.clone(), ast_name(&mut global_namespace, ast)))
         .collect();
 
     let mut global_state = GlobalState {
         file_partitioning: T::file_partitioning(),
         enum_strategy: T::enum_strategy(),
-        names: Namespace::new(),
+        names: global_namespace,
         target,
-        defs: &defs,
+        definition_names: &definition_names,
         out_dir,
     };
 
@@ -46,11 +39,16 @@ pub fn codegen<T: Target>(
         target_state: T::FileState::default(),
     };
 
-    for (_, def_ast) in definitions {
-        _codegen(&mut global_state, &mut file_state, def_ast)?;
+    for (name, ast) in definitions {
+        _codegen(
+            &mut global_state,
+            &mut file_state,
+            ast,
+            definition_names[&name].clone(),
+        )?;
     }
 
-    let root_expr = _codegen(&mut global_state, &mut file_state, root)?;
+    let root_expr = _codegen(&mut global_state, &mut file_state, root, root_name)?;
 
     // If we are doing single-file file partitioning, then no schema will ever
     // write itself out to a file. We will need to flush the single file out
@@ -67,7 +65,7 @@ struct GlobalState<'a, T: Target> {
     enum_strategy: EnumStrategy,
     names: Namespace,
     target: &'a T,
-    defs: &'a BTreeMap<String, String>,
+    definition_names: &'a BTreeMap<String, String>,
     out_dir: &'a Path,
 }
 
@@ -80,48 +78,49 @@ fn _codegen<'a, T: Target>(
     global: &mut GlobalState<'a, T>,
     file: &mut FileState<T>,
     ast_: ast::Ast,
+    name: String,
 ) -> Result<String> {
     Ok(match ast_ {
-        ast::Ast::Ref(def) => global.defs[&def].clone(),
+        ast::Ast::Ref(def) => global.definition_names[&def].clone(),
         ast::Ast::Boolean => global.target.boolean(&mut file.target_state),
         ast::Ast::String => global.target.string(&mut file.target_state),
         ast::Ast::Timestamp => global.target.timestamp(&mut file.target_state),
         ast::Ast::ArrayOf(sub_ast) => {
-            let sub_expr = _codegen(global, file, *sub_ast)?;
+            let sub_name = ast_name(&mut global.names, &sub_ast);
+            let sub_expr = _codegen(global, file, *sub_ast, sub_name)?;
             global.target.array_of(&mut file.target_state, sub_expr)
         }
         ast::Ast::NullableOf(sub_ast) => {
-            let sub_expr = _codegen(global, file, *sub_ast)?;
+            let sub_name = ast_name(&mut global.names, &sub_ast);
+            let sub_expr = _codegen(global, file, *sub_ast, sub_name)?;
             global.target.nullable_of(&mut file.target_state, sub_expr)
         }
         ast::Ast::Alias(alias) => with_subfile_state(global, Some(file), |global, file| {
-            let alias_name = global.names.get(alias.name);
-            let sub_expr = _codegen(global, file, *alias.type_)?;
+            let sub_name = ast_name(&mut global.names, &alias.type_);
+            let sub_expr = _codegen(global, file, *alias.type_, sub_name)?;
 
             global.target.write_alias(
                 &mut file.target_state,
                 &mut file.buf,
                 Alias {
-                    name: alias_name,
+                    name,
                     description: alias.description,
                     type_: sub_expr,
                 },
             )
         })?,
         ast::Ast::Enum(enum_) => with_subfile_state(global, Some(file), |global, file| {
-            let enum_name = global.names.get(enum_.name);
-
             let mut variant_names = Namespace::new();
             let mut variants = vec![];
 
             for variant in enum_.variants {
-                let name = match global.enum_strategy {
+                let variant_name = match global.enum_strategy {
                     EnumStrategy::Modularized => variant_names.get(variant.name),
                     EnumStrategy::Unmodularized => global.names.get(variant.name),
                 };
 
                 variants.push(EnumVariant {
-                    name,
+                    name: variant_name,
                     description: variant.description,
                     json_value: variant.json_value,
                 })
@@ -131,27 +130,26 @@ fn _codegen<'a, T: Target>(
                 &mut file.target_state,
                 &mut file.buf,
                 Enum {
-                    name: enum_name,
+                    name,
                     description: enum_.description,
                     variants: variants,
                 },
             )
         })?,
         ast::Ast::Struct(struct_) => with_subfile_state(global, Some(file), |global, file| {
-            let struct_name = global.names.get(struct_.name);
-
             let mut field_names = Namespace::new();
             let mut fields = Vec::new();
 
             for field in struct_.fields {
-                let name = field_names.get(field.name);
+                let field_name = field_names.get(field.name);
+                let sub_name = ast_name(&mut global.names, &field.type_);
 
                 fields.push(StructField {
-                    name: name,
+                    name: field_name,
                     json_name: field.json_name,
                     description: "".into(),
                     optional: field.optional,
-                    type_: _codegen(global, file, field.type_)?,
+                    type_: _codegen(global, file, field.type_, sub_name)?,
                 });
             }
 
@@ -159,7 +157,7 @@ fn _codegen<'a, T: Target>(
                 &mut file.target_state,
                 &mut file.buf,
                 Struct {
-                    name: struct_name,
+                    name,
                     description: struct_.description,
                     has_additional: struct_.has_additional,
                     fields,
@@ -168,8 +166,6 @@ fn _codegen<'a, T: Target>(
         })?,
         ast::Ast::Discriminator(discriminator) => {
             with_subfile_state(global, Some(file), |global, file| {
-                let discriminator_name = global.names.get(discriminator.name);
-
                 // Clone these as variables to avoid issues with partial moves
                 // of discriminator.
                 let tag_name = discriminator.tag_name.clone();
@@ -190,14 +186,16 @@ fn _codegen<'a, T: Target>(
                             let tag_name = field_names.get(tag_name.clone());
 
                             for field in variant.fields {
-                                let name = field_names.get(field.name);
+                                let field_name = field_names.get(field.name);
+                                let sub_name = ast_name(&mut global.names, &field.type_);
+                                let sub_ast = _codegen(global, file, field.type_, sub_name)?;
 
                                 fields.push(StructField {
-                                    name: name,
+                                    name: field_name,
                                     json_name: field.json_name,
                                     description: "".into(),
                                     optional: field.optional,
-                                    type_: _codegen(global, file, field.type_)?,
+                                    type_: sub_ast,
                                 });
                             }
 
@@ -207,7 +205,7 @@ fn _codegen<'a, T: Target>(
                                 DiscriminatorVariant {
                                     name: global.names.get(variant.name),
                                     description: variant.description,
-                                    parent_name: discriminator_name.clone(),
+                                    parent_name: name.clone(),
                                     tag_name,
                                     tag_json_name: tag_json_name.clone(),
                                     tag_json_value: variant.tag_json_value,
@@ -222,7 +220,7 @@ fn _codegen<'a, T: Target>(
                     &mut file.target_state,
                     &mut file.buf,
                     Discriminator {
-                        name: discriminator_name,
+                        name,
                         description: discriminator.description,
                         tag_name: discriminator.tag_name,
                         tag_json_name: discriminator.tag_json_name,
@@ -232,6 +230,17 @@ fn _codegen<'a, T: Target>(
             })?
         }
     })
+}
+
+fn ast_name(namespace: &mut Namespace, ast: &ast::Ast) -> String {
+    match ast {
+        ast::Ast::Alias(ast::Alias { name, .. }) => namespace.get(name.clone()),
+        ast::Ast::Enum(ast::Enum { name, .. }) => namespace.get(name.clone()),
+        ast::Ast::Struct(ast::Struct { name, .. }) => namespace.get(name.clone()),
+        ast::Ast::Discriminator(ast::Discriminator { name, .. }) => namespace.get(name.clone()),
+
+        _ => "".into(), // not an ast node that has a name
+    }
 }
 
 fn with_subfile_state<
