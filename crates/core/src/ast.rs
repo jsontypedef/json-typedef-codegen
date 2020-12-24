@@ -259,25 +259,24 @@ fn _from_schema<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) 
 }
 
 fn with_nullable<T: Target>(nullable: bool, ast: Ast) -> Ast {
-    // We need to wrap ast in NullableOf if the caller passed in nullable
-    // and if ast isn't already nullable to begin with.
-    let needs_nullable = nullable
-        && match ast {
-            Ast::Boolean => !T::booleans_are_nullable(),
-            Ast::String => !T::strings_are_nullable(),
-            Ast::Timestamp => !T::timestamps_are_nullable(),
-            Ast::ArrayOf(_) => !T::arrays_are_nullable(),
-            Ast::Alias(_) => !T::aliases_are_nullable(),
-            Ast::Enum(_) => !T::enums_are_nullable(),
-            Ast::Struct(_) => !T::structs_are_nullable(),
-            Ast::Discriminator(_) => !T::discriminators_are_nullable(),
-            Ast::Ref(_) => true,
-            Ast::NullableOf(_) => false,
-        };
+    let ast_must_be_nullable = match ast {
+        Ast::Boolean => T::booleans_are_nullable(),
+        Ast::String => T::strings_are_nullable(),
+        Ast::Timestamp => T::timestamps_are_nullable(),
+        Ast::ArrayOf(_) => T::arrays_are_nullable(),
+        Ast::Alias(_) => T::aliases_are_nullable(),
+        Ast::Enum(_) => T::enums_are_nullable(),
+        Ast::Struct(_) => T::structs_are_nullable(),
+        Ast::Discriminator(_) => T::discriminators_are_nullable(),
+        Ast::Ref(_) => false, // this could be refined, but would require doing an extra pass
+        Ast::NullableOf(_) => true,
+    };
 
-    if needs_nullable {
-        Ast::NullableOf(Box::new(ast))
-    } else {
+    // If the user didn't ask for nullable, or if ast is already nullable, just
+    // return ast.
+    if !nullable || ast_must_be_nullable {
         ast
+    } else {
+        Ast::NullableOf(Box::new(ast))
     }
 }

@@ -1,0 +1,45 @@
+{
+    "definitions": {
+        "notnull_string": {
+            "type": "string"
+        },
+        "null_string": {
+            "type": "string",
+            "nullable": true
+        },
+        "notnull_ref_notnull_string": {
+            "ref": "notnull_string"
+        },
+        "null_ref_notnull_string": {
+            "ref": "notnull_string",
+            "nullable": true
+        },
+        "notnull_ref_null_string": {
+            "ref": "null_string"
+        },
+        "null_ref_null_string": {
+            "ref": "null_string",
+            "nullable": true
+        }
+    },
+    "properties": {
+        "notnull_string": {
+            "ref": "notnull_string"
+        },
+        "null_string": {
+            "ref": "null_string"
+        },
+        "notnull_ref_notnull_string": {
+            "ref": "notnull_ref_notnull_string"
+        },
+        "null_ref_notnull_string": {
+            "ref": "null_ref_notnull_string"
+        },
+        "notnull_ref_null_string": {
+            "ref": "notnull_ref_null_string"
+        },
+        "null_ref_null_string": {
+            "ref": "null_ref_null_string"
+        }
+    }
+}
