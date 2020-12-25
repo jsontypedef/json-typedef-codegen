@@ -1,7 +1,7 @@
 use crate::Result;
+use serde_json::Value;
 use std::collections::BTreeMap;
 use std::io::Write;
-use serde_json::Value;
 
 pub trait Target {
     type FileState: Default;

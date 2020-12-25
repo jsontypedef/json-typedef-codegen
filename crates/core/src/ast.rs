@@ -1,8 +1,8 @@
 use crate::Target;
 use jtd::form::{self, TypeValue};
 use jtd::{Form, Schema};
-use std::collections::BTreeMap;
 use serde_json::Value;
+use std::collections::BTreeMap;
 use teeter_inflector::string::singularize::to_singular;
 
 #[derive(Debug)]

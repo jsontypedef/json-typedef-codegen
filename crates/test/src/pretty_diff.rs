@@ -30,6 +30,7 @@ impl fmt::Display for Diff {
         Ok(())
     }
 }
+
 fn prefix_lines(prefix: &str, lines: &str) -> String {
     lines
         .lines()
