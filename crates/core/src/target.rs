@@ -1,6 +1,7 @@
 use crate::Result;
 use std::collections::BTreeMap;
 use std::io::Write;
+use serde_json::Value;
 
 pub trait Target {
     type FileState: Default;
@@ -79,26 +80,26 @@ pub enum EnumStrategy {
 
 pub struct Alias {
     pub name: String,
-    pub description: String,
+    pub metadata: BTreeMap<String, Value>,
     pub type_: String,
 }
 
 pub struct Enum {
     pub name: String,
-    pub description: String,
+    pub metadata: BTreeMap<String, Value>,
     pub variants: Vec<EnumVariant>,
 }
 
 #[derive(Clone)]
 pub struct EnumVariant {
     pub name: String,
-    pub description: String,
+    pub metadata: BTreeMap<String, Value>,
     pub json_value: String,
 }
 
 pub struct Struct {
     pub name: String,
-    pub description: String,
+    pub metadata: BTreeMap<String, Value>,
     pub has_additional: bool,
     pub fields: Vec<StructField>,
 }
@@ -106,14 +107,14 @@ pub struct Struct {
 pub struct StructField {
     pub name: String,
     pub json_name: String,
-    pub description: String,
+    pub metadata: BTreeMap<String, Value>,
     pub optional: bool,
     pub type_: String,
 }
 
 pub struct DiscriminatorVariant {
     pub name: String,
-    pub description: String,
+    pub metadata: BTreeMap<String, Value>,
     pub parent_name: String,
     pub tag_name: String,
     pub tag_json_name: String,
@@ -123,7 +124,7 @@ pub struct DiscriminatorVariant {
 
 pub struct Discriminator {
     pub name: String,
-    pub description: String,
+    pub metadata: BTreeMap<String, Value>,
     pub tag_name: String,
     pub tag_json_name: String,
     pub variants: BTreeMap<String, String>,

@@ -92,6 +92,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "difference"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "524cbf6897b527295dff137cec09ecf3a05f4fddffd7dfcd1585403449e74198"
+
+[[package]]
 name = "getrandom"
 version = "0.1.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -149,6 +155,7 @@ version = "0.1.0"
 dependencies = [
  "Inflector",
  "jtd",
+ "serde_json",
  "thiserror",
 ]
 
@@ -193,6 +200,7 @@ dependencies = [
 name = "jtd_codegen_test"
 version = "0.1.0"
 dependencies = [
+ "difference",
  "jtd",
  "jtd-fuzz",
  "jtd_codegen",

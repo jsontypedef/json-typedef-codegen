@@ -2,6 +2,7 @@ use crate::Target;
 use jtd::form::{self, TypeValue};
 use jtd::{Form, Schema};
 use std::collections::BTreeMap;
+use serde_json::Value;
 use teeter_inflector::string::singularize::to_singular;
 
 #[derive(Debug)]
@@ -21,28 +22,28 @@ pub enum Ast {
 #[derive(Debug)]
 pub struct Alias {
     pub name: String,
-    pub description: String,
+    pub metadata: BTreeMap<String, Value>,
     pub type_: Box<Ast>,
 }
 
 #[derive(Debug)]
 pub struct Enum {
     pub name: String,
-    pub description: String,
+    pub metadata: BTreeMap<String, Value>,
     pub variants: Vec<EnumVariant>,
 }
 
 #[derive(Debug)]
 pub struct EnumVariant {
     pub name: String,
-    pub description: String,
+    pub metadata: BTreeMap<String, Value>,
     pub json_value: String,
 }
 
 #[derive(Debug)]
 pub struct Struct {
     pub name: String,
-    pub description: String,
+    pub metadata: BTreeMap<String, Value>,
     pub has_additional: bool,
     pub fields: Vec<StructField>,
 }
@@ -51,7 +52,7 @@ pub struct Struct {
 pub struct StructField {
     pub name: String,
     pub json_name: String,
-    pub description: String,
+    pub metadata: BTreeMap<String, Value>,
     pub optional: bool,
     pub type_: Ast,
 }
@@ -59,7 +60,7 @@ pub struct StructField {
 #[derive(Debug)]
 pub struct Discriminator {
     pub name: String,
-    pub description: String,
+    pub metadata: BTreeMap<String, Value>,
     pub tag_name: String,
     pub tag_json_name: String,
     pub variants: BTreeMap<String, DiscriminatorVariant>, // key is tag value
@@ -68,7 +69,7 @@ pub struct Discriminator {
 #[derive(Debug)]
 pub struct DiscriminatorVariant {
     pub name: String,
-    pub description: String,
+    pub metadata: BTreeMap<String, Value>,
     pub tag_name: String,
     pub tag_json_name: String,
     pub tag_json_value: String,
@@ -101,7 +102,7 @@ fn from_schema_top_level<T: Target>(target: &T, name: String, schema: &Schema) -
         Ast::Alias(_) | Ast::Enum(_) | Ast::Struct(_) | Ast::Discriminator(_) => ast,
         _ => Ast::Alias(Alias {
             name: T::name_type(&[name]),
-            description: "".into(),
+            metadata: schema.metadata.clone(),
             type_: Box::new(ast),
         }),
     }
@@ -134,7 +135,7 @@ fn _from_schema<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) 
                 path.push(value.into());
                 variants.push(EnumVariant {
                     name: T::name_enum_variant(path),
-                    description: "".into(),
+                    metadata: schema.metadata.clone(),
                     json_value: value.into(),
                 });
                 path.pop();
@@ -145,7 +146,7 @@ fn _from_schema<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) 
                 nullable,
                 Ast::Enum(Enum {
                     name,
-                    description: "".into(),
+                    metadata: schema.metadata.clone(),
                     variants,
                 }),
             )
@@ -190,7 +191,7 @@ fn _from_schema<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) 
                 fields.push(StructField {
                     name: field_name,
                     json_name: name.clone(),
-                    description: "".into(),
+                    metadata: sub_schema.metadata.clone(),
                     optional: false,
                     type_: field_ast,
                 });
@@ -200,7 +201,7 @@ fn _from_schema<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) 
                 nullable,
                 Ast::Struct(Struct {
                     name: struct_name,
-                    description: "".into(),
+                    metadata: schema.metadata.clone(),
                     has_additional: additional,
                     fields,
                 }),
@@ -234,7 +235,7 @@ fn _from_schema<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) 
                     tag_value.clone(),
                     DiscriminatorVariant {
                         name: struct_.name,
-                        description: struct_.description,
+                        metadata: sub_schema.metadata.clone(),
                         tag_name: tag_name.clone(),
                         tag_json_name: discriminator.clone(),
                         tag_json_value: tag_value.clone(),
@@ -249,7 +250,7 @@ fn _from_schema<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) 
                     name: discriminator_name,
                     tag_name: tag_name.clone(),
                     tag_json_name: discriminator.clone(),
-                    description: "".into(),
+                    metadata: schema.metadata.clone(),
                     variants,
                 }),
             )

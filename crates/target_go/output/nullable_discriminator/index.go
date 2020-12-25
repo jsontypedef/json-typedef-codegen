@@ -1,14 +1,6 @@
 package jtd_codegen_e2e
 import "encoding/json"
 import "fmt"
-type RootBar struct {
-	Foo string `json:"foo"`
-	Baz string `json:"baz"`
-}
-type RootQuux struct {
-	Foo string `json:"foo"`
-	Quuz string `json:"quuz"`
-}
 type Root0 struct {
 	Foo string
 	RootBar RootBar
@@ -43,5 +35,13 @@ func (v *Root0) UnmarshalJSON(b []byte) error {
 		return nil
 	}
 	return fmt.Errorf("bad Foo value: %s", t.T)
+}
+type RootBar struct {
+	Foo string `json:"foo"`
+	Baz string `json:"baz"`
+}
+type RootQuux struct {
+	Foo string `json:"foo"`
+	Quuz string `json:"quuz"`
 }
 type Root = *Root0

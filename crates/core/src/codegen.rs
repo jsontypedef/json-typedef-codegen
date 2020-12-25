@@ -104,7 +104,7 @@ fn _codegen<'a, T: Target>(
                 &mut file.buf,
                 Alias {
                     name,
-                    description: alias.description,
+                    metadata: alias.metadata,
                     type_: sub_expr,
                 },
             )
@@ -121,7 +121,7 @@ fn _codegen<'a, T: Target>(
 
                 variants.push(EnumVariant {
                     name: variant_name,
-                    description: variant.description,
+                    metadata: variant.metadata,
                     json_value: variant.json_value,
                 })
             }
@@ -131,7 +131,7 @@ fn _codegen<'a, T: Target>(
                 &mut file.buf,
                 Enum {
                     name,
-                    description: enum_.description,
+                    metadata: enum_.metadata,
                     variants: variants,
                 },
             )
@@ -147,7 +147,7 @@ fn _codegen<'a, T: Target>(
                 fields.push(StructField {
                     name: field_name,
                     json_name: field.json_name,
-                    description: "".into(),
+                    metadata: field.metadata,
                     optional: field.optional,
                     type_: _codegen(global, file, field.type_, sub_name)?,
                 });
@@ -158,7 +158,7 @@ fn _codegen<'a, T: Target>(
                 &mut file.buf,
                 Struct {
                     name,
-                    description: struct_.description,
+                    metadata: struct_.metadata,
                     has_additional: struct_.has_additional,
                     fields,
                 },
@@ -187,7 +187,7 @@ fn _codegen<'a, T: Target>(
                     &mut file.buf,
                     Discriminator {
                         name: name.clone(),
-                        description: discriminator.description,
+                        metadata: discriminator.metadata,
                         tag_name: discriminator.tag_name,
                         tag_json_name: discriminator.tag_json_name,
                         variants: variant_names.clone(),
@@ -213,7 +213,7 @@ fn _codegen<'a, T: Target>(
                             fields.push(StructField {
                                 name: field_name,
                                 json_name: field.json_name,
-                                description: "".into(),
+                                metadata: field.metadata,
                                 optional: field.optional,
                                 type_: sub_ast,
                             });
@@ -224,7 +224,7 @@ fn _codegen<'a, T: Target>(
                             &mut file.buf,
                             DiscriminatorVariant {
                                 name: variant_names[&tag_value].clone(),
-                                description: variant.description,
+                                metadata: variant.metadata,
                                 parent_name: name.clone(),
                                 tag_name,
                                 tag_json_name: tag_json_name.clone(),
