@@ -1,3 +1,5 @@
+mod pretty_diff;
+
 use jtd::{Schema, SerdeSchema, Validator};
 use jtd_codegen::Target;
 use rand::SeedableRng;
@@ -308,10 +310,9 @@ fn assert_stable(target_crate_base_dir: &str, test_case_name: &str, tempdir: &te
         let reference_file =
             fs::read_to_string(reference_dir.join(&file)).expect("read output file");
 
-        assert_eq!(
-            output_file, reference_file,
-            "output and reference file differ: {:?}",
-            file
-        );
+        if output_file != reference_file {
+            println!("{}", pretty_diff::Diff::new(&output_file, &reference_file));
+            panic!("output and reference file differ: {:?}", file);
+        }
     }
 }
