@@ -171,62 +171,71 @@ fn _codegen<'a, T: Target>(
                 let tag_name = discriminator.tag_name.clone();
                 let tag_json_name = discriminator.tag_json_name.clone();
 
-                let mut variants = BTreeMap::new();
-                for (tag_value, variant) in discriminator.variants {
-                    variants.insert(
-                        tag_value,
-                        with_subfile_state(global, Some(file), |global, file| {
-                            // todo: dedupe this logic with struct stuff above?
-                            let mut field_names = Namespace::new();
-                            let mut fields = Vec::new();
-
-                            // Set aside a name for the discriminator tag,
-                            // because it will probably be in the same namespace
-                            // as the fields of the variant.
-                            let tag_name = field_names.get(tag_name.clone());
-
-                            for field in variant.fields {
-                                let field_name = field_names.get(field.name);
-                                let sub_name = ast_name(&mut global.names, &field.type_);
-                                let sub_ast = _codegen(global, file, field.type_, sub_name)?;
-
-                                fields.push(StructField {
-                                    name: field_name,
-                                    json_name: field.json_name,
-                                    description: "".into(),
-                                    optional: field.optional,
-                                    type_: sub_ast,
-                                });
-                            }
-
-                            global.target.write_discriminator_variant(
-                                &mut file.target_state,
-                                &mut file.buf,
-                                DiscriminatorVariant {
-                                    name: global.names.get(variant.name),
-                                    description: variant.description,
-                                    parent_name: name.clone(),
-                                    tag_name,
-                                    tag_json_name: tag_json_name.clone(),
-                                    tag_json_value: variant.tag_json_value,
-                                    fields,
-                                },
-                            )
-                        })?,
-                    );
+                // First, set aside names for the variants, so we can write out
+                // the discriminator first.
+                //
+                // Writing the discriminator before the variants can help deal
+                // with dynamic languages (e.g. Python) where you can't extend a
+                // class unless it's already been defined.
+                let mut variant_names = BTreeMap::new();
+                for (tag_value, variant) in &discriminator.variants {
+                    variant_names.insert(tag_value.clone(), global.names.get(variant.name.clone()));
                 }
 
-                global.target.write_discriminator(
+                let discriminator_out = global.target.write_discriminator(
                     &mut file.target_state,
                     &mut file.buf,
                     Discriminator {
-                        name,
+                        name: name.clone(),
                         description: discriminator.description,
                         tag_name: discriminator.tag_name,
                         tag_json_name: discriminator.tag_json_name,
-                        variants,
+                        variants: variant_names.clone(),
                     },
-                )
+                )?;
+
+                for (tag_value, variant) in discriminator.variants {
+                    with_subfile_state(global, Some(file), |global, file| {
+                        // todo: dedupe this logic with struct stuff above?
+                        let mut field_names = Namespace::new();
+                        let mut fields = Vec::new();
+
+                        // Set aside a name for the discriminator tag,
+                        // because it will probably be in the same namespace
+                        // as the fields of the variant.
+                        let tag_name = field_names.get(tag_name.clone());
+
+                        for field in variant.fields {
+                            let field_name = field_names.get(field.name);
+                            let sub_name = ast_name(&mut global.names, &field.type_);
+                            let sub_ast = _codegen(global, file, field.type_, sub_name)?;
+
+                            fields.push(StructField {
+                                name: field_name,
+                                json_name: field.json_name,
+                                description: "".into(),
+                                optional: field.optional,
+                                type_: sub_ast,
+                            });
+                        }
+
+                        global.target.write_discriminator_variant(
+                            &mut file.target_state,
+                            &mut file.buf,
+                            DiscriminatorVariant {
+                                name: variant_names[&tag_value].clone(),
+                                description: variant.description,
+                                parent_name: name.clone(),
+                                tag_name,
+                                tag_json_name: tag_json_name.clone(),
+                                tag_json_value: variant.tag_json_value,
+                                fields,
+                            },
+                        )
+                    })?;
+                }
+
+                Ok(discriminator_out)
             })?
         }
     })
