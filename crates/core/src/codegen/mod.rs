@@ -1,10 +1,10 @@
-use crate::ast;
-use crate::namespace::Namespace;
+mod ast;
+mod namespace;
+
+use crate::error::Result;
 use crate::target::*;
-use crate::Result;
-
 use jtd::Schema;
-
+use namespace::Namespace;
 use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Write;

@@ -206,6 +206,7 @@ dependencies = [
  "Inflector",
  "jtd",
  "serde_json",
+ "textwrap 0.13.1",
  "thiserror",
 ]
 
@@ -225,7 +226,6 @@ version = "0.1.0"
 dependencies = [
  "askama",
  "jtd_codegen",
- "jtd_codegen_targetutils",
  "jtd_codegen_test",
  "lazy_static",
  "serde_json",
@@ -247,15 +247,6 @@ dependencies = [
  "jtd_codegen",
  "jtd_codegen_test",
  "lazy_static",
-]
-
-[[package]]
-name = "jtd_codegen_targetutils"
-version = "0.1.0"
-dependencies = [
- "jtd_codegen",
- "serde_json",
- "textwrap 0.13.1",
 ]
 
 [[package]]

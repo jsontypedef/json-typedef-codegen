@@ -1,4 +1,6 @@
-use jtd_codegen::*;
+use jtd_codegen::target::inflect::*;
+use jtd_codegen::target::*;
+use jtd_codegen::Result;
 use lazy_static::lazy_static;
 use std::collections::BTreeSet;
 use std::io::Write;
@@ -23,7 +25,7 @@ impl Target {
     }
 }
 
-impl jtd_codegen::Target for Target {
+impl jtd_codegen::target::Target for Target {
     type FileState = FileState;
 
     fn file_partitioning() -> FilePartitioning {

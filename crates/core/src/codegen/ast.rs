@@ -1,4 +1,4 @@
-use crate::Target;
+use crate::target::Target;
 use jtd::form::{self, TypeValue};
 use jtd::{Form, Schema};
 use serde_json::Value;

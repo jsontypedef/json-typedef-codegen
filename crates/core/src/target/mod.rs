@@ -1,4 +1,8 @@
-use crate::Result;
+pub mod fmt;
+pub mod inflect;
+pub mod metadata;
+
+use crate::error::Result;
 use serde_json::Value;
 use std::collections::BTreeMap;
 use std::io::Write;

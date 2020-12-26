@@ -1,5 +1,7 @@
 use askama::Template;
-use jtd_codegen::*;
+use jtd_codegen::target::inflect::*;
+use jtd_codegen::target::*;
+use jtd_codegen::Result;
 use lazy_static::lazy_static;
 use std::collections::BTreeSet;
 use std::io::Write;
@@ -24,7 +26,7 @@ impl Target {
     }
 }
 
-impl jtd_codegen::Target for Target {
+impl jtd_codegen::target::Target for Target {
     type FileState = FileState;
 
     fn file_partitioning() -> FilePartitioning {
@@ -281,30 +283,31 @@ struct DiscriminatorTemplate<'a> {
 }
 
 mod filters {
+    use askama::Result;
     use serde_json::Value;
     use std::collections::BTreeMap;
 
-    pub fn description(
-        metadata: &BTreeMap<String, Value>,
-        indent: &usize,
-    ) -> ::askama::Result<String> {
-        Ok(doc(*indent, jtd_codegen_targetutils::description(metadata)))
+    pub fn description(metadata: &BTreeMap<String, Value>, indent: &usize) -> Result<String> {
+        Ok(doc(
+            *indent,
+            jtd_codegen::target::metadata::description(metadata),
+        ))
     }
 
     pub fn enum_variant_description(
         metadata: &BTreeMap<String, Value>,
         indent: &usize,
         value: &str,
-    ) -> ::askama::Result<String> {
+    ) -> Result<String> {
         Ok(doc(
             *indent,
-            jtd_codegen_targetutils::enum_variant_description(metadata, value),
+            jtd_codegen::target::metadata::enum_variant_description(metadata, value),
         ))
     }
 
     fn doc(ident: usize, s: &str) -> String {
         let prefix = "    ".repeat(ident);
-        jtd_codegen_targetutils::comment_block(
+        jtd_codegen::target::fmt::comment_block(
             &format!("{}/// <summary>", prefix),
             &format!("{}/// ", prefix),
             &format!("{}/// </summary>", prefix),

@@ -1,7 +1,7 @@
 mod pretty_diff;
 
 use jtd::{Schema, SerdeSchema, Validator};
-use jtd_codegen::Target;
+use jtd_codegen::target::Target;
 use rand::SeedableRng;
 use rand_pcg::Pcg32;
 use serde_json::{Deserializer, Value};
