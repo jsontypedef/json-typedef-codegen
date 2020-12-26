@@ -1,3 +1,4 @@
+use askama::Template;
 use jtd_codegen::*;
 use lazy_static::lazy_static;
 use std::collections::BTreeSet;
@@ -122,37 +123,16 @@ impl jtd_codegen::Target for Target {
             .imports
             .insert("System.Text.Json.Serialization".into());
 
-        writeln!(out, "namespace {}", self.namespace)?;
-        writeln!(out, "{{")?;
         writeln!(
             out,
-            "    [JsonConverter(typeof({}.JsonConverter))]",
-            alias.name
+            "{}",
+            AliasTemplate {
+                namespace: &self.namespace,
+                alias: &alias,
+            }
+            .render()
+            .unwrap()
         )?;
-        writeln!(out, "    public class {}", alias.name)?;
-        writeln!(out, "    {{")?;
-        writeln!(out, "        public {} Value {{ get; set; }}", alias.type_)?;
-        writeln!(
-            out,
-            "        public class JsonConverter : JsonConverter<{}>",
-            alias.name
-        )?;
-        writeln!(out, "        {{")?;
-        writeln!(out, "            public override {} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)", alias.name)?;
-        writeln!(out, "            {{")?;
-        writeln!(out, "                return new {} {{ Value = JsonSerializer.Deserialize<{}>(ref reader, options) }};", alias.name, alias.type_)?;
-        writeln!(out, "            }}")?;
-        writeln!(out, "            public override void Write(Utf8JsonWriter writer, {} value, JsonSerializerOptions options)", alias.name)?;
-        writeln!(out, "            {{")?;
-        writeln!(
-            out,
-            "                JsonSerializer.Serialize<{}>(writer, value.Value, options);",
-            alias.type_
-        )?;
-        writeln!(out, "            }}")?;
-        writeln!(out, "        }}")?;
-        writeln!(out, "    }}")?;
-        writeln!(out, "}}")?;
 
         Ok(alias.name)
     }
@@ -171,67 +151,16 @@ impl jtd_codegen::Target for Target {
             .imports
             .insert("System.Text.Json.Serialization".into());
 
-        writeln!(out, "namespace {}", self.namespace)?;
-        writeln!(out, "{{")?;
         writeln!(
             out,
-            "    [JsonConverter(typeof({}JsonConverter))]",
-            enum_.name
+            "{}",
+            EnumTemplate {
+                namespace: &self.namespace,
+                enum_: &enum_,
+            }
+            .render()
+            .unwrap()
         )?;
-        writeln!(out, "    public enum {}", enum_.name)?;
-        writeln!(out, "    {{")?;
-
-        for variant in &enum_.variants {
-            writeln!(out, "        {},", variant.name)?;
-        }
-
-        writeln!(out, "    }}")?;
-
-        writeln!(
-            out,
-            "    public class {}JsonConverter : JsonConverter<{}>",
-            enum_.name, enum_.name
-        )?;
-        writeln!(out, "    {{")?;
-        writeln!(out, "        public override {} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)", enum_.name)?;
-        writeln!(out, "        {{")?;
-        writeln!(
-            out,
-            "            string value = JsonSerializer.Deserialize<string>(ref reader, options);"
-        )?;
-        writeln!(out, "            switch (value)")?;
-        writeln!(out, "            {{")?;
-
-        for variant in &enum_.variants {
-            writeln!(out, "                case {:?}:", variant.json_value)?;
-            writeln!(
-                out,
-                "                    return {}.{};",
-                enum_.name, variant.name
-            )?;
-        }
-
-        writeln!(out, "                default:")?;
-        writeln!(out, "                    throw new ArgumentException(String.Format(\"Bad {} value: {{0}}\", value));", enum_.name)?;
-        writeln!(out, "            }}")?;
-        writeln!(out, "        }}")?;
-        writeln!(out, "        public override void Write(Utf8JsonWriter writer, {} value, JsonSerializerOptions options)", enum_.name)?;
-        writeln!(out, "        {{")?;
-        writeln!(out, "            switch (value)")?;
-        writeln!(out, "            {{")?;
-        for variant in enum_.variants {
-            writeln!(out, "                case {}.{}:", enum_.name, variant.name)?;
-            writeln!(
-                out,
-                "                    JsonSerializer.Serialize<string>(writer, {:?}, options);",
-                variant.json_value
-            )?;
-            writeln!(out, "                    return;")?;
-        }
-        writeln!(out, "            }}")?;
-        writeln!(out, "        }}")?;
-        writeln!(out, "    }}")?;
-        writeln!(out, "}}")?;
 
         Ok(enum_.name)
     }
@@ -246,22 +175,16 @@ impl jtd_codegen::Target for Target {
             .imports
             .insert("System.Text.Json.Serialization".into());
 
-        writeln!(out, "namespace {}", self.namespace)?;
-        writeln!(out, "{{")?;
-        writeln!(out, "    public class {}", struct_.name)?;
-        writeln!(out, "    {{")?;
-
-        for field in struct_.fields {
-            writeln!(out, "        [JsonPropertyName({:?})]", field.json_name)?;
-            writeln!(
-                out,
-                "        public {} {} {{ get; set; }}",
-                field.type_, field.name
-            )?;
-        }
-
-        writeln!(out, "    }}")?;
-        writeln!(out, "}}")?;
+        writeln!(
+            out,
+            "{}",
+            StructTemplate {
+                namespace: &self.namespace,
+                struct_: &struct_,
+            }
+            .render()
+            .unwrap()
+        )?;
 
         Ok(struct_.name)
     }
@@ -270,44 +193,24 @@ impl jtd_codegen::Target for Target {
         &self,
         state: &mut Self::FileState,
         out: &mut dyn Write,
-        variant: DiscriminatorVariant,
+        discriminator_variant: DiscriminatorVariant,
     ) -> Result<String> {
         state
             .imports
             .insert("System.Text.Json.Serialization".into());
 
-        writeln!(out, "namespace {}", self.namespace)?;
-        writeln!(out, "{{")?;
         writeln!(
             out,
-            "    public class {} : {}",
-            variant.name, variant.parent_name
-        )?;
-        writeln!(out, "    {{")?;
-        writeln!(
-            out,
-            "        [JsonPropertyName({:?})]",
-            variant.tag_json_name
-        )?;
-        writeln!(
-            out,
-            "        public string {} {{ get => {:?}; }}",
-            variant.tag_name, variant.tag_json_value
+            "{}",
+            DiscriminatorVariantTemplate {
+                namespace: &self.namespace,
+                discriminator_variant: &discriminator_variant,
+            }
+            .render()
+            .unwrap()
         )?;
 
-        for field in variant.fields {
-            writeln!(out, "        [JsonPropertyName({:?})]", field.json_name)?;
-            writeln!(
-                out,
-                "        public {} {} {{ get; set; }}",
-                field.type_, field.name
-            )?;
-        }
-
-        writeln!(out, "    }}")?;
-        writeln!(out, "}}")?;
-
-        Ok(variant.name)
+        Ok(discriminator_variant.name)
     }
 
     fn write_discriminator(
@@ -317,52 +220,21 @@ impl jtd_codegen::Target for Target {
         discriminator: Discriminator,
     ) -> Result<String> {
         state.imports.insert("System".into());
-
         state.imports.insert("System.Text.Json".into());
-
         state
             .imports
             .insert("System.Text.Json.Serialization".into());
 
-        writeln!(out, "namespace {}", self.namespace)?;
-        writeln!(out, "{{")?;
         writeln!(
             out,
-            "    [JsonConverter(typeof({}JsonConverter))]",
-            discriminator.name
+            "{}",
+            DiscriminatorTemplate {
+                namespace: &self.namespace,
+                discriminator: &discriminator,
+            }
+            .render()
+            .unwrap()
         )?;
-        writeln!(out, "    public abstract class {}", discriminator.name)?;
-        writeln!(out, "    {{")?;
-        writeln!(out, "    }}")?;
-        writeln!(
-            out,
-            "    public class {}JsonConverter : JsonConverter<{}>",
-            discriminator.name, discriminator.name
-        )?;
-        writeln!(out, "    {{")?;
-        writeln!(out, "        public override {} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)", discriminator.name)?;
-        writeln!(out, "        {{")?;
-        writeln!(out, "            var readerCopy = reader;")?;
-        writeln!(out, "            var tagValue = JsonDocument.ParseValue(ref reader).RootElement.GetProperty({:?}).GetString();", discriminator.tag_json_name)?;
-        writeln!(out, "            switch (tagValue)")?;
-        writeln!(out, "            {{")?;
-        for (tag_value, variant) in discriminator.variants {
-            writeln!(out, "                case {:?}:", tag_value)?;
-            writeln!(out, "                    return JsonSerializer.Deserialize<{}>(ref readerCopy, options);", variant)?;
-        }
-        writeln!(out, "                default:")?;
-        writeln!(out, "                    throw new ArgumentException(String.Format(\"Bad {} value: {{0}}\", tagValue));", discriminator.tag_name)?;
-        writeln!(out, "            }}")?;
-        writeln!(out, "        }}")?;
-        writeln!(out, "        public override void Write(Utf8JsonWriter writer, {} value, JsonSerializerOptions options)", discriminator.name)?;
-        writeln!(out, "        {{")?;
-        writeln!(
-            out,
-            "            JsonSerializer.Serialize(writer, value, value.GetType(), options);"
-        )?;
-        writeln!(out, "        }}")?;
-        writeln!(out, "    }}")?;
-        writeln!(out, "}}")?;
 
         Ok(discriminator.name)
     }
@@ -371,6 +243,74 @@ impl jtd_codegen::Target for Target {
 #[derive(Default)]
 pub struct FileState {
     imports: BTreeSet<String>,
+}
+
+#[derive(Template)]
+#[template(path = "alias")]
+struct AliasTemplate<'a> {
+    namespace: &'a str,
+    alias: &'a Alias,
+}
+
+#[derive(Template)]
+#[template(path = "enum")]
+struct EnumTemplate<'a> {
+    namespace: &'a str,
+    enum_: &'a Enum,
+}
+
+#[derive(Template)]
+#[template(path = "struct")]
+struct StructTemplate<'a> {
+    namespace: &'a str,
+    struct_: &'a Struct,
+}
+
+#[derive(Template)]
+#[template(path = "discriminator_variant")]
+struct DiscriminatorVariantTemplate<'a> {
+    namespace: &'a str,
+    discriminator_variant: &'a DiscriminatorVariant,
+}
+
+#[derive(Template)]
+#[template(path = "discriminator")]
+struct DiscriminatorTemplate<'a> {
+    namespace: &'a str,
+    discriminator: &'a Discriminator,
+}
+
+mod filters {
+    use serde_json::Value;
+    use std::collections::BTreeMap;
+
+    pub fn description(
+        metadata: &BTreeMap<String, Value>,
+        indent: &usize,
+    ) -> ::askama::Result<String> {
+        Ok(doc(*indent, jtd_codegen_targetutils::description(metadata)))
+    }
+
+    pub fn enum_variant_description(
+        metadata: &BTreeMap<String, Value>,
+        indent: &usize,
+        value: &str,
+    ) -> ::askama::Result<String> {
+        Ok(doc(
+            *indent,
+            jtd_codegen_targetutils::enum_variant_description(metadata, value),
+        ))
+    }
+
+    fn doc(ident: usize, s: &str) -> String {
+        let prefix = "    ".repeat(ident);
+        jtd_codegen_targetutils::comment_block(
+            &format!("{}/// <summary>", prefix),
+            &format!("{} ", prefix),
+            &format!("{}/// </summary>", prefix),
+            s,
+        )
+    }
 }
 
 #[cfg(test)]

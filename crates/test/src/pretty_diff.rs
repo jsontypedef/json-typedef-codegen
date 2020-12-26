@@ -32,6 +32,9 @@ impl fmt::Display for Diff {
 }
 
 fn prefix_lines(prefix: &str, lines: &str) -> String {
+    // "".lines() returns an empty iterator, we want at least one element.
+    let lines = if lines.is_empty() { "\n" } else { lines };
+
     lines
         .lines()
         .map(|i| [prefix, i].concat())

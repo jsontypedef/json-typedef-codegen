@@ -1,0 +1,12 @@
+namespace {{ namespace }}
+{
+{{ struct_.metadata|description(1) }}
+    public class {{ struct_.name }}
+    {
+{% for field in struct_.fields %}
+{{ field.metadata|description(2) }}
+        [JsonPropertyName({{ "{:?}"|format(field.json_name) }})]
+        public {{ field.type_ }} {{ field.name }} { get; set; }
+{% endfor %}
+    }
+}
