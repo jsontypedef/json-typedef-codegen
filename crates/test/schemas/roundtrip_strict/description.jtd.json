@@ -1,0 +1,62 @@
+{
+    "properties": {
+        "long_description": {
+            "type": "string",
+            "metadata": {
+                "description": "Whereas disregard and contempt for human rights have resulted in barbarous acts which have outraged the conscience of mankind, and the advent of a world in which human beings shall enjoy freedom of speech and belief and freedom from fear and want has been proclaimed as the highest aspiration of the common people,"
+            }
+        },
+        "ref_with_description": {
+            "ref": "baz",
+            "metadata": {
+                "description": "A description for ref"
+            }
+        },
+        "string_with_description": {
+            "type": "string",
+            "metadata": {
+                "description": "A description for string"
+            }
+        },
+        "enum_with_description": {
+            "enum": [
+                "X",
+                "Y",
+                "Z"
+            ],
+            "metadata": {
+                "description": "A description for enum",
+                "enumDescription": {
+                    "X": "A description for X",
+                    "Y": "A description for Y",
+                    "Z": "A description for Z"
+                }
+            }
+        },
+        "properties_with_description": {
+            "properties": {},
+            "metadata": {
+                "description": "A description for properties"
+            }
+        },
+        "discriminator_with_description": {
+            "discriminator": "foo",
+            "mapping": {
+                "bar": {
+                    "properties": {},
+                    "metadata": {
+                        "description": "A description for discriminator variant"
+                    }
+                }
+            },
+            "metadata": {
+                "description": "A description for discriminator"
+            }
+        }
+    },
+    "definitions": {
+        "baz": {
+            "type": "string"
+        }
+    }
+}

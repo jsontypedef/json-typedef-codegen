@@ -306,7 +306,7 @@ mod filters {
         let prefix = "    ".repeat(ident);
         jtd_codegen_targetutils::comment_block(
             &format!("{}/// <summary>", prefix),
-            &format!("{} ", prefix),
+            &format!("{}/// ", prefix),
             &format!("{}/// </summary>", prefix),
             s,
         )
