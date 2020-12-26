@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 namespace JtdCodegenE2E
 {
     /// <summary>
+
     /// </summary>
 
     [JsonConverter(typeof(BarJsonConverter))]

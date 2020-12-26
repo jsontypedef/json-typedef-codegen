@@ -21,6 +21,14 @@ def _to_json(data):
         return { k: _to_json(v) for k, v in data.items() }
     return data.to_json()
 @dataclass
+class Baz:
+    value: "str"
+    @classmethod
+    def from_json(cls, data) -> "Baz":
+        return Baz(_from_json(str, data))
+    def to_json(self):
+        return _to_json(self.value)
+@dataclass
 class RootDiscriminatorWithDescription:
     foo: str
     @classmethod
@@ -61,20 +69,26 @@ class RootPropertiesWithDescription:
 class Root:
     discriminator_with_description: "RootDiscriminatorWithDescription"
     enum_with_description: "RootEnumWithDescription"
+    long_description: "str"
     properties_with_description: "RootPropertiesWithDescription"
+    ref_with_description: "Baz"
     string_with_description: "str"
     @classmethod
     def from_json(cls, data) -> "Root":
         return Root(
             _from_json(RootDiscriminatorWithDescription, data["discriminator_with_description"]),
             _from_json(RootEnumWithDescription, data["enum_with_description"]),
+            _from_json(str, data["long_description"]),
             _from_json(RootPropertiesWithDescription, data["properties_with_description"]),
+            _from_json(Baz, data["ref_with_description"]),
             _from_json(str, data["string_with_description"]),
         )
     def to_json(self):
         return {
             "discriminator_with_description": _to_json(self.discriminator_with_description),
             "enum_with_description": _to_json(self.enum_with_description),
+            "long_description": _to_json(self.long_description),
             "properties_with_description": _to_json(self.properties_with_description),
+            "ref_with_description": _to_json(self.ref_with_description),
             "string_with_description": _to_json(self.string_with_description),
         }

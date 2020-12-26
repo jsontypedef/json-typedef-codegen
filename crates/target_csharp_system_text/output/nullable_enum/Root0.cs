@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 namespace JtdCodegenE2E
 {
     /// <summary>
+
     /// </summary>
 
     [JsonConverter(typeof(Root0JsonConverter))]
@@ -11,16 +12,19 @@ namespace JtdCodegenE2E
     {
 
         /// <summary>
+
         /// </summary>
 
         Bar,
 
         /// <summary>
+
         /// </summary>
 
         Baz,
 
         /// <summary>
+
         /// </summary>
 
         Foo,

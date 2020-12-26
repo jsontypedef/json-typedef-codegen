@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 namespace JtdCodegenE2E
 {
     /// <summary>
+
     /// </summary>
 
     public class RootBar : Root
@@ -10,6 +11,7 @@ namespace JtdCodegenE2E
         public string Foo { get => "bar"; }
 
         /// <summary>
+
         /// </summary>
 
         [JsonPropertyName("baz")]

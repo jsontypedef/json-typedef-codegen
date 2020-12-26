@@ -1,6 +1,7 @@
 package jtd_codegen_e2e
 import "encoding/json"
 import "fmt"
+type Baz = string
 type RootDiscriminatorWithDescription struct {
 	Foo string
 	RootDiscriminatorWithDescriptionBar RootDiscriminatorWithDescriptionBar
@@ -41,6 +42,8 @@ type RootPropertiesWithDescription struct {
 type Root struct {
 	DiscriminatorWithDescription RootDiscriminatorWithDescription `json:"discriminator_with_description"`
 	EnumWithDescription RootEnumWithDescription `json:"enum_with_description"`
+	LongDescription string `json:"long_description"`
 	PropertiesWithDescription RootPropertiesWithDescription `json:"properties_with_description"`
+	RefWithDescription Baz `json:"ref_with_description"`
 	StringWithDescription string `json:"string_with_description"`
 }
