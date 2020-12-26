@@ -22,7 +22,7 @@ pub fn enum_variant_description<'a>(metadata: &'a BTreeMap<String, Value>, value
 }
 
 pub fn comment_block(before: &str, prefix: &str, after: &str, s: &str) -> String {
-    let middle = textwrap::fill(s, 80)
+    let middle = textwrap::fill(s, 80 - prefix.len())
         .lines()
         .map(|s| format!("{}{}", prefix, s))
         .collect::<Vec<_>>()

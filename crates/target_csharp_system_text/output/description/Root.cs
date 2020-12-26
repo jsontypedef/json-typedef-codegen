@@ -23,11 +23,11 @@ namespace JtdCodegenE2E
         public RootEnumWithDescription EnumWithDescription { get; set; }
 
         /// <summary>
-        /// Whereas disregard and contempt for human rights have resulted in barbarous
-        /// acts which have outraged the conscience of mankind, and the advent of a world
-        /// in which human beings shall enjoy freedom of speech and belief and freedom
-        /// from fear and want has been proclaimed as the highest aspiration of the common
-        /// people,
+        /// Whereas disregard and contempt for human rights have resulted in
+        /// barbarous acts which have outraged the conscience of mankind, and
+        /// the advent of a world in which human beings shall enjoy freedom of
+        /// speech and belief and freedom from fear and want has been proclaimed
+        /// as the highest aspiration of the common people,
         /// </summary>
 
         [JsonPropertyName("long_description")]
