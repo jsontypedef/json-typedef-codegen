@@ -1,0 +1,7 @@
+{{ struct_.metadata|description(0) }}
+type {{ struct_.name }} struct {
+{% for field in struct_.fields %}
+{{ field.metadata|description(1) }}
+    {{ field.name }} {{ field.type_ }} `json:{{ "{:?}"|format(field.json_name) }}`
+{% endfor %}
+}

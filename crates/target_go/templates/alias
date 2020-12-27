@@ -1,0 +1,2 @@
+{{ alias.metadata|description(0) }}
+type {{ alias.name }} = {{ alias.type_ }}

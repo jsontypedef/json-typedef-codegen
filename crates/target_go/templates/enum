@@ -1,0 +1,9 @@
+{{ enum_.metadata|description(1) }}
+type {{ enum_.name }} string
+
+const (
+{% for variant in enum_.variants %}
+{{ variant.metadata|enum_variant_description(1, variant.json_value) }}
+	{{ variant.name }} {{ enum_.name }} = {{ "{:?}"|format(variant.json_value) }}
+{% endfor %}
+)

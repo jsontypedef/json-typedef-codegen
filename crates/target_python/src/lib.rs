@@ -133,7 +133,15 @@ impl jtd_codegen::target::Target for Target {
                 "get_args".into(),
             ]);
 
-        writeln!(out, "{}", PreambleTemplate { imports: &state.imports }.render().unwrap())?;
+        writeln!(
+            out,
+            "{}",
+            PreambleTemplate {
+                imports: &state.imports
+            }
+            .render()
+            .unwrap()
+        )?;
 
         Ok(())
     }

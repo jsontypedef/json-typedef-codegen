@@ -116,7 +116,15 @@ impl jtd_codegen::target::Target for Target {
     }
 
     fn write_preamble(&self, state: &mut Self::FileState, out: &mut dyn Write) -> Result<()> {
-        writeln!(out, "{}", PreambleTemplate { imports: &state.imports }.render().unwrap())?;
+        writeln!(
+            out,
+            "{}",
+            PreambleTemplate {
+                imports: &state.imports
+            }
+            .render()
+            .unwrap()
+        )?;
 
         Ok(())
     }

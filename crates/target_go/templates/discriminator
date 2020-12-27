@@ -1,0 +1,37 @@
+{{ discriminator.metadata|description(0) }}
+type {{ discriminator.name }} struct {
+	{{ discriminator.tag_name }} string
+{% for (_, variant_name) in discriminator.variants %}
+	{{ variant_name }} {{ variant_name }}
+{% endfor %}
+}
+
+func (v {{ discriminator.name }}) MarshalJSON() ([]byte, error) {
+	switch (v.{{ discriminator.tag_name }}) {
+{% for (tag_value, variant_name) in discriminator.variants %}
+	case {{ "{:?}"|format(tag_value) }}:
+		return json.Marshal(struct { T string `json:{{ "{:?}"|format(discriminator.tag_json_name) }}`; {{ variant_name }} }{ v.{{ discriminator.tag_name }}, v.{{ variant_name }} })
+{% endfor %}
+	}
+
+	return nil, fmt.Errorf("bad {{ discriminator.tag_name }} value: %s", v.{{ discriminator.tag_name }})
+}
+
+func (v *{{ discriminator.name }}) UnmarshalJSON(b []byte) error {
+	var t struct { T string `json:{{ "{:?}"|format(discriminator.tag_json_name) }}` }
+	if err := json.Unmarshal(b, &t); err != nil {
+		return err
+	}
+	switch t.T {
+{% for (tag_value, variant_name) in discriminator.variants %}
+	case {{ "{:?}"|format(tag_value) }}:
+		if err := json.Unmarshal(b, &v.{{ variant_name }}); err != nil {
+			return err
+		}
+		v.{{ discriminator.tag_name }} = t.T
+		return nil
+{% endfor %}
+	}
+
+	return fmt.Errorf("bad {{ discriminator.tag_name }} value: %s", t.T)
+}

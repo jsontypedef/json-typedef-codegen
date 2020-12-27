@@ -235,9 +235,11 @@ dependencies = [
 name = "jtd_codegen_go"
 version = "0.1.0"
 dependencies = [
+ "askama",
  "jtd_codegen",
  "jtd_codegen_test",
  "lazy_static",
+ "serde_json",
 ]
 
 [[package]]

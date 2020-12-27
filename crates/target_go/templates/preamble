@@ -1,0 +1,7 @@
+package {{ package }}
+
+import (
+{% for package in imports %}
+	{{ "{:?}"|format(package) }}
+{% endfor %}
+)
