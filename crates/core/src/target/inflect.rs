@@ -1,5 +1,33 @@
+use std::collections::BTreeSet;
+
 pub trait Inflector {
     fn inflect(&self, name_parts: &[String]) -> String;
+}
+
+pub struct KeywordAvoidingInflector<I> {
+    keywords: BTreeSet<String>,
+    inflector: I,
+}
+
+impl<I> KeywordAvoidingInflector<I> {
+    pub fn new(keywords: BTreeSet<String>, inflector: I) -> Self {
+        Self {
+            keywords,
+            inflector,
+        }
+    }
+}
+
+impl<I: Inflector> Inflector for KeywordAvoidingInflector<I> {
+    fn inflect(&self, name_parts: &[String]) -> String {
+        let raw_name = self.inflector.inflect(name_parts);
+
+        if self.keywords.contains(&raw_name) {
+            format!("{}_", raw_name)
+        } else {
+            raw_name
+        }
+    }
 }
 
 pub struct CombiningInflector {

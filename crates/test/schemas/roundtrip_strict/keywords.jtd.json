@@ -1,0 +1,18 @@
+{
+    "definitions": {
+        "for": {
+            "type": "string"
+        },
+        "object": {
+            "type": "string"
+        }
+    },
+    "properties": {
+        "for": {
+            "ref": "for"
+        },
+        "object": {
+            "ref": "object"
+        }
+    }
+}

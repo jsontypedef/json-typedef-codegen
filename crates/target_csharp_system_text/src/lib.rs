@@ -1,19 +1,31 @@
 use askama::Template;
-use jtd_codegen::target::inflect::*;
+use jtd_codegen::target::inflect;
 use jtd_codegen::target::*;
 use jtd_codegen::Result;
 use lazy_static::lazy_static;
 use std::collections::BTreeSet;
 use std::io::Write;
 
-// todo: use keyword-avoiding inflectors
 lazy_static! {
-    static ref TYPE_NAMING_CONVENTION: Box<dyn Inflector + Send + Sync> =
-        Box::new(CombiningInflector::new(Case::PascalCase));
-    static ref FIELD_NAMING_CONVENTION: Box<dyn Inflector + Send + Sync> =
-        Box::new(TailInflector::new(Case::PascalCase));
-    static ref ENUM_VARIANT_NAMING_CONVENTION: Box<dyn Inflector + Send + Sync> =
-        Box::new(TailInflector::new(Case::PascalCase));
+    static ref KEYWORDS: BTreeSet<String> = include_str!("keywords")
+        .lines()
+        .map(str::to_owned)
+        .collect();
+    static ref TYPE_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
+        Box::new(inflect::KeywordAvoidingInflector::new(
+            KEYWORDS.clone(),
+            inflect::CombiningInflector::new(inflect::Case::PascalCase)
+        ));
+    static ref FIELD_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
+        Box::new(inflect::KeywordAvoidingInflector::new(
+            KEYWORDS.clone(),
+            inflect::TailInflector::new(inflect::Case::PascalCase)
+        ));
+    static ref ENUM_VARIANT_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
+        Box::new(inflect::KeywordAvoidingInflector::new(
+            KEYWORDS.clone(),
+            inflect::TailInflector::new(inflect::Case::PascalCase)
+        ));
 }
 
 pub struct Target {
