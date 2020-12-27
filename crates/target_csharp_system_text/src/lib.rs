@@ -116,9 +116,7 @@ impl jtd_codegen::target::Target for Target {
     }
 
     fn write_preamble(&self, state: &mut Self::FileState, out: &mut dyn Write) -> Result<()> {
-        for namespace in &state.imports {
-            writeln!(out, "using {};", namespace)?;
-        }
+        writeln!(out, "{}", PreambleTemplate { imports: &state.imports }.render().unwrap())?;
 
         Ok(())
     }
@@ -257,6 +255,12 @@ impl jtd_codegen::target::Target for Target {
 #[derive(Default)]
 pub struct FileState {
     imports: BTreeSet<String>,
+}
+
+#[derive(Template)]
+#[template(path = "preamble")]
+struct PreambleTemplate<'a> {
+    imports: &'a BTreeSet<String>,
 }
 
 #[derive(Template)]
