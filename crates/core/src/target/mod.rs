@@ -10,8 +10,8 @@ use std::io::Write;
 pub trait Target {
     type FileState: Default;
 
-    fn file_partitioning() -> FilePartitioning;
-    fn enum_strategy() -> EnumStrategy;
+    fn file_partitioning(&self) -> FilePartitioning;
+    fn enum_strategy(&self) -> EnumStrategy;
 
     fn booleans_are_nullable() -> bool;
     fn strings_are_nullable() -> bool;

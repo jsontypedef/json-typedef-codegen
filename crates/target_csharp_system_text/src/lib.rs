@@ -41,11 +41,11 @@ impl Target {
 impl jtd_codegen::target::Target for Target {
     type FileState = FileState;
 
-    fn file_partitioning() -> FilePartitioning {
+    fn file_partitioning(&self) -> FilePartitioning {
         FilePartitioning::FilePerType("cs".into())
     }
 
-    fn enum_strategy() -> EnumStrategy {
+    fn enum_strategy(&self) -> EnumStrategy {
         EnumStrategy::Modularized
     }
 

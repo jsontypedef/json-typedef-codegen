@@ -26,8 +26,8 @@ pub fn codegen<T: Target>(
         .collect();
 
     let mut global_state = GlobalState {
-        file_partitioning: T::file_partitioning(),
-        enum_strategy: T::enum_strategy(),
+        file_partitioning: target.file_partitioning(),
+        enum_strategy: target.enum_strategy(),
         names: global_namespace,
         target,
         definition_names: &definition_names,

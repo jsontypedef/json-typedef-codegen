@@ -1,4 +1,4 @@
-use jtd_codegen::target::inflect;
+use jtd_codegen::target::inflect::{self, Inflector};
 use jtd_codegen::target::*;
 use jtd_codegen::Result;
 use lazy_static::lazy_static;
@@ -35,11 +35,18 @@ impl Target {
 impl jtd_codegen::target::Target for Target {
     type FileState = FileState;
 
-    fn file_partitioning() -> FilePartitioning {
-        FilePartitioning::SingleFile("index.go".into())
+    fn file_partitioning(&self) -> FilePartitioning {
+        FilePartitioning::SingleFile(format!(
+            "{}.go",
+            inflect::KeywordAvoidingInflector::new(
+                KEYWORDS.clone(),
+                inflect::TailInflector::new(inflect::Case::SnakeCase)
+            )
+            .inflect(&[self.package.clone()])
+        ))
     }
 
-    fn enum_strategy() -> EnumStrategy {
+    fn enum_strategy(&self) -> EnumStrategy {
         EnumStrategy::Unmodularized
     }
 
