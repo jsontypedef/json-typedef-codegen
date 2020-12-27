@@ -1,5 +1,8 @@
+
 from dataclasses import dataclass
+
 from typing import Any, List, Optional, Union, get_args, get_origin
+
 def _from_json(cls, data):
     if data is None or cls in [bool, int, float, str] or cls is Any:
         return data
@@ -21,30 +24,92 @@ def _to_json(data):
     return data.to_json()
 @dataclass
 class Root0:
+    """
+
+    """
+
+
     bar: "str"
+    """
+
+    """
+
+
     baz: "List[bool]"
+    """
+
+    """
+
+
     foo: "bool"
+    """
+
+    """
+
+
     quux: "List[bool]"
+    """
+
+    """
+
+
+
     @classmethod
     def from_json(cls, data) -> "Root0":
-        return Root0(
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(
+
             _from_json(str, data["bar"]),
+
             _from_json(List[bool], data["baz"]),
+
             _from_json(bool, data["foo"]),
+
             _from_json(List[bool], data["quux"]),
+
         )
+
     def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
         return {
+
             "bar": _to_json(self.bar),
+
             "baz": _to_json(self.baz),
+
             "foo": _to_json(self.foo),
+
             "quux": _to_json(self.quux),
+
         }
 @dataclass
 class Root:
+    """
+
+    """
+
     value: "Optional[Root0]"
+    """
+    The value being wrapped.
+    """
+
     @classmethod
     def from_json(cls, data) -> "Root":
-        return Root(_from_json(Optional[Root0], data))
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(_from_json(Optional[Root0], data))
+
     def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
         return _to_json(self.value)

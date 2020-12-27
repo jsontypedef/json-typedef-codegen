@@ -1,0 +1,22 @@
+@dataclass
+class {{ alias.name }}:
+{{ alias.metadata|description(1) }}
+    value: {{ "{:?}"|format(alias.type_) }}
+    """
+    The value being wrapped.
+    """
+
+    @classmethod
+    def from_json(cls, data) -> {{ "{:?}"|format(alias.name) }}:
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(_from_json({{ alias.type_ }}, data))
+
+    def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
+        return _to_json(self.value)

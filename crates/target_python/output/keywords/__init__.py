@@ -1,5 +1,8 @@
+
 from dataclasses import dataclass
+
 from typing import Any, Union, get_args, get_origin
+
 def _from_json(cls, data):
     if data is None or cls in [bool, int, float, str] or cls is Any:
         return data
@@ -21,32 +24,97 @@ def _to_json(data):
     return data.to_json()
 @dataclass
 class For:
+    """
+
+    """
+
     value: "str"
+    """
+    The value being wrapped.
+    """
+
     @classmethod
     def from_json(cls, data) -> "For":
-        return For(_from_json(str, data))
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(_from_json(str, data))
+
     def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
         return _to_json(self.value)
 @dataclass
 class Object:
+    """
+
+    """
+
     value: "str"
+    """
+    The value being wrapped.
+    """
+
     @classmethod
     def from_json(cls, data) -> "Object":
-        return Object(_from_json(str, data))
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(_from_json(str, data))
+
     def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
         return _to_json(self.value)
 @dataclass
 class Root:
+    """
+
+    """
+
+
     for_: "For"
+    """
+
+    """
+
+
     object: "Object"
+    """
+
+    """
+
+
+
     @classmethod
     def from_json(cls, data) -> "Root":
-        return Root(
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(
+
             _from_json(For, data["for"]),
+
             _from_json(Object, data["object"]),
+
         )
+
     def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
         return {
+
             "for": _to_json(self.for_),
+
             "object": _to_json(self.object),
+
         }

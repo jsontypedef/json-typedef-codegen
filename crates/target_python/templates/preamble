@@ -1,8 +1,6 @@
-
-from dataclasses import dataclass
-
-from typing import Any, Union, get_args, get_origin
-
+{% for (module, idents) in imports %}
+from {{ module }} import {{ idents|join(", ") }}
+{% endfor %}
 def _from_json(cls, data):
     if data is None or cls in [bool, int, float, str] or cls is Any:
         return data
@@ -22,28 +20,3 @@ def _to_json(data):
     if type(data) is dict:
         return { k: _to_json(v) for k, v in data.items() }
     return data.to_json()
-@dataclass
-class Root:
-    """
-
-    """
-
-    value: "str"
-    """
-    The value being wrapped.
-    """
-
-    @classmethod
-    def from_json(cls, data) -> "Root":
-        """
-        Construct an instance of this class from parsed JSON data.
-        """
-
-        return cls(_from_json(str, data))
-
-    def to_json(self):
-        """
-        Generate JSON-ready data from an instance of this class.
-        """
-
-        return _to_json(self.value)

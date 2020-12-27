@@ -1,3 +1,4 @@
+use askama::Template;
 use jtd_codegen::target::inflect;
 use jtd_codegen::target::*;
 use jtd_codegen::Result;
@@ -132,49 +133,7 @@ impl jtd_codegen::target::Target for Target {
                 "get_args".into(),
             ]);
 
-        for (package, idents) in &state.imports {
-            writeln!(
-                out,
-                "from {} import {}",
-                package,
-                idents.iter().cloned().collect::<Vec<_>>().join(", ")
-            )?;
-        }
-
-        writeln!(out, "def _from_json(cls, data):")?;
-        writeln!(
-            out,
-            "    if data is None or cls in [bool, int, float, str] or cls is Any:"
-        )?;
-        writeln!(out, "        return data")?;
-        writeln!(out, "    if get_origin(cls) is Union:")?;
-        writeln!(out, "        return _from_json(get_args(cls)[0], data)")?;
-        writeln!(out, "    if get_origin(cls) is list:")?;
-        writeln!(
-            out,
-            "        return [_from_json(get_args(cls)[0], d) for d in data]"
-        )?;
-        writeln!(out, "    if get_origin(cls) is dict:")?;
-        writeln!(
-            out,
-            "        return {{ k: _from_json(get_args(cls)[1], v) for k, v in data.items() }}"
-        )?;
-        writeln!(out, "    return cls.from_json(data)")?;
-        writeln!(out, "")?;
-        writeln!(out, "def _to_json(data):")?;
-        writeln!(
-            out,
-            "    if data is None or type(data) in [bool, int, float, str]:"
-        )?;
-        writeln!(out, "        return data")?;
-        writeln!(out, "    if type(data) is list:")?;
-        writeln!(out, "        return [_to_json(d) for d in data]")?;
-        writeln!(out, "    if type(data) is dict:")?;
-        writeln!(
-            out,
-            "        return {{ k: _to_json(v) for k, v in data.items() }}"
-        )?;
-        writeln!(out, "    return data.to_json()")?;
+        writeln!(out, "{}", PreambleTemplate { imports: &state.imports }.render().unwrap())?;
 
         Ok(())
     }
@@ -191,18 +150,8 @@ impl jtd_codegen::target::Target for Target {
             .or_default()
             .insert("dataclass".into());
 
-        writeln!(out, "@dataclass")?;
-        writeln!(out, "class {}:", alias.name)?;
-        writeln!(out, "    value: {:?}", alias.type_)?;
-        writeln!(out, "    @classmethod")?;
-        writeln!(out, "    def from_json(cls, data) -> {:?}:", alias.name)?;
-        writeln!(
-            out,
-            "        return {}(_from_json({}, data))",
-            alias.name, alias.type_
-        )?;
-        writeln!(out, "    def to_json(self):")?;
-        writeln!(out, "        return _to_json(self.value)")?;
+        writeln!(out, "{}", AliasTemplate { alias: &alias }.render().unwrap())?;
+
         Ok(alias.name)
     }
 
@@ -218,16 +167,7 @@ impl jtd_codegen::target::Target for Target {
             .or_default()
             .insert("Enum".into());
 
-        writeln!(out, "class {}(Enum):", enum_.name)?;
-        for variant in enum_.variants {
-            writeln!(out, "    {} = {:?}", variant.name, variant.json_value)?;
-        }
-
-        writeln!(out, "    @classmethod")?;
-        writeln!(out, "    def from_json(cls, data) -> {:?}:", enum_.name)?;
-        writeln!(out, "         return {}(data)", enum_.name)?;
-        writeln!(out, "    def to_json(self):")?;
-        writeln!(out, "        return self.value")?;
+        writeln!(out, "{}", EnumTemplate { enum_: &enum_ }.render().unwrap())?;
 
         Ok(enum_.name)
     }
@@ -244,35 +184,11 @@ impl jtd_codegen::target::Target for Target {
             .or_default()
             .insert("dataclass".into());
 
-        writeln!(out, "@dataclass")?;
-        writeln!(out, "class {}:", struct_.name)?;
-
-        for field in &struct_.fields {
-            writeln!(out, "    {}: {:?}", field.name, field.type_)?;
-        }
-
-        writeln!(out, "    @classmethod")?;
-        writeln!(out, "    def from_json(cls, data) -> {:?}:", struct_.name)?;
-        writeln!(out, "        return {}(", struct_.name)?;
-        for field in &struct_.fields {
-            writeln!(
-                out,
-                "            _from_json({}, data[{:?}]),",
-                field.type_, field.json_name
-            )?;
-        }
-        writeln!(out, "        )")?;
-
-        writeln!(out, "    def to_json(self):")?;
-        writeln!(out, "        return {{")?;
-        for field in &struct_.fields {
-            writeln!(
-                out,
-                "            {:?}: _to_json(self.{}),",
-                field.json_name, field.name,
-            )?;
-        }
-        writeln!(out, "        }}")?;
+        writeln!(
+            out,
+            "{}",
+            StructTemplate { struct_: &struct_ }.render().unwrap()
+        )?;
 
         Ok(struct_.name)
     }
@@ -281,7 +197,7 @@ impl jtd_codegen::target::Target for Target {
         &self,
         state: &mut Self::FileState,
         out: &mut dyn Write,
-        variant: DiscriminatorVariant,
+        discriminator_variant: DiscriminatorVariant,
     ) -> Result<String> {
         state
             .imports
@@ -289,43 +205,17 @@ impl jtd_codegen::target::Target for Target {
             .or_default()
             .insert("dataclass".into());
 
-        writeln!(out, "@dataclass")?;
-        writeln!(out, "class {}({}):", variant.name, variant.parent_name)?;
-
-        for field in &variant.fields {
-            writeln!(out, "    {}: {:?}", field.name, field.type_)?;
-        }
-
-        writeln!(out, "    @classmethod")?;
-        writeln!(out, "    def from_json(cls, data) -> {:?}:", variant.name)?;
-        writeln!(out, "        return {}(", variant.name)?;
-        writeln!(out, "            {:?},", variant.tag_json_value)?;
-        for field in &variant.fields {
-            writeln!(
-                out,
-                "            _from_json({}, data[{:?}]),",
-                field.type_, field.json_name
-            )?;
-        }
-        writeln!(out, "        )")?;
-
-        writeln!(out, "    def to_json(self):")?;
-        writeln!(out, "        return {{")?;
         writeln!(
             out,
-            "            {:?}: {:?},",
-            variant.tag_json_name, variant.tag_json_value
+            "{}",
+            DiscriminatorVariantTemplate {
+                discriminator_variant: &discriminator_variant,
+            }
+            .render()
+            .unwrap()
         )?;
-        for field in &variant.fields {
-            writeln!(
-                out,
-                "            {:?}: _to_json(self.{}),",
-                field.json_name, field.name,
-            )?;
-        }
-        writeln!(out, "        }}")?;
 
-        Ok(variant.name)
+        Ok(discriminator_variant.name)
     }
 
     fn write_discriminator(
@@ -340,24 +230,14 @@ impl jtd_codegen::target::Target for Target {
             .or_default()
             .insert("dataclass".into());
 
-        writeln!(out, "@dataclass")?;
-        writeln!(out, "class {}:", discriminator.name)?;
-        writeln!(out, "    {}: str", discriminator.tag_json_name)?;
-
-        writeln!(out, "    @classmethod")?;
         writeln!(
             out,
-            "    def from_json(cls, data) -> {:?}:",
-            discriminator.name
-        )?;
-        writeln!(out, "        return {{")?;
-        for (tag_value, variant_name) in &discriminator.variants {
-            writeln!(out, "            {:?}: {},", tag_value, variant_name)?;
-        }
-        writeln!(
-            out,
-            "        }}[data[{:?}]].from_json(data)",
-            discriminator.tag_json_name
+            "{}",
+            DiscriminatorTemplate {
+                discriminator: &discriminator,
+            }
+            .render()
+            .unwrap()
         )?;
 
         Ok(discriminator.name)
@@ -367,6 +247,76 @@ impl jtd_codegen::target::Target for Target {
 #[derive(Default)]
 pub struct FileState {
     imports: BTreeMap<String, BTreeSet<String>>,
+}
+
+#[derive(Template)]
+#[template(path = "preamble")]
+struct PreambleTemplate<'a> {
+    imports: &'a BTreeMap<String, BTreeSet<String>>,
+}
+
+#[derive(Template)]
+#[template(path = "alias")]
+struct AliasTemplate<'a> {
+    alias: &'a Alias,
+}
+
+#[derive(Template)]
+#[template(path = "enum")]
+struct EnumTemplate<'a> {
+    enum_: &'a Enum,
+}
+
+#[derive(Template)]
+#[template(path = "struct")]
+struct StructTemplate<'a> {
+    struct_: &'a Struct,
+}
+
+#[derive(Template)]
+#[template(path = "discriminator_variant")]
+struct DiscriminatorVariantTemplate<'a> {
+    discriminator_variant: &'a DiscriminatorVariant,
+}
+
+#[derive(Template)]
+#[template(path = "discriminator")]
+struct DiscriminatorTemplate<'a> {
+    discriminator: &'a Discriminator,
+}
+
+mod filters {
+    use askama::Result;
+    use serde_json::Value;
+    use std::collections::BTreeMap;
+
+    pub fn description(metadata: &BTreeMap<String, Value>, indent: &usize) -> Result<String> {
+        Ok(doc(
+            *indent,
+            jtd_codegen::target::metadata::description(metadata),
+        ))
+    }
+
+    pub fn enum_variant_description(
+        metadata: &BTreeMap<String, Value>,
+        indent: &usize,
+        value: &str,
+    ) -> Result<String> {
+        Ok(doc(
+            *indent,
+            jtd_codegen::target::metadata::enum_variant_description(metadata, value),
+        ))
+    }
+
+    fn doc(ident: usize, s: &str) -> String {
+        let prefix = "    ".repeat(ident);
+        jtd_codegen::target::fmt::comment_block(
+            &format!("{}\"\"\"", prefix),
+            &format!("{}", prefix),
+            &format!("{}\"\"\"", prefix),
+            s,
+        )
+    }
 }
 
 #[cfg(test)]

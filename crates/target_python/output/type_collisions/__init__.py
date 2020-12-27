@@ -1,5 +1,8 @@
+
 from dataclasses import dataclass
+
 from typing import Any, Union, get_args, get_origin
+
 def _from_json(cls, data):
     if data is None or cls in [bool, int, float, str] or cls is Any:
         return data
@@ -21,52 +24,155 @@ def _to_json(data):
     return data.to_json()
 @dataclass
 class RootFooBar:
+    """
+
+    """
+
+
     x: "bool"
+    """
+
+    """
+
+
+
     @classmethod
     def from_json(cls, data) -> "RootFooBar":
-        return RootFooBar(
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(
+
             _from_json(bool, data["x"]),
+
         )
+
     def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
         return {
+
             "x": _to_json(self.x),
+
         }
 @dataclass
 class RootFoo:
+    """
+
+    """
+
+
     bar: "RootFooBar"
+    """
+
+    """
+
+
+
     @classmethod
     def from_json(cls, data) -> "RootFoo":
-        return RootFoo(
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(
+
             _from_json(RootFooBar, data["bar"]),
+
         )
+
     def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
         return {
+
             "bar": _to_json(self.bar),
+
         }
 @dataclass
 class RootFooBar0:
+    """
+
+    """
+
+
     x: "str"
+    """
+
+    """
+
+
+
     @classmethod
     def from_json(cls, data) -> "RootFooBar0":
-        return RootFooBar0(
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(
+
             _from_json(str, data["x"]),
+
         )
+
     def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
         return {
+
             "x": _to_json(self.x),
+
         }
 @dataclass
 class Root:
+    """
+
+    """
+
+
     foo: "RootFoo"
+    """
+
+    """
+
+
     foo_bar: "RootFooBar0"
+    """
+
+    """
+
+
+
     @classmethod
     def from_json(cls, data) -> "Root":
-        return Root(
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(
+
             _from_json(RootFoo, data["foo"]),
+
             _from_json(RootFooBar0, data["foo_bar"]),
+
         )
+
     def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
         return {
+
             "foo": _to_json(self.foo),
+
             "foo_bar": _to_json(self.foo_bar),
+
         }

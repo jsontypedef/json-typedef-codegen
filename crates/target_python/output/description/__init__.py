@@ -1,6 +1,10 @@
+
 from dataclasses import dataclass
+
 from enum import Enum
+
 from typing import Any, Union, get_args, get_origin
+
 def _from_json(cls, data):
     if data is None or cls in [bool, int, float, str] or cls is Any:
         return data
@@ -22,73 +26,235 @@ def _to_json(data):
     return data.to_json()
 @dataclass
 class Baz:
+    """
+
+    """
+
     value: "str"
+    """
+    The value being wrapped.
+    """
+
     @classmethod
     def from_json(cls, data) -> "Baz":
-        return Baz(_from_json(str, data))
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(_from_json(str, data))
+
     def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
         return _to_json(self.value)
 @dataclass
 class RootDiscriminatorWithDescription:
+    """
+    A description for discriminator
+    """
+
     foo: str
+
     @classmethod
     def from_json(cls, data) -> "RootDiscriminatorWithDescription":
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
         return {
+
             "bar": RootDiscriminatorWithDescriptionBar,
+
         }[data["foo"]].from_json(data)
+
+    def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
+        pass # subclasses will implement this
 @dataclass
 class RootDiscriminatorWithDescriptionBar(RootDiscriminatorWithDescription):
+    """
+    A description for discriminator variant
+    """
+
+
+
     @classmethod
     def from_json(cls, data) -> "RootDiscriminatorWithDescriptionBar":
-        return RootDiscriminatorWithDescriptionBar(
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(
             "bar",
+
         )
+
     def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
         return {
             "foo": "bar",
+
         }
 class RootEnumWithDescription(Enum):
+    """
+    A description for enum
+    """
+
+
     X = "X"
+    """
+    A description for X
+    """
+
+
     Y = "Y"
+    """
+    A description for Y
+    """
+
+
     Z = "Z"
+    """
+    A description for Z
+    """
+
+
+
     @classmethod
     def from_json(cls, data) -> "RootEnumWithDescription":
-         return RootEnumWithDescription(data)
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(data)
+
     def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
         return self.value
 @dataclass
 class RootPropertiesWithDescription:
+    """
+    A description for properties
+    """
+
+
+
     @classmethod
     def from_json(cls, data) -> "RootPropertiesWithDescription":
-        return RootPropertiesWithDescription(
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(
+
         )
+
     def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
         return {
+
         }
 @dataclass
 class Root:
+    """
+
+    """
+
+
     discriminator_with_description: "RootDiscriminatorWithDescription"
+    """
+    A description for discriminator
+    """
+
+
     enum_with_description: "RootEnumWithDescription"
+    """
+    A description for enum
+    """
+
+
     long_description: "str"
+    """
+    Whereas disregard and contempt for human rights have resulted in barbarous
+    acts which have outraged the conscience of mankind, and the advent of a
+    world in which human beings shall enjoy freedom of speech and belief and
+    freedom from fear and want has been proclaimed as the highest aspiration of
+    the common people,
+    """
+
+
     properties_with_description: "RootPropertiesWithDescription"
+    """
+    A description for properties
+    """
+
+
     ref_with_description: "Baz"
+    """
+    A description for ref
+    """
+
+
     string_with_description: "str"
+    """
+    A description for string
+    """
+
+
+
     @classmethod
     def from_json(cls, data) -> "Root":
-        return Root(
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(
+
             _from_json(RootDiscriminatorWithDescription, data["discriminator_with_description"]),
+
             _from_json(RootEnumWithDescription, data["enum_with_description"]),
+
             _from_json(str, data["long_description"]),
+
             _from_json(RootPropertiesWithDescription, data["properties_with_description"]),
+
             _from_json(Baz, data["ref_with_description"]),
+
             _from_json(str, data["string_with_description"]),
+
         )
+
     def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
         return {
+
             "discriminator_with_description": _to_json(self.discriminator_with_description),
+
             "enum_with_description": _to_json(self.enum_with_description),
+
             "long_description": _to_json(self.long_description),
+
             "properties_with_description": _to_json(self.properties_with_description),
+
             "ref_with_description": _to_json(self.ref_with_description),
+
             "string_with_description": _to_json(self.string_with_description),
+
         }

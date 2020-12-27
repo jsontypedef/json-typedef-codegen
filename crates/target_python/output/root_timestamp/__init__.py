@@ -1,5 +1,8 @@
+
 from dataclasses import dataclass
+
 from typing import Any, Union, get_args, get_origin
+
 def _from_json(cls, data):
     if data is None or cls in [bool, int, float, str] or cls is Any:
         return data
@@ -21,9 +24,26 @@ def _to_json(data):
     return data.to_json()
 @dataclass
 class Root:
+    """
+
+    """
+
     value: "str"
+    """
+    The value being wrapped.
+    """
+
     @classmethod
     def from_json(cls, data) -> "Root":
-        return Root(_from_json(str, data))
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(_from_json(str, data))
+
     def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
         return _to_json(self.value)
