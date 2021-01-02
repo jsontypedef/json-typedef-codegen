@@ -1,25 +1,25 @@
 namespace {{ namespace }}
 {
-{{ alias.metadata|description(1) }}
-    [JsonConverter(typeof({{ alias.name }}JsonConverter))]
-    public class {{ alias.name }}
+{{ metadata|description(1) }}
+    [JsonConverter(typeof({{ name }}JsonConverter))]
+    public class {{ name }}
     {
         /// <summary>
         /// The underlying data being wrapped.
         /// </summary>
-        public {{ alias.type_ }} Value { get; set; }
+        public {{ type_ }} Value { get; set; }
     }
 
-    public class {{ alias.name }}JsonConverter : JsonConverter<{{ alias.name }}>
+    public class {{ name }}JsonConverter : JsonConverter<{{ name }}>
     {
-        public override {{ alias.name }} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override {{ name }} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return new {{ alias.name }} { Value = JsonSerializer.Deserialize<{{ alias.type_ }}>(ref reader, options) };
+            return new {{ name }} { Value = JsonSerializer.Deserialize<{{ type_ }}>(ref reader, options) };
         }
 
-        public override void Write(Utf8JsonWriter writer, {{ alias.name }} value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, {{ name }} value, JsonSerializerOptions options)
         {
-            JsonSerializer.Serialize<{{ alias.type_ }}>(writer, value.Value, options);
+            JsonSerializer.Serialize<{{ type_ }}>(writer, value.Value, options);
         }
     }
 }

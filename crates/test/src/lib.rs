@@ -18,6 +18,7 @@ macro_rules! std_test_cases {
         $crate::strict_std_test_case!($target, basic_discriminator);
         $crate::strict_std_test_case!($target, basic_enum);
         $crate::strict_std_test_case!($target, basic_properties);
+        $crate::strict_std_test_case!($target, custom_overrides);
         $crate::strict_std_test_case!($target, definition_name_collisions);
         $crate::strict_std_test_case!($target, description);
         $crate::strict_std_test_case!($target, elements);

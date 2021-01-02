@@ -1,30 +1,30 @@
 namespace {{ namespace }}
 {
-{{discriminator.metadata|description(1) }}
-    [JsonConverter(typeof({{ discriminator.name }}JsonConverter))]
-    public abstract class {{ discriminator.name }}
+{{metadata|description(1) }}
+    [JsonConverter(typeof({{ name }}JsonConverter))]
+    public abstract class {{ name }}
     {
     }
 
-    public class {{ discriminator.name }}JsonConverter : JsonConverter<{{ discriminator.name }}>
+    public class {{ name }}JsonConverter : JsonConverter<{{ name }}>
     {
-        public override {{ discriminator.name }} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override {{ name }} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var readerCopy = reader;
-            var tagValue = JsonDocument.ParseValue(ref reader).RootElement.GetProperty({{ "{:?}"|format(discriminator.tag_json_name) }}).GetString();
+            var tagValue = JsonDocument.ParseValue(ref reader).RootElement.GetProperty({{ "{:?}"|format(tag_json_name) }}).GetString();
 
             switch (tagValue)
             {
-{%- for (tag_value, variant) in discriminator.variants %}
-                case {{ "{:?}"|format(tag_value) }}:
-                    return JsonSerializer.Deserialize<{{ variant }}>(ref readerCopy, options);
+{%- for variant in variants %}
+                case {{ "{:?}"|format(variant.tag_value) }}:
+                    return JsonSerializer.Deserialize<{{ variant.type_name }}>(ref readerCopy, options);
 {%- endfor %}
                 default:
-                    throw new ArgumentException(String.Format("Bad {{ discriminator.tag_name }} value: {0}", tagValue));
+                    throw new ArgumentException(String.Format("Bad {{ tag_field_name }} value: {0}", tagValue));
             }
         }
 
-        public override void Write(Utf8JsonWriter writer, {{ discriminator.name }} value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, {{ name }} value, JsonSerializerOptions options)
         {
             JsonSerializer.Serialize(writer, value, value.GetType(), options);
         }

@@ -1,0 +1,49 @@
+{
+    "properties": {
+        "override_type_expr": {
+            "type": "string",
+            "metadata": {
+                "csharpSystemTextType": "object"
+            }
+        },
+        "override_elements_container": {
+            "elements": {
+                "type": "string"
+            },
+            "metadata": {
+                "csharpSystemTextContainer": "System.Collections.Generic.List"
+            }
+        },
+        "override_type_enum": {
+            "enum": [
+                "FOO", "BAR"
+            ],
+            "metadata": {
+                "csharpSystemTextType": "object"
+            }
+        },
+        "override_type_properties": {
+            "properties": {},
+            "metadata": {
+                "csharpSystemTextType": "object"
+            }
+        },
+        "override_type_discriminator": {
+            "discriminator": "foo",
+            "mapping": {
+                "bar": {
+                    "properties": {},
+                    "metadata": {
+                        "csharpSystemTextType": "object"
+                    }
+                },
+                "baz": {
+                    "properties": {}
+                }
+            },
+            "metadata": {
+                "csharpSystemTextType": "object"
+            }
+        }
+    }
+}

@@ -1,38 +1,38 @@
 namespace {{ namespace }}
 {
-{{ enum_.metadata|description(1) }}
-    [JsonConverter(typeof({{ enum_.name }}JsonConverter))]
-    public enum {{ enum_.name }}
+{{ metadata|description(1) }}
+    [JsonConverter(typeof({{ name }}JsonConverter))]
+    public enum {{ name }}
     {
-{% for variant in enum_.variants %}
-{{ enum_.metadata|enum_variant_description(2, variant.json_value) }}
-        {{ variant.name }},
+{% for member in members %}
+{{ metadata|enum_variant_description(2, member.json_value) }}
+        {{ member.name }},
 {% endfor %}
     }
 
-    public class {{ enum_.name}}JsonConverter : JsonConverter<{{enum_.name}}>
+    public class {{ name }}JsonConverter : JsonConverter<{{ name }}>
     {
-        public override {{ enum_.name }} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override {{ name }} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             string value = JsonSerializer.Deserialize<string>(ref reader, options);
             switch (value)
             {
-{% for variant in enum_.variants %}
-                case {{ "{:?}"|format(variant.json_value )}}:
-                    return {{ enum_.name}}.{{variant.name}};
+{% for member in members %}
+                case {{ "{:?}"|format(member.json_value )}}:
+                    return {{ name }}.{{ member.name }};
 {% endfor %}
                 default:
-                    throw new ArgumentException(String.Format("Bad {{ enum_.name }} value: {0}", value));
+                    throw new ArgumentException(String.Format("Bad {{ name }} value: {0}", value));
             }
         }
 
-        public override void Write(Utf8JsonWriter writer, {{ enum_.name }} value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, {{ name }} value, JsonSerializerOptions options)
         {
             switch (value)
             {
-{% for variant in enum_.variants %}
-                case {{ enum_.name }}.{{variant.name}}:
-                    JsonSerializer.Serialize<string>(writer, {{ "{:?}"|format(variant.json_value) }}, options);
+{% for member in members %}
+                case {{ name }}.{{ member.name }}:
+                    JsonSerializer.Serialize<string>(writer, {{ "{:?}"|format(member.json_value) }}, options);
                     return;
 {% endfor %}
             }
