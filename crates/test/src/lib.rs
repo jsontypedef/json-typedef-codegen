@@ -31,11 +31,20 @@ macro_rules! std_test_cases {
         $crate::strict_std_test_case!($target, nullable_properties);
         $crate::strict_std_test_case!($target, property_name_collisions);
         $crate::strict_std_test_case!($target, reference);
+        $crate::strict_std_test_case!($target, root_boolean);
+        $crate::strict_std_test_case!($target, root_int8);
+        $crate::strict_std_test_case!($target, root_int16);
+        $crate::strict_std_test_case!($target, root_int32);
         $crate::strict_std_test_case!($target, root_nullable_string);
         $crate::strict_std_test_case!($target, root_string);
+        $crate::strict_std_test_case!($target, root_uint8);
+        $crate::strict_std_test_case!($target, root_uint16);
+        $crate::strict_std_test_case!($target, root_uint32);
         $crate::strict_std_test_case!($target, type_collisions);
 
         $crate::loose_std_test_case!($target, nullable_timestamp_property);
+        $crate::loose_std_test_case!($target, root_float32);
+        $crate::loose_std_test_case!($target, root_float64);
         $crate::loose_std_test_case!($target, root_nullable_timestamp);
         $crate::loose_std_test_case!($target, root_timestamp);
     };

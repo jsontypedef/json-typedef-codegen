@@ -155,6 +155,35 @@ impl<'a, T: Target> CodeGenerator<'a, T> {
                 self.target
                     .expr(&mut file_data.state, metadata, Expr::Boolean)
             }
+            Ast::Int8 { metadata } => self.target.expr(&mut file_data.state, metadata, Expr::Int8),
+            Ast::Uint8 { metadata } => {
+                self.target
+                    .expr(&mut file_data.state, metadata, Expr::Uint8)
+            }
+            Ast::Int16 { metadata } => {
+                self.target
+                    .expr(&mut file_data.state, metadata, Expr::Int16)
+            }
+            Ast::Uint16 { metadata } => {
+                self.target
+                    .expr(&mut file_data.state, metadata, Expr::Uint16)
+            }
+            Ast::Int32 { metadata } => {
+                self.target
+                    .expr(&mut file_data.state, metadata, Expr::Int32)
+            }
+            Ast::Uint32 { metadata } => {
+                self.target
+                    .expr(&mut file_data.state, metadata, Expr::Uint32)
+            }
+            Ast::Float32 { metadata } => {
+                self.target
+                    .expr(&mut file_data.state, metadata, Expr::Float32)
+            }
+            Ast::Float64 { metadata } => {
+                self.target
+                    .expr(&mut file_data.state, metadata, Expr::Float64)
+            }
             Ast::String { metadata } => {
                 self.target
                     .expr(&mut file_data.state, metadata, Expr::String)

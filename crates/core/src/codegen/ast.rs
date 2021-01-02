@@ -40,6 +40,38 @@ pub enum Ast {
         metadata: Metadata,
     },
 
+    Int8 {
+        metadata: Metadata,
+    },
+
+    Uint8 {
+        metadata: Metadata,
+    },
+
+    Int16 {
+        metadata: Metadata,
+    },
+
+    Uint16 {
+        metadata: Metadata,
+    },
+
+    Int32 {
+        metadata: Metadata,
+    },
+
+    Uint32 {
+        metadata: Metadata,
+    },
+
+    Float32 {
+        metadata: Metadata,
+    },
+
+    Float64 {
+        metadata: Metadata,
+    },
+
     String {
         metadata: Metadata,
     },
@@ -139,13 +171,36 @@ impl Ast {
                 TypeValue::Boolean => Self::Boolean {
                     metadata: schema.metadata.clone(),
                 },
+                TypeValue::Int8 => Self::Int8 {
+                    metadata: schema.metadata.clone(),
+                },
+                TypeValue::Uint8 => Self::Uint8 {
+                    metadata: schema.metadata.clone(),
+                },
+                TypeValue::Int16 => Self::Int16 {
+                    metadata: schema.metadata.clone(),
+                },
+                TypeValue::Uint16 => Self::Uint16 {
+                    metadata: schema.metadata.clone(),
+                },
+                TypeValue::Int32 => Self::Int32 {
+                    metadata: schema.metadata.clone(),
+                },
+                TypeValue::Uint32 => Self::Uint32 {
+                    metadata: schema.metadata.clone(),
+                },
+                TypeValue::Float32 => Self::Float32 {
+                    metadata: schema.metadata.clone(),
+                },
+                TypeValue::Float64 => Self::Float64 {
+                    metadata: schema.metadata.clone(),
+                },
                 TypeValue::String => Self::String {
                     metadata: schema.metadata.clone(),
                 },
                 TypeValue::Timestamp => Self::Timestamp {
                     metadata: schema.metadata.clone(),
                 },
-                _ => todo!(),
             }
             .into_nullable(target, type_.nullable, schema.metadata.clone()),
 
@@ -284,6 +339,14 @@ impl Ast {
         let already_nullable = match self {
             Ast::Ref { .. } => false, // just to be safe, assume references are always non-null
             Ast::Boolean { .. } => strategy.booleans_are_nullable,
+            Ast::Int8 { .. } => strategy.int8s_are_nullable,
+            Ast::Uint8 { .. } => strategy.uint8s_are_nullable,
+            Ast::Int16 { .. } => strategy.int16s_are_nullable,
+            Ast::Uint16 { .. } => strategy.uint16s_are_nullable,
+            Ast::Int32 { .. } => strategy.int32s_are_nullable,
+            Ast::Uint32 { .. } => strategy.uint32s_are_nullable,
+            Ast::Float32 { .. } => strategy.float32s_are_nullable,
+            Ast::Float64 { .. } => strategy.float64s_are_nullable,
             Ast::String { .. } => strategy.strings_are_nullable,
             Ast::Timestamp { .. } => strategy.timestamps_are_nullable,
             Ast::Enum { .. } => strategy.enums_are_nullable,

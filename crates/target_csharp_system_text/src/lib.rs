@@ -47,6 +47,14 @@ impl jtd_codegen::target::Target for Target {
             file_partitioning: target::FilePartitioningStrategy::FilePerType("cs".into()),
             enum_member_naming: target::EnumMemberNamingStrategy::Modularized,
             booleans_are_nullable: false,
+            int8s_are_nullable: false,
+            uint8s_are_nullable: false,
+            int16s_are_nullable: false,
+            uint16s_are_nullable: false,
+            int32s_are_nullable: false,
+            uint32s_are_nullable: false,
+            float32s_are_nullable: false,
+            float64s_are_nullable: false,
             strings_are_nullable: true,
             timestamps_are_nullable: false,
             arrays_are_nullable: true,
@@ -71,19 +79,33 @@ impl jtd_codegen::target::Target for Target {
         metadata: metadata::Metadata,
         expr: target::Expr,
     ) -> String {
-        if let Some(s) = metadata.get("csharpSystemTextType").and_then(|v| v.as_str()) {
+        if let Some(s) = metadata
+            .get("csharpSystemTextType")
+            .and_then(|v| v.as_str())
+        {
             return s.into();
         }
 
         match expr {
             target::Expr::Boolean => "bool".into(),
+            target::Expr::Int8 => "sbyte".into(),
+            target::Expr::Uint8 => "byte".into(),
+            target::Expr::Int16 => "short".into(),
+            target::Expr::Uint16 => "ushort".into(),
+            target::Expr::Int32 => "int".into(),
+            target::Expr::Uint32 => "uint".into(),
+            target::Expr::Float32 => "float".into(),
+            target::Expr::Float64 => "double".into(),
             target::Expr::String => "string".into(),
             target::Expr::Timestamp => {
                 state.imports.insert("System".into());
                 "DateTimeOffset".into()
             }
             target::Expr::ArrayOf(sub_expr) => {
-                if let Some(s) = metadata.get("csharpSystemTextContainer").and_then(|v| v.as_str()) {
+                if let Some(s) = metadata
+                    .get("csharpSystemTextContainer")
+                    .and_then(|v| v.as_str())
+                {
                     return format!("{}<{}>", s, sub_expr);
                 }
 
@@ -147,7 +169,10 @@ impl jtd_codegen::target::Target for Target {
                 name,
                 members,
             } => {
-                if let Some(s) = metadata.get("csharpSystemTextType").and_then(|v| v.as_str()) {
+                if let Some(s) = metadata
+                    .get("csharpSystemTextType")
+                    .and_then(|v| v.as_str())
+                {
                     return Ok(Some(s.into()));
                 }
 
@@ -179,7 +204,10 @@ impl jtd_codegen::target::Target for Target {
                 has_additional: _,
                 fields,
             } => {
-                if let Some(s) = metadata.get("csharpSystemTextType").and_then(|v| v.as_str()) {
+                if let Some(s) = metadata
+                    .get("csharpSystemTextType")
+                    .and_then(|v| v.as_str())
+                {
                     return Ok(Some(s.into()));
                 }
 
@@ -210,7 +238,10 @@ impl jtd_codegen::target::Target for Target {
                 tag_json_name,
                 variants,
             } => {
-                if let Some(s) = metadata.get("csharpSystemTextType").and_then(|v| v.as_str()) {
+                if let Some(s) = metadata
+                    .get("csharpSystemTextType")
+                    .and_then(|v| v.as_str())
+                {
                     return Ok(Some(s.into()));
                 }
 
@@ -247,7 +278,10 @@ impl jtd_codegen::target::Target for Target {
                 tag_value,
                 fields,
             } => {
-                if let Some(s) = metadata.get("csharpSystemTextType").and_then(|v| v.as_str()) {
+                if let Some(s) = metadata
+                    .get("csharpSystemTextType")
+                    .and_then(|v| v.as_str())
+                {
                     return Ok(Some(s.into()));
                 }
 
