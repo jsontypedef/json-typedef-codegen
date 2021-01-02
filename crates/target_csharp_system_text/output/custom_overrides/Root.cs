@@ -45,5 +45,12 @@ namespace JtdCodegenE2E
         [JsonPropertyName("override_type_properties")]
         public object OverrideTypeProperties { get; set; }
 
+        /// <summary>
+
+        /// </summary>
+
+        [JsonPropertyName("override_values_container")]
+        public System.Collections.Generic.Dictionary<string, string> OverrideValuesContainer { get; set; }
+
     }
 }

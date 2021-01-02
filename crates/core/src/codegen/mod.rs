@@ -151,6 +151,10 @@ impl<'a, T: Target> CodeGenerator<'a, T> {
             // The remaining "expr-like" node types just build up strings and
             // possibly alter the per-file state (usually in order to add
             // "imports" to the file).
+            Ast::Empty { metadata } => {
+                self.target
+                    .expr(&mut file_data.state, metadata, Expr::Empty)
+            }
             Ast::Boolean { metadata } => {
                 self.target
                     .expr(&mut file_data.state, metadata, Expr::Boolean)
@@ -198,6 +202,13 @@ impl<'a, T: Target> CodeGenerator<'a, T> {
 
                 self.target
                     .expr(&mut file_data.state, metadata, Expr::ArrayOf(sub_expr))
+            }
+            Ast::DictOf { metadata, type_ } => {
+                let sub_name = self.ast_name(global_namespace, &type_);
+                let sub_expr = self.codegen_ast(global_namespace, file_data, sub_name, *type_)?;
+
+                self.target
+                    .expr(&mut file_data.state, metadata, Expr::DictOf(sub_expr))
             }
             Ast::NullableOf { metadata, type_ } => {
                 let sub_name = self.ast_name(global_namespace, &type_);

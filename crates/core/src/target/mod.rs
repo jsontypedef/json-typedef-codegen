@@ -83,6 +83,7 @@ pub struct Strategy {
     pub strings_are_nullable: bool,
     pub timestamps_are_nullable: bool,
     pub arrays_are_nullable: bool,
+    pub dicts_are_nullable: bool,
     pub aliases_are_nullable: bool,
     pub enums_are_nullable: bool,
     pub structs_are_nullable: bool,
@@ -106,6 +107,7 @@ pub enum NameableKind {
 }
 
 pub enum Expr {
+    Empty,
     Boolean,
     Int8,
     Uint8,
@@ -118,6 +120,7 @@ pub enum Expr {
     String,
     Timestamp,
     ArrayOf(String),
+    DictOf(String),
     NullableOf(String),
 }
 

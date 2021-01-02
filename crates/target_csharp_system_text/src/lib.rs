@@ -58,6 +58,7 @@ impl jtd_codegen::target::Target for Target {
             strings_are_nullable: true,
             timestamps_are_nullable: false,
             arrays_are_nullable: true,
+            dicts_are_nullable: true,
             aliases_are_nullable: true,
             enums_are_nullable: false,
             structs_are_nullable: true,
@@ -87,6 +88,7 @@ impl jtd_codegen::target::Target for Target {
         }
 
         match expr {
+            target::Expr::Empty => "object".into(),
             target::Expr::Boolean => "bool".into(),
             target::Expr::Int8 => "sbyte".into(),
             target::Expr::Uint8 => "byte".into(),
@@ -111,6 +113,17 @@ impl jtd_codegen::target::Target for Target {
 
                 state.imports.insert("System.Collections.Generic".into());
                 format!("IList<{}>", sub_expr)
+            }
+            target::Expr::DictOf(sub_expr) => {
+                if let Some(s) = metadata
+                    .get("csharpSystemTextContainer")
+                    .and_then(|v| v.as_str())
+                {
+                    return format!("{}<string, {}>", s, sub_expr);
+                }
+
+                state.imports.insert("System.Collections.Generic".into());
+                format!("IDictionary<string, {}>", sub_expr)
             }
             target::Expr::NullableOf(sub_expr) => format!("{}?", sub_expr),
         }

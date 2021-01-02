@@ -36,6 +36,10 @@ pub enum Ast {
         definition: String,
     },
 
+    Empty {
+        metadata: Metadata,
+    },
+
     Boolean {
         metadata: Metadata,
     },
@@ -81,6 +85,11 @@ pub enum Ast {
     },
 
     ArrayOf {
+        metadata: Metadata,
+        type_: Box<Ast>,
+    },
+
+    DictOf {
         metadata: Metadata,
         type_: Box<Ast>,
     },
@@ -161,6 +170,10 @@ impl Ast {
 
     fn new<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) -> Self {
         match schema.form {
+            Form::Empty => Self::Empty {
+                metadata: schema.metadata.clone(),
+            },
+
             Form::Ref(ref ref_) => Self::Ref {
                 metadata: schema.metadata.clone(),
                 definition: ref_.definition.clone(),
@@ -280,6 +293,19 @@ impl Ast {
                 )
             }
 
+            Form::Values(ref values) => {
+                // See comment for Elements for why we singularize the last
+                // segment.
+                let last = path.pop().expect("empty path");
+                path.push(to_singular(&last));
+
+                Ast::DictOf {
+                    metadata: schema.metadata.clone(),
+                    type_: Box::new(Self::new(target, path, &values.schema)),
+                }
+                .into_nullable(target, values.nullable, schema.metadata.clone())
+            }
+
             Form::Discriminator(ref discriminator) => {
                 let discriminator_name = target.name(NameableKind::Type, path);
 
@@ -329,14 +355,13 @@ impl Ast {
                     variants,
                 }
             }
-
-            _ => todo!(),
         }
     }
 
     fn into_nullable<T: Target>(self, target: &T, want_nullable: bool, metadata: Metadata) -> Self {
         let strategy = target.strategy();
         let already_nullable = match self {
+            Ast::Empty { .. } => true,
             Ast::Ref { .. } => false, // just to be safe, assume references are always non-null
             Ast::Boolean { .. } => strategy.booleans_are_nullable,
             Ast::Int8 { .. } => strategy.int8s_are_nullable,
@@ -351,6 +376,7 @@ impl Ast {
             Ast::Timestamp { .. } => strategy.timestamps_are_nullable,
             Ast::Enum { .. } => strategy.enums_are_nullable,
             Ast::ArrayOf { .. } => strategy.arrays_are_nullable,
+            Ast::DictOf { .. } => strategy.dicts_are_nullable,
             Ast::NullableOf { .. } => true,
             Ast::Alias { .. } => strategy.aliases_are_nullable,
             Ast::Struct { .. } => strategy.structs_are_nullable,

@@ -41,8 +41,10 @@ macro_rules! std_test_cases {
         $crate::strict_std_test_case!($target, root_uint16);
         $crate::strict_std_test_case!($target, root_uint32);
         $crate::strict_std_test_case!($target, type_collisions);
+        $crate::strict_std_test_case!($target, values);
 
         $crate::loose_std_test_case!($target, nullable_timestamp_property);
+        $crate::loose_std_test_case!($target, root_empty);
         $crate::loose_std_test_case!($target, root_float32);
         $crate::loose_std_test_case!($target, root_float64);
         $crate::loose_std_test_case!($target, root_nullable_timestamp);
