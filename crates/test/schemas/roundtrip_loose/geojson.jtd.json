@@ -1,0 +1,201 @@
+{
+    "ref": "geojson_object",
+    "definitions": {
+      "geojson_object": {
+        "metadata": {
+          "description": "A Geometry object represents points, curves, and surfaces in coordinate\nspace.  Every Geometry object is a GeoJSON object no matter where it\noccurs in a GeoJSON text.\n\no  The value of a Geometry object's \"type\" member MUST be one of the\n    seven geometry types (see Section 1.4).\n\no  A GeoJSON Geometry object of any type other than\n    \"GeometryCollection\" has a member with the name \"coordinates\". The\n    value of the \"coordinates\" member is an array.  The structure of the\n    elements in this array is determined by the type of geometry.\n    GeoJSON processors MAY interpret Geometry objects with empty\n    \"coordinates\" arrays as null objects.\n"
+        },
+        "discriminator": "type",
+        "mapping": {
+          "Point": {
+            "metadata": {
+              "description": "For type \"Point\", the \"coordinates\" member is a single position.\n"
+            },
+            "properties": {
+              "coordinates": {
+                "ref": "position"
+              }
+            },
+            "optionalProperties": {
+              "bbox": {
+                "ref": "bounding_box"
+              }
+            },
+            "additionalProperties": true
+          },
+          "MultiPoint": {
+            "metadata": {
+              "description": "For type \"MultiPoint\", the \"coordinates\" member is an array of\npositions.\n"
+            },
+            "properties": {
+              "coordinates": {
+                "elements": {
+                  "ref": "position"
+                }
+              }
+            },
+            "optionalProperties": {
+              "bbox": {
+                "ref": "bounding_box"
+              }
+            },
+            "additionalProperties": true
+          },
+          "LineString": {
+            "metadata": {
+              "description": "For type \"LineString\", the \"coordinates\" member is an array of two\nor more positions.\n"
+            },
+            "properties": {
+              "coordinates": {
+                "elements": {
+                  "ref": "position"
+                }
+              }
+            },
+            "optionalProperties": {
+              "bbox": {
+                "ref": "bounding_box"
+              }
+            },
+            "additionalProperties": true
+          },
+          "MultiLineString": {
+            "metadata": {
+              "description": "For type \"MultiLineString\", the \"coordinates\" member is an array of\nLineString coordinate arrays.\n"
+            },
+            "properties": {
+              "coordinates": {
+                "elements": {
+                  "ref": "position"
+                }
+              }
+            },
+            "optionalProperties": {
+              "bbox": {
+                "ref": "bounding_box"
+              }
+            },
+            "additionalProperties": true
+          },
+          "Polygon": {
+            "metadata": {
+              "description": "For type \"Polygon\", the \"coordinates\" member MUST be an array of\nlinear ring coordinate arrays.\n"
+            },
+            "properties": {
+              "coordinates": {
+                "elements": {
+                  "ref": "linear_ring"
+                }
+              }
+            },
+            "optionalProperties": {
+              "bbox": {
+                "ref": "bounding_box"
+              }
+            },
+            "additionalProperties": true
+          },
+          "MultiPolygon": {
+            "metadata": {
+              "description": "For type \"MultiPolygon\", the \"coordinates\" member is an array of\nPolygon coordinate arrays.\n"
+            },
+            "properties": {
+              "coordinates": {
+                "elements": {
+                  "ref": "linear_ring"
+                }
+              }
+            },
+            "optionalProperties": {
+              "bbox": {
+                "ref": "bounding_box"
+              }
+            },
+            "additionalProperties": true
+          },
+          "GeometryCollection": {
+            "metadata": {
+              "description": "A GeoJSON object with type \"GeometryCollection\" is a Geometry\nobject. A GeometryCollection has a member with the name\n\"geometries\".  The value of \"geometries\" is an array.  Each element\nof this array is a GeoJSON Geometry object.  It is possible for this\narray to be empty.\n\nUnlike the other geometry types described above, a\nGeometryCollection can be a heterogeneous composition of smaller\nGeometry objects.  For example, a Geometry object in the shape of a\nlowercase roman \"i\" can be composed of one point and one LineString.\n\nGeometryCollections have a different syntax from single type\nGeometry objects (Point, LineString, and Polygon) and homogeneously\ntyped multipart Geometry objects (MultiPoint, MultiLineString, and\nMultiPolygon) but have no different semantics.  Although a\nGeometryCollection object has no \"coordinates\" member, it does have\ncoordinates: the coordinates of all its parts belong to the\ncollection.  The \"geometries\" member of a GeometryCollection\ndescribes the parts of this composition.  Implementations SHOULD NOT\napply any additional semantics to the \"geometries\" array.\n\nTo maximize interoperability, implementations SHOULD avoid nested\nGeometryCollections.  Furthermore, GeometryCollections composed of a\nsingle part or a number of parts of a single type SHOULD be avoided\nwhen that single part or a single object of multipart type\n(MultiPoint, MultiLineString, or MultiPolygon) could be used\ninstead.\n"
+            },
+            "properties": {
+              "geometries": {
+                "elements": {
+                  "metadata": {
+                    "description": "The GeoJSON specification requires that these elements be\nGeoJSON geometry objects, but such a constraint can't be\nexpressed in JSON Type Definition.\n\nIt is semantically invalid at the GeoJSON level for this\nmember to be any GeoJSON object type other than one of the\ngeometry types.\n"
+                  },
+                  "ref": "geojson_object"
+                }
+              }
+            },
+            "optionalProperties": {
+              "bbox": {
+                "ref": "bounding_box"
+              }
+            },
+            "additionalProperties": true
+          },
+          "Feature": {
+            "metadata": {
+              "description": "A Feature object represents a spatially bounded thing.  Every\nFeature object is a GeoJSON object no matter where it occurs in a\nGeoJSON text.\n\no  A Feature object has a \"type\" member with the value \"Feature\".\n\no  A Feature object has a member with the name \"geometry\".  The\n    value of the geometry member SHALL be either a Geometry object\n    as defined above or, in the case that the Feature is unlocated,\n    a JSON null value.\n\no  A Feature object has a member with the name \"properties\".  The\n    value of the properties member is an object (any JSON object or\n    a JSON null value).\n"
+            },
+            "properties": {
+              "geometry": {
+                "metadata": {
+                  "description": "The GeoJSON specification requires that these elements be\nGeoJSON geometry objects, but such a constraint can't be\nexpressed in JSON Type Definition.\n\nIt is semantically invalid at the GeoJSON level for this\nmember to be any GeoJSON object type other than one of the\ngeometry types.\n"
+                },
+                "ref": "geojson_object",
+                "nullable": true
+              },
+              "properties": {
+                "values": {
+                }
+              }
+            },
+            "optionalProperties": {
+              "id": {
+              }
+            }
+          },
+          "FeatureCollection": {
+            "metadata": {
+              "description": "A GeoJSON object with the type \"FeatureCollection\" is a\nFeatureCollection object.  A FeatureCollection object has a member\nwith the name \"features\".  The value of \"features\" is a JSON array.\nEach element of the array is a Feature object as defined above.  It\nis possible for this array to be empty.\n"
+            },
+            "properties": {
+              "features": {
+                "elements": {
+                  "metadata": {
+                    "description": "The GeoJSON specification requires that these elements be\nGeoJSON feature objects, but such a constraint can't be\nexpressed in JSON Type Definition.\n\nIt is semantically invalid at the GeoJSON level for this\nmember to be any GeoJSON object type other than a feature\ntype.\n"
+                  },
+                  "ref": "geojson_object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "position": {
+        "metadata": {
+          "description": "A position is the fundamental geometry construct.\n\nA position is an array of numbers.  There MUST be two or more elements.\nThe first two elements are longitude and latitude, or easting and\nnorthing, precisely in that order and using decimal numbers.  Altitude\nor elevation MAY be included as an optional third element.\n\nImplementations SHOULD NOT extend positions beyond three elements\nbecause the semantics of extra elements are unspecified and ambiguous.\nHistorically, some implementations have used a fourth element to carry a\nlinear referencing measure (sometimes denoted as \"M\") or a numerical\ntimestamp, but in most situations a parser will not be able to properly\ninterpret these values.  The interpretation and meaning of additional\nelements is beyond the scope of this specification, and additional\nelements MAY be ignored by parsers.\n\nA line between two positions is a straight Cartesian line, the shortest\nline between those two points in the coordinate reference system (see\nSection 4).\n\nIn other words, every point on a line that does not cross the\nantimeridian between a point (lon0, lat0) and (lon1, lat1) can be\ncalculated as\n\nF(lon, lat) = (lon0 + (lon1 - lon0) * t, lat0 + (lat1 - lat0) * t)\n\nwith t being a real number greater than or equal to 0 and smaller than\nor equal to 1.  Note that this line may markedly differ from the\ngeodesic path along the curved surface of the reference ellipsoid.\n\nThe same applies to the optional height element with the proviso that\nthe direction of the height is as specified in the coordinate reference\nsystem.\n\nNote that, again, this does not mean that a surface with equal height\nfollows, for example, the curvature of a body of water.  Nor is a\nsurface of equal height perpendicular to a plumb line.\n"
+        },
+        "elements": {
+          "type": "float64"
+        }
+      },
+      "linear_ring": {
+        "metadata": {
+          "description": "To specify a constraint specific to Polygons, it is useful to\nintroduce the concept of a linear ring:\n\no  A linear ring is a closed LineString with four or more positions.\n\no  The first and last positions are equivalent, and they MUST contain\n    identical values; their representation SHOULD also be identical.\n\no  A linear ring is the boundary of a surface or the boundary of a\n    hole in a surface.\n\no  A linear ring MUST follow the right-hand rule with respect to the\n    area it bounds, i.e., exterior rings are counterclockwise, and holes\n    are clockwise.\n\nNote: the [GJ2008] specification did not discuss linear ring winding\norder.  For backwards compatibility, parsers SHOULD NOT reject Polygons\nthat do not follow the right-hand rule.\n\nThough a linear ring is not explicitly represented as a GeoJSON geometry\ntype, it leads to a canonical formulation of the Polygon geometry type\ndefinition as follows:\n\nFor Polygons with more than one of these rings, the first MUST be the\nexterior ring, and any others MUST be interior rings.  The exterior ring\nbounds the surface, and the interior rings (if present) bound holes\nwithin the surface.\n"
+        },
+        "elements": {
+          "ref": "position"
+        }
+      },
+      "bounding_box": {
+        "metadata": {
+          "description": "A GeoJSON object MAY have a member named \"bbox\" to include information\non the coordinate range for its Geometries, Features, or\nFeatureCollections.  The value of the bbox member MUST be an array of\nlength 2*n where n is the number of dimensions represented in the\ncontained geometries, with all axes of the most southwesterly point\nfollowed by all axes of the more northeasterly point.  The axes order of\na bbox follows the axes order of geometries.\n\nThe \"bbox\" values define shapes with edges that follow lines of constant\nlongitude, latitude, and elevation.\n\nThe four lines of the bounding box are defined fully within the\ncoordinate reference system; that is, for a box bounded by the values\n\"west\", \"south\", \"east\", and \"north\", every point on the northernmost\nline can be expressed as\n\n(lon, lat) = (west + (east - west) * t, north)\n\nwith 0 <= t <= 1.\n\nConsider a set of point Features within the Fiji archipelago, straddling\nthe antimeridian between 16 degrees S and 20 degrees S. The southwest\ncorner of the box containing these Features is at 20 degrees S and 177\ndegrees E, and the northwest corner is at 16 degrees S and 178 degrees\nW.  The antimeridian-spanning GeoJSON bounding box for this\nFeatureCollection is\n\n\"bbox\": [177.0, -20.0, -178.0, -16.0]\n\nand covers 5 degrees of longitude.\n\nThe complementary bounding box for the same latitude band, not crossing\nthe antimeridian, is\n\n\"bbox\": [-178.0, -20.0, 177.0, -16.0]\n\nand covers 355 degrees of longitude.\n\nThe latitude of the northeast corner is always greater than the latitude\nof the southwest corner, but bounding boxes that cross the antimeridian\nhave a northeast corner longitude that is less than the longitude of the\nsouthwest corner.\n\nA bounding box that contains the North Pole extends from a southwest\ncorner of \"minlat\" degrees N, 180 degrees W to a northeast corner of 90\ndegrees N, 180 degrees E.  Viewed on a globe, this bounding box\napproximates a spherical cap bounded by the \"minlat\" circle of latitude.\n\n\"bbox\": [-180.0, minlat, 180.0, 90.0]\n\nA bounding box that contains the South Pole extends from a southwest\ncorner of 90 degrees S, 180 degrees W to a northeast corner of \"maxlat\"\ndegrees S, 180 degrees E.\n\n\"bbox\": [-180.0, -90.0, 180.0, maxlat]\n\nA bounding box that just touches the North Pole and forms a slice of an\napproximate spherical cap when viewed on a globe extends from a\nsouthwest corner of \"minlat\" degrees N and \"westlon\" degrees E to a\nnortheast corner of 90 degrees N and \"eastlon\" degrees E.\n\n\"bbox\": [westlon, minlat, eastlon, 90.0]\n\nSimilarly, a bounding box that just touches the South Pole and forms a\nslice of an approximate spherical cap when viewed on a globe has the\nfollowing representation in GeoJSON.\n\n\"bbox\": [westlon, -90.0, eastlon, maxlat]\n\nImplementers MUST NOT use latitude values greater than 90 or less than\n-90 to imply an extent that is not a spherical cap.\n"
+        },
+        "elements": {
+          "type": "float64"
+        }
+      }
+    }
+  }

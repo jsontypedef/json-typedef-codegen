@@ -4,11 +4,11 @@ use jtd::{Schema, SerdeSchema, Validator};
 use jtd_codegen::target::Target;
 use rand::SeedableRng;
 use rand_pcg::Pcg32;
-use serde_json::{Deserializer, Value};
+use serde_json::Value;
 use std::collections::BTreeSet;
 use std::convert::TryInto;
 use std::fs::{self, File};
-use std::io::{Read, Write};
+use std::io::{BufRead, BufReader, Read, Write};
 use std::path::Path;
 use std::process::{Command, Stdio};
 
@@ -43,6 +43,7 @@ macro_rules! std_test_cases {
         $crate::strict_std_test_case!($target, type_collisions);
         $crate::strict_std_test_case!($target, values);
 
+        $crate::loose_std_test_case!($target, geojson);
         $crate::loose_std_test_case!($target, nullable_timestamp_property);
         $crate::loose_std_test_case!($target, root_empty);
         $crate::loose_std_test_case!($target, root_float32);
@@ -177,17 +178,6 @@ fn assert_roundtrip(
         .read_to_string(&mut image)
         .expect("read docker build stdout");
 
-    // Fuzz some data against the schema.
-    let mut rng = Pcg32::seed_from_u64(seed);
-    let mut input_instances = Vec::new();
-    let mut input = Vec::new();
-
-    for _ in 0..1000 {
-        let instance = jtd_fuzz::fuzz(schema, &mut rng);
-        writeln!(input, "{}", &instance).unwrap();
-        input_instances.push(instance);
-    }
-
     // Run the docker container, with the input piped in.
     let mut docker_run = Command::new("docker")
         .arg("run")
@@ -198,22 +188,11 @@ fn assert_roundtrip(
         .spawn()
         .expect("spawn docker run");
 
-    // Send the input JSON in.
-    docker_run
-        .stdin
-        .take()
-        .unwrap()
-        .write_all(&input)
-        .expect("write docker run stdin");
+    let mut docker_run_stdin = docker_run.stdin.take().unwrap();
+    let mut docker_run_stdout = BufReader::new(docker_run.stdout.take().unwrap());
 
-    // Get the output JSON out.
-    let mut output = String::new();
-    docker_run
-        .stdout
-        .take()
-        .unwrap()
-        .read_to_string(&mut output)
-        .expect("read docker run stdout");
+    // Fuzz some data against the schema.
+    let mut rng = Pcg32::seed_from_u64(seed);
 
     // Ensure the output is a sequence of JSON values satisfying the input
     // schema.
@@ -222,26 +201,36 @@ fn assert_roundtrip(
         max_errors: None,
     };
 
-    for (index, value) in Deserializer::from_str(&output).into_iter().enumerate() {
-        let value: Value = value.expect("parse docker run output");
-        let errors = validator.validate(schema, &value).unwrap();
+    for index in 0..1000 {
+        let instance_in = jtd_fuzz::fuzz(schema, &mut rng);
+        writeln!(docker_run_stdin, "{}", instance_in).expect("write docker run stdin");
+
+        let mut line_out = String::new();
+        docker_run_stdout
+            .read_line(&mut line_out)
+            .expect("read docker run stdout");
+
+        let instance_out: Value = serde_json::from_str(&line_out).expect("parse docker run stdout");
+        let errors = validator.validate(schema, &instance_out).unwrap();
 
         assert_eq!(
             errors.len(),
             0,
             "validation error from output: {:?} {:?}",
-            value,
+            instance_out,
             errors,
         );
 
         if strict {
             assert_eq!(
-                &value, &input_instances[index],
+                &instance_in, &instance_out,
                 "data did not round-trip exactly, index: {:?}",
                 index
             );
         }
     }
+
+    drop(docker_run_stdin);
 
     assert!(
         docker_run.wait().expect("wait docker run").success(),
