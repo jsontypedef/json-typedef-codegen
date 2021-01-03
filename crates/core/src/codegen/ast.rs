@@ -354,6 +354,11 @@ impl Ast {
                     tag_json_name: discriminator.discriminator.clone(),
                     variants,
                 }
+                .into_nullable(
+                    target,
+                    discriminator.nullable,
+                    schema.metadata.clone(),
+                )
             }
         }
     }

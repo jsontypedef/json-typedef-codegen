@@ -3,7 +3,8 @@
         "override_type_expr": {
             "type": "string",
             "metadata": {
-                "csharpSystemTextType": "object"
+                "csharpSystemTextType": "object",
+                "goType": "interface{}"
             }
         },
         "override_elements_container": {
@@ -27,13 +28,15 @@
                 "FOO", "BAR"
             ],
             "metadata": {
-                "csharpSystemTextType": "object"
+                "csharpSystemTextType": "object",
+                "goType": "interface{}"
             }
         },
         "override_type_properties": {
             "properties": {},
             "metadata": {
-                "csharpSystemTextType": "object"
+                "csharpSystemTextType": "object",
+                "goType": "interface{}"
             }
         },
         "override_type_discriminator": {
@@ -42,7 +45,8 @@
                 "bar": {
                     "properties": {},
                     "metadata": {
-                        "csharpSystemTextType": "object"
+                        "csharpSystemTextType": "object",
+                        "goType": "interface{}"
                     }
                 },
                 "baz": {
@@ -50,7 +54,8 @@
                 }
             },
             "metadata": {
-                "csharpSystemTextType": "object"
+                "csharpSystemTextType": "object",
+                "goType": "interface{}"
             }
         }
     }

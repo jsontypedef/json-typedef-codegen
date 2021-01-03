@@ -1,0 +1,37 @@
+{{ metadata|description(0) }}
+type {{ name }} struct {
+	{{ tag_field_name }} string
+{% for variant in variants %}
+	{{ variant.field_name }} {{ variant.type_name }}
+{% endfor %}
+}
+
+func (v {{ name }}) MarshalJSON() ([]byte, error) {
+	switch (v.{{ tag_field_name }}) {
+{% for variant in variants %}
+	case {{ "{:?}"|format(variant.tag_value) }}:
+		return json.Marshal(struct { T string `json:{{ "{:?}"|format(tag_json_name) }}`; {{ variant.type_name }} }{ v.{{ tag_field_name }}, v.{{ variant.field_name }} })
+{% endfor %}
+	}
+
+	return nil, fmt.Errorf("bad {{ tag_field_name }} value: %s", v.{{ tag_field_name }})
+}
+
+func (v *{{ name }}) UnmarshalJSON(b []byte) error {
+	var t struct { T string `json:{{ "{:?}"|format(tag_json_name) }}` }
+	if err := json.Unmarshal(b, &t); err != nil {
+		return err
+	}
+	switch t.T {
+{% for variant in variants %}
+	case {{ "{:?}"|format(variant.tag_value) }}:
+		if err := json.Unmarshal(b, &v.{{ variant.field_name }}); err != nil {
+			return err
+		}
+		v.{{ tag_field_name }} = t.T
+		return nil
+{% endfor %}
+	}
+
+	return fmt.Errorf("bad {{ tag_field_name }} value: %s", t.T)
+}

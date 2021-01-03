@@ -1,8 +1,0 @@
-{{ discriminator_variant.metadata|description(0) }}
-type {{ discriminator_variant.name }} struct {
-	{{ discriminator_variant.tag_name }} string `json:{{ "{:?}"|format(discriminator_variant.tag_json_name) }}`
-{% for field in discriminator_variant.fields %}
-{{ field.metadata|description(1) }}
-	{{ field.name }} {{ field.type_ }} `json:{{ "{:?}"|format(field.json_name) }}`
-{% endfor %}
-}

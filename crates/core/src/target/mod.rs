@@ -20,6 +20,7 @@ pub trait Target {
     ) -> Result<Option<String>>;
 }
 
+#[derive(Debug)]
 pub struct Strategy {
     pub file_partitioning: FilePartitioningStrategy,
     pub enum_member_naming: EnumMemberNamingStrategy,
@@ -42,22 +43,26 @@ pub struct Strategy {
     pub discriminators_are_nullable: bool,
 }
 
+#[derive(Debug)]
 pub enum FilePartitioningStrategy {
     FilePerType(String),
     SingleFile(String),
 }
 
+#[derive(Debug)]
 pub enum EnumMemberNamingStrategy {
     Modularized,
     Unmodularized,
 }
 
+#[derive(Debug)]
 pub enum NameableKind {
     Type,
     Field,
     EnumMember,
 }
 
+#[derive(Debug)]
 pub enum Expr {
     Empty,
     Boolean,
@@ -76,6 +81,7 @@ pub enum Expr {
     NullableOf(String),
 }
 
+#[derive(Debug)]
 pub enum Item {
     Preamble,
     Alias {
@@ -112,11 +118,13 @@ pub enum Item {
     },
 }
 
+#[derive(Debug)]
 pub struct EnumMember {
     pub name: String,
     pub json_value: String,
 }
 
+#[derive(Debug)]
 pub struct Field {
     pub metadata: Metadata,
     pub name: String,
@@ -125,6 +133,7 @@ pub struct Field {
     pub type_: String,
 }
 
+#[derive(Debug)]
 pub struct DiscriminatorVariantInfo {
     pub type_name: String,
     pub field_name: String,

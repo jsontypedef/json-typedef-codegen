@@ -1,0 +1,2 @@
+{{ metadata|description(0) }}
+type {{ name }} = {{ type_ }}
