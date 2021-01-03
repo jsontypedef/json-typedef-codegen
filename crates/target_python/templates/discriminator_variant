@@ -1,0 +1,32 @@
+@dataclass
+class {{ name }}({{ parent_name }}):
+{{ metadata|description(1) }}
+{% for field in fields %}
+    {{ field.name }}: {{ "{:?}"|format(field.type_) }}
+{{ field.metadata|description(1) }}
+{% endfor %}
+
+    @classmethod
+    def from_json(cls, data) -> {{ "{:?}"|format(name) }}:
+        """
+        Construct an instance of this class from parsed JSON data.
+        """
+
+        return cls(
+            {{ "{:?}"|format(tag_value) }},
+{% for field in fields %}
+            _from_json({{ field.type_ }}, data[{{ "{:?}"|format(field.json_name) }}]),
+{% endfor %}
+        )
+
+    def to_json(self):
+        """
+        Generate JSON-ready data from an instance of this class.
+        """
+
+        return {
+            {{ "{:?}"|format(tag_json_name) }}: {{ "{:?}"|format(tag_value) }},
+{% for field in fields %}
+            {{ "{:?}"|format(field.json_name) }}: _to_json(self.{{ field.name }}),
+{% endfor %}
+        }

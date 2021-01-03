@@ -1,5 +1,3 @@
-// use jtd_codegen::target::*;
-
 use askama::Template;
 use jtd_codegen::target::{self, inflect, metadata};
 use jtd_codegen::Result;
