@@ -25,7 +25,7 @@ lazy_static! {
     static ref ENUM_MEMBER_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
             KEYWORDS.clone(),
-            inflect::TailInflector::new(inflect::Case::PascalCase)
+            inflect::TailInflector::new(inflect::Case::ScreamingSnakeCase)
         ));
 }
 

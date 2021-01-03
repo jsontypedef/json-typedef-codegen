@@ -28,19 +28,19 @@ class Root(Enum):
     """
 
 
-    Bar = "Bar"
+    BAR = "Bar"
     """
 
     """
 
 
-    Baz = "Baz"
+    BAZ = "Baz"
     """
 
     """
 
 
-    Foo = "Foo"
+    FOO = "Foo"
     """
 
     """

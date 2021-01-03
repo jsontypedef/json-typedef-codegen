@@ -114,13 +114,13 @@ class RootOverrideTypeEnum(Enum):
     """
 
 
-    Bar = "BAR"
+    BAR = "BAR"
     """
 
     """
 
 
-    Foo = "FOO"
+    FOO = "FOO"
     """
 
     """
