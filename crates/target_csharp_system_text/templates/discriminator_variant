@@ -8,6 +8,7 @@ namespace {{ namespace }}
 {% for field in fields %}
 {{ field.metadata|description(2) }}
         [JsonPropertyName({{ "{:?}"|format(field.json_name) }})]
+        {% if field.optional %}[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]{% endif %}
         public {{ field.type_ }} {{ field.name }} { get; set; }
 {% endfor %}
     }

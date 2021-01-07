@@ -15,6 +15,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("for")]
+        
         public For For { get; set; }
 
         /// <summary>
@@ -22,6 +23,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("object")]
+        
         public Object_ Object_ { get; set; }
 
     }

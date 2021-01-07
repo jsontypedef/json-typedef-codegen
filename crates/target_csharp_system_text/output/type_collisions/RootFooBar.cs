@@ -15,6 +15,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("x")]
+        
         public bool X { get; set; }
 
     }

@@ -1,0 +1,15 @@
+{
+    "optionalProperties": {
+        "foo": {
+            "type": "string"
+        },
+        "bar": {
+            "elements": {
+                "type": "string"
+            }
+        },
+        "baz": {
+            "type": "boolean"
+        }
+    }
+}

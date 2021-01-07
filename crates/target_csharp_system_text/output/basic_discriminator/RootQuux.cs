@@ -17,6 +17,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("quuz")]
+        
         public string Quuz { get; set; }
 
     }

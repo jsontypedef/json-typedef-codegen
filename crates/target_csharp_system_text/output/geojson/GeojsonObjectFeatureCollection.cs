@@ -23,6 +23,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("features")]
+        
         public IList<GeojsonObject> Features { get; set; }
 
     }

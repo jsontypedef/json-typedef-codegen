@@ -15,6 +15,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("bar")]
+        
         public RootFooBar Bar { get; set; }
 
     }

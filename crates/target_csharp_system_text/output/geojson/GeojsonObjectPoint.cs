@@ -17,7 +17,16 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("coordinates")]
+        
         public Position Coordinates { get; set; }
+
+        /// <summary>
+
+        /// </summary>
+
+        [JsonPropertyName("bbox")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public BoundingBox Bbox { get; set; }
 
     }
 }

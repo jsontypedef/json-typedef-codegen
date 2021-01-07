@@ -29,6 +29,7 @@ macro_rules! std_test_cases {
         $crate::strict_std_test_case!($target, nullable_enum);
         $crate::strict_std_test_case!($target, nullable_elements);
         $crate::strict_std_test_case!($target, nullable_properties);
+        $crate::strict_std_test_case!($target, nullable_references);
         $crate::strict_std_test_case!($target, property_name_collisions);
         $crate::strict_std_test_case!($target, reference);
         $crate::strict_std_test_case!($target, root_boolean);
@@ -43,8 +44,10 @@ macro_rules! std_test_cases {
         $crate::strict_std_test_case!($target, type_collisions);
         $crate::strict_std_test_case!($target, values);
 
+        $crate::loose_std_test_case!($target, discriminator_optional_properties);
         $crate::loose_std_test_case!($target, geojson);
         $crate::loose_std_test_case!($target, nullable_timestamp_property);
+        $crate::loose_std_test_case!($target, optional_properties);
         $crate::loose_std_test_case!($target, root_empty);
         $crate::loose_std_test_case!($target, root_float32);
         $crate::loose_std_test_case!($target, root_float64);
@@ -216,9 +219,10 @@ fn assert_roundtrip(
         assert_eq!(
             errors.len(),
             0,
-            "validation error from output: {:?} {:?}",
+            "validation error from output: {:?} {:?}, index: {}",
             instance_out,
             errors,
+            index,
         );
 
         if strict {

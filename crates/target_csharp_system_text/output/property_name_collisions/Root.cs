@@ -15,6 +15,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("Foo")]
+        
         public string Foo { get; set; }
 
         /// <summary>
@@ -22,6 +23,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("foo")]
+        
         public string Foo0 { get; set; }
 
     }

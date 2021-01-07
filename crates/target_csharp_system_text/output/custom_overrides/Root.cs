@@ -15,6 +15,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("override_elements_container")]
+        
         public System.Collections.Generic.List<string> OverrideElementsContainer { get; set; }
 
         /// <summary>
@@ -22,6 +23,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("override_type_discriminator")]
+        
         public object OverrideTypeDiscriminator { get; set; }
 
         /// <summary>
@@ -29,6 +31,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("override_type_enum")]
+        
         public object OverrideTypeEnum { get; set; }
 
         /// <summary>
@@ -36,6 +39,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("override_type_expr")]
+        
         public object OverrideTypeExpr { get; set; }
 
         /// <summary>
@@ -43,6 +47,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("override_type_properties")]
+        
         public object OverrideTypeProperties { get; set; }
 
         /// <summary>
@@ -50,6 +55,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("override_values_container")]
+        
         public System.Collections.Generic.Dictionary<string, string> OverrideValuesContainer { get; set; }
 
     }

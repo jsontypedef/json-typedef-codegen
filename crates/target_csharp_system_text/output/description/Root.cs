@@ -15,6 +15,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("discriminator_with_description")]
+        
         public RootDiscriminatorWithDescription DiscriminatorWithDescription { get; set; }
 
         /// <summary>
@@ -22,6 +23,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("enum_with_description")]
+        
         public RootEnumWithDescription EnumWithDescription { get; set; }
 
         /// <summary>
@@ -33,6 +35,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("long_description")]
+        
         public string LongDescription { get; set; }
 
         /// <summary>
@@ -40,6 +43,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("properties_with_description")]
+        
         public RootPropertiesWithDescription PropertiesWithDescription { get; set; }
 
         /// <summary>
@@ -47,6 +51,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("ref_with_description")]
+        
         public Baz RefWithDescription { get; set; }
 
         /// <summary>
@@ -54,6 +59,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("string_with_description")]
+        
         public string StringWithDescription { get; set; }
 
     }

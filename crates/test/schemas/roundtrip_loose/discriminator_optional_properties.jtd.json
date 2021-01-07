@@ -1,0 +1,17 @@
+{
+    "discriminator": "foo",
+    "mapping": {
+        "bar": {
+            "optionalProperties": {
+                "baz": {
+                    "elements": {
+                        "type": "string"
+                    }
+                },
+                "quux": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}

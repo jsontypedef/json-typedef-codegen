@@ -280,6 +280,21 @@ impl Ast {
                     });
                 }
 
+                for (json_name, sub_schema) in &properties.optional {
+                    path.push(json_name.into());
+                    let ast_name = target.name(NameableKind::Field, path);
+                    let ast = Self::new(target, path, sub_schema);
+                    path.pop();
+
+                    fields.push(Field {
+                        metadata: sub_schema.metadata.clone(),
+                        name: ast_name,
+                        json_name: json_name.into(),
+                        optional: true,
+                        type_: ast,
+                    });
+                }
+
                 Ast::Struct {
                     metadata: schema.metadata.clone(),
                     name: target.name(NameableKind::Type, path),

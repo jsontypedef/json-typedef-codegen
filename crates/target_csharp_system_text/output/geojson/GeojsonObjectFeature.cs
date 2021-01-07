@@ -38,6 +38,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("geometry")]
+        
         public GeojsonObject? Geometry { get; set; }
 
         /// <summary>
@@ -45,7 +46,16 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("properties")]
+        
         public IDictionary<string, object> Properties { get; set; }
+
+        /// <summary>
+
+        /// </summary>
+
+        [JsonPropertyName("id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public object Id { get; set; }
 
     }
 }

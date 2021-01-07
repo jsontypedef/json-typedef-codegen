@@ -17,6 +17,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("bar")]
+        
         public string Bar { get; set; }
 
         /// <summary>
@@ -24,6 +25,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("baz")]
+        
         public IList<bool> Baz { get; set; }
 
         /// <summary>
@@ -31,6 +33,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("foo")]
+        
         public bool Foo { get; set; }
 
         /// <summary>
@@ -38,6 +41,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("quux")]
+        
         public IList<bool> Quux { get; set; }
 
     }

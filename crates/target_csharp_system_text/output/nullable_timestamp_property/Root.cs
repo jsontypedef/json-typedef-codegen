@@ -17,6 +17,7 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("foo")]
+        
         public DateTimeOffset? Foo { get; set; }
 
     }

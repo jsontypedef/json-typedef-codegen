@@ -45,7 +45,16 @@ namespace JtdCodegenE2E
         /// </summary>
 
         [JsonPropertyName("geometries")]
+        
         public IList<GeojsonObject> Geometries { get; set; }
+
+        /// <summary>
+
+        /// </summary>
+
+        [JsonPropertyName("bbox")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public BoundingBox Bbox { get; set; }
 
     }
 }
