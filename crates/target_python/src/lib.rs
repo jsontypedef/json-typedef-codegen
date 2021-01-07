@@ -237,6 +237,12 @@ impl jtd_codegen::target::Target for Target {
                     .or_default()
                     .insert("dataclass".into());
 
+                state
+                    .imports
+                    .entry("typing".into())
+                    .or_default()
+                    .insert("Optional".into());
+
                 writeln!(
                     out,
                     "{}",

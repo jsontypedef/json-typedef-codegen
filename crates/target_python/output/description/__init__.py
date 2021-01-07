@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from enum import Enum
 
-from typing import Any, Union, get_args, get_origin
+from typing import Any, Optional, Union, get_args, get_origin
 
 def _from_json(cls, data):
     if data is None or cls in [bool, int, float, str] or cls is Any:
@@ -74,10 +74,10 @@ class RootDiscriminatorWithDescriptionBar(RootDiscriminatorWithDescription):
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
-            "foo": "bar",
+        out = {}
+        out["foo"] = "bar"
 
-        }
+        return out
 class RootEnumWithDescription(Enum):
     """
     A description for enum
@@ -140,9 +140,9 @@ class RootPropertiesWithDescription:
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
+        out = {}
 
-        }
+        return out
 @dataclass
 class Root:
     """
@@ -150,19 +150,19 @@ class Root:
     """
 
 
-    DiscriminatorWithDescription: "RootDiscriminatorWithDescription"
+    DiscriminatorWithDescription: 'RootDiscriminatorWithDescription'
     """
     A description for discriminator
     """
 
 
-    EnumWithDescription: "RootEnumWithDescription"
+    EnumWithDescription: 'RootEnumWithDescription'
     """
     A description for enum
     """
 
 
-    LongDescription: "str"
+    LongDescription: 'str'
     """
     Whereas disregard and contempt for human rights have resulted in barbarous
     acts which have outraged the conscience of mankind, and the advent of a
@@ -172,19 +172,19 @@ class Root:
     """
 
 
-    PropertiesWithDescription: "RootPropertiesWithDescription"
+    PropertiesWithDescription: 'RootPropertiesWithDescription'
     """
     A description for properties
     """
 
 
-    RefWithDescription: "Baz"
+    RefWithDescription: 'Baz'
     """
     A description for ref
     """
 
 
-    StringWithDescription: "str"
+    StringWithDescription: 'str'
     """
     A description for string
     """
@@ -199,17 +199,17 @@ class Root:
 
         return cls(
 
-            _from_json(RootDiscriminatorWithDescription, data["discriminator_with_description"]),
+            _from_json(RootDiscriminatorWithDescription, data.get("discriminator_with_description")),
 
-            _from_json(RootEnumWithDescription, data["enum_with_description"]),
+            _from_json(RootEnumWithDescription, data.get("enum_with_description")),
 
-            _from_json(str, data["long_description"]),
+            _from_json(str, data.get("long_description")),
 
-            _from_json(RootPropertiesWithDescription, data["properties_with_description"]),
+            _from_json(RootPropertiesWithDescription, data.get("properties_with_description")),
 
-            _from_json(Baz, data["ref_with_description"]),
+            _from_json(Baz, data.get("ref_with_description")),
 
-            _from_json(str, data["string_with_description"]),
+            _from_json(str, data.get("string_with_description")),
 
         )
 
@@ -218,21 +218,33 @@ class Root:
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
+        out = {}
 
-            "discriminator_with_description": _to_json(self.DiscriminatorWithDescription),
+        
+        out["discriminator_with_description"] = _to_json(self.DiscriminatorWithDescription)
+        
 
-            "enum_with_description": _to_json(self.EnumWithDescription),
+        
+        out["enum_with_description"] = _to_json(self.EnumWithDescription)
+        
 
-            "long_description": _to_json(self.LongDescription),
+        
+        out["long_description"] = _to_json(self.LongDescription)
+        
 
-            "properties_with_description": _to_json(self.PropertiesWithDescription),
+        
+        out["properties_with_description"] = _to_json(self.PropertiesWithDescription)
+        
 
-            "ref_with_description": _to_json(self.RefWithDescription),
+        
+        out["ref_with_description"] = _to_json(self.RefWithDescription)
+        
 
-            "string_with_description": _to_json(self.StringWithDescription),
+        
+        out["string_with_description"] = _to_json(self.StringWithDescription)
+        
 
-        }
+        return out
 @dataclass
 class Baz:
     """

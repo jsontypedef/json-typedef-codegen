@@ -1,7 +1,7 @@
 
 from dataclasses import dataclass
 
-from typing import Any, Union, get_args, get_origin
+from typing import Any, List, Union, get_args, get_origin
 
 def _from_json(cls, data):
     if data is None or cls in [bool, int, float, str] or cls is Any:
@@ -40,8 +40,6 @@ class Root:
 
             "bar": RootBar,
 
-            "quux": RootQuux,
-
         }[data["foo"]].from_json(data)
 
     def to_json(self):
@@ -57,7 +55,13 @@ class RootBar(Root):
     """
 
 
-    Baz: "str"
+    Baz: "List[str]"
+    """
+
+    """
+
+
+    Quux: "bool"
     """
 
     """
@@ -73,7 +77,9 @@ class RootBar(Root):
         return cls(
             "bar",
 
-            _from_json(str, data.get("baz")),
+            _from_json(List[str], data.get("baz")),
+
+            _from_json(bool, data.get("quux")),
 
         )
 
@@ -86,47 +92,13 @@ class RootBar(Root):
         out["foo"] = "bar"
 
         
-        out["baz"] = _to_json(self.Baz)
+        if self.Baz is not None:
+            out["baz"] = _to_json(self.Baz)
         
 
-        return out
-@dataclass
-class RootQuux(Root):
-    """
-
-    """
-
-
-    Quuz: "str"
-    """
-
-    """
-
-
-
-    @classmethod
-    def from_json(cls, data) -> "RootQuux":
-        """
-        Construct an instance of this class from parsed JSON data.
-        """
-
-        return cls(
-            "quux",
-
-            _from_json(str, data.get("quuz")),
-
-        )
-
-    def to_json(self):
-        """
-        Generate JSON-ready data from an instance of this class.
-        """
-
-        out = {}
-        out["foo"] = "quux"
-
         
-        out["quuz"] = _to_json(self.Quuz)
+        if self.Quux is not None:
+            out["quux"] = _to_json(self.Quux)
         
 
         return out

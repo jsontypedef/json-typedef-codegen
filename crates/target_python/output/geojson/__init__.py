@@ -234,6 +234,12 @@ class GeojsonObjectFeature(GeojsonObject):
     """
 
 
+    Id: "Any"
+    """
+
+    """
+
+
 
     @classmethod
     def from_json(cls, data) -> "GeojsonObjectFeature":
@@ -244,9 +250,11 @@ class GeojsonObjectFeature(GeojsonObject):
         return cls(
             "Feature",
 
-            _from_json(Optional[GeojsonObject], data["geometry"]),
+            _from_json(Optional[GeojsonObject], data.get("geometry")),
 
-            _from_json(Dict[str, Any], data["properties"]),
+            _from_json(Dict[str, Any], data.get("properties")),
+
+            _from_json(Any, data.get("id")),
 
         )
 
@@ -255,14 +263,23 @@ class GeojsonObjectFeature(GeojsonObject):
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
-            "type": "Feature",
+        out = {}
+        out["type"] = "Feature"
 
-            "geometry": _to_json(self.Geometry),
+        
+        out["geometry"] = _to_json(self.Geometry)
+        
 
-            "properties": _to_json(self.Properties),
+        
+        out["properties"] = _to_json(self.Properties)
+        
 
-        }
+        
+        if self.Id is not None:
+            out["id"] = _to_json(self.Id)
+        
+
+        return out
 @dataclass
 class GeojsonObjectFeatureCollection(GeojsonObject):
     """
@@ -290,7 +307,7 @@ class GeojsonObjectFeatureCollection(GeojsonObject):
         return cls(
             "FeatureCollection",
 
-            _from_json(List[GeojsonObject], data["features"]),
+            _from_json(List[GeojsonObject], data.get("features")),
 
         )
 
@@ -299,12 +316,14 @@ class GeojsonObjectFeatureCollection(GeojsonObject):
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
-            "type": "FeatureCollection",
+        out = {}
+        out["type"] = "FeatureCollection"
 
-            "features": _to_json(self.Features),
+        
+        out["features"] = _to_json(self.Features)
+        
 
-        }
+        return out
 @dataclass
 class GeojsonObjectGeometryCollection(GeojsonObject):
     """
@@ -344,6 +363,12 @@ class GeojsonObjectGeometryCollection(GeojsonObject):
     """
 
 
+    Bbox: "BoundingBox"
+    """
+
+    """
+
+
 
     @classmethod
     def from_json(cls, data) -> "GeojsonObjectGeometryCollection":
@@ -354,7 +379,9 @@ class GeojsonObjectGeometryCollection(GeojsonObject):
         return cls(
             "GeometryCollection",
 
-            _from_json(List[GeojsonObject], data["geometries"]),
+            _from_json(List[GeojsonObject], data.get("geometries")),
+
+            _from_json(BoundingBox, data.get("bbox")),
 
         )
 
@@ -363,12 +390,19 @@ class GeojsonObjectGeometryCollection(GeojsonObject):
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
-            "type": "GeometryCollection",
+        out = {}
+        out["type"] = "GeometryCollection"
 
-            "geometries": _to_json(self.Geometries),
+        
+        out["geometries"] = _to_json(self.Geometries)
+        
 
-        }
+        
+        if self.Bbox is not None:
+            out["bbox"] = _to_json(self.Bbox)
+        
+
+        return out
 @dataclass
 class GeojsonObjectLineString(GeojsonObject):
     """
@@ -378,6 +412,12 @@ class GeojsonObjectLineString(GeojsonObject):
 
 
     Coordinates: "List[Position]"
+    """
+
+    """
+
+
+    Bbox: "BoundingBox"
     """
 
     """
@@ -393,7 +433,9 @@ class GeojsonObjectLineString(GeojsonObject):
         return cls(
             "LineString",
 
-            _from_json(List[Position], data["coordinates"]),
+            _from_json(List[Position], data.get("coordinates")),
+
+            _from_json(BoundingBox, data.get("bbox")),
 
         )
 
@@ -402,12 +444,19 @@ class GeojsonObjectLineString(GeojsonObject):
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
-            "type": "LineString",
+        out = {}
+        out["type"] = "LineString"
 
-            "coordinates": _to_json(self.Coordinates),
+        
+        out["coordinates"] = _to_json(self.Coordinates)
+        
 
-        }
+        
+        if self.Bbox is not None:
+            out["bbox"] = _to_json(self.Bbox)
+        
+
+        return out
 @dataclass
 class GeojsonObjectMultiLineString(GeojsonObject):
     """
@@ -417,6 +466,12 @@ class GeojsonObjectMultiLineString(GeojsonObject):
 
 
     Coordinates: "List[Position]"
+    """
+
+    """
+
+
+    Bbox: "BoundingBox"
     """
 
     """
@@ -432,7 +487,9 @@ class GeojsonObjectMultiLineString(GeojsonObject):
         return cls(
             "MultiLineString",
 
-            _from_json(List[Position], data["coordinates"]),
+            _from_json(List[Position], data.get("coordinates")),
+
+            _from_json(BoundingBox, data.get("bbox")),
 
         )
 
@@ -441,12 +498,19 @@ class GeojsonObjectMultiLineString(GeojsonObject):
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
-            "type": "MultiLineString",
+        out = {}
+        out["type"] = "MultiLineString"
 
-            "coordinates": _to_json(self.Coordinates),
+        
+        out["coordinates"] = _to_json(self.Coordinates)
+        
 
-        }
+        
+        if self.Bbox is not None:
+            out["bbox"] = _to_json(self.Bbox)
+        
+
+        return out
 @dataclass
 class GeojsonObjectMultiPoint(GeojsonObject):
     """
@@ -456,6 +520,12 @@ class GeojsonObjectMultiPoint(GeojsonObject):
 
 
     Coordinates: "List[Position]"
+    """
+
+    """
+
+
+    Bbox: "BoundingBox"
     """
 
     """
@@ -471,7 +541,9 @@ class GeojsonObjectMultiPoint(GeojsonObject):
         return cls(
             "MultiPoint",
 
-            _from_json(List[Position], data["coordinates"]),
+            _from_json(List[Position], data.get("coordinates")),
+
+            _from_json(BoundingBox, data.get("bbox")),
 
         )
 
@@ -480,12 +552,19 @@ class GeojsonObjectMultiPoint(GeojsonObject):
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
-            "type": "MultiPoint",
+        out = {}
+        out["type"] = "MultiPoint"
 
-            "coordinates": _to_json(self.Coordinates),
+        
+        out["coordinates"] = _to_json(self.Coordinates)
+        
 
-        }
+        
+        if self.Bbox is not None:
+            out["bbox"] = _to_json(self.Bbox)
+        
+
+        return out
 @dataclass
 class GeojsonObjectMultiPolygon(GeojsonObject):
     """
@@ -495,6 +574,12 @@ class GeojsonObjectMultiPolygon(GeojsonObject):
 
 
     Coordinates: "List[LinearRing]"
+    """
+
+    """
+
+
+    Bbox: "BoundingBox"
     """
 
     """
@@ -510,7 +595,9 @@ class GeojsonObjectMultiPolygon(GeojsonObject):
         return cls(
             "MultiPolygon",
 
-            _from_json(List[LinearRing], data["coordinates"]),
+            _from_json(List[LinearRing], data.get("coordinates")),
+
+            _from_json(BoundingBox, data.get("bbox")),
 
         )
 
@@ -519,12 +606,19 @@ class GeojsonObjectMultiPolygon(GeojsonObject):
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
-            "type": "MultiPolygon",
+        out = {}
+        out["type"] = "MultiPolygon"
 
-            "coordinates": _to_json(self.Coordinates),
+        
+        out["coordinates"] = _to_json(self.Coordinates)
+        
 
-        }
+        
+        if self.Bbox is not None:
+            out["bbox"] = _to_json(self.Bbox)
+        
+
+        return out
 @dataclass
 class GeojsonObjectPoint(GeojsonObject):
     """
@@ -533,6 +627,12 @@ class GeojsonObjectPoint(GeojsonObject):
 
 
     Coordinates: "Position"
+    """
+
+    """
+
+
+    Bbox: "BoundingBox"
     """
 
     """
@@ -548,7 +648,9 @@ class GeojsonObjectPoint(GeojsonObject):
         return cls(
             "Point",
 
-            _from_json(Position, data["coordinates"]),
+            _from_json(Position, data.get("coordinates")),
+
+            _from_json(BoundingBox, data.get("bbox")),
 
         )
 
@@ -557,12 +659,19 @@ class GeojsonObjectPoint(GeojsonObject):
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
-            "type": "Point",
+        out = {}
+        out["type"] = "Point"
 
-            "coordinates": _to_json(self.Coordinates),
+        
+        out["coordinates"] = _to_json(self.Coordinates)
+        
 
-        }
+        
+        if self.Bbox is not None:
+            out["bbox"] = _to_json(self.Bbox)
+        
+
+        return out
 @dataclass
 class GeojsonObjectPolygon(GeojsonObject):
     """
@@ -572,6 +681,12 @@ class GeojsonObjectPolygon(GeojsonObject):
 
 
     Coordinates: "List[LinearRing]"
+    """
+
+    """
+
+
+    Bbox: "BoundingBox"
     """
 
     """
@@ -587,7 +702,9 @@ class GeojsonObjectPolygon(GeojsonObject):
         return cls(
             "Polygon",
 
-            _from_json(List[LinearRing], data["coordinates"]),
+            _from_json(List[LinearRing], data.get("coordinates")),
+
+            _from_json(BoundingBox, data.get("bbox")),
 
         )
 
@@ -596,12 +713,19 @@ class GeojsonObjectPolygon(GeojsonObject):
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
-            "type": "Polygon",
+        out = {}
+        out["type"] = "Polygon"
 
-            "coordinates": _to_json(self.Coordinates),
+        
+        out["coordinates"] = _to_json(self.Coordinates)
+        
 
-        }
+        
+        if self.Bbox is not None:
+            out["bbox"] = _to_json(self.Bbox)
+        
+
+        return out
 @dataclass
 class LinearRing:
     """

@@ -1,7 +1,7 @@
 
 from dataclasses import dataclass
 
-from typing import Any, Union, get_args, get_origin
+from typing import Any, Optional, Union, get_args, get_origin
 
 def _from_json(cls, data):
     if data is None or cls in [bool, int, float, str] or cls is Any:
@@ -29,13 +29,13 @@ class Root:
     """
 
 
-    For: "For"
+    For: 'For'
     """
 
     """
 
 
-    Object: "Object"
+    Object: 'Object'
     """
 
     """
@@ -50,9 +50,9 @@ class Root:
 
         return cls(
 
-            _from_json(For, data["for"]),
+            _from_json(For, data.get("for")),
 
-            _from_json(Object, data["object"]),
+            _from_json(Object, data.get("object")),
 
         )
 
@@ -61,13 +61,17 @@ class Root:
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
+        out = {}
 
-            "for": _to_json(self.For),
+        
+        out["for"] = _to_json(self.For)
+        
 
-            "object": _to_json(self.Object),
+        
+        out["object"] = _to_json(self.Object)
+        
 
-        }
+        return out
 @dataclass
 class For:
     """

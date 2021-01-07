@@ -15,7 +15,7 @@ class {{ name }}({{ parent_name }}):
         return cls(
             {{ "{:?}"|format(tag_value) }},
 {% for field in fields %}
-            _from_json({{ field.type_ }}, data[{{ "{:?}"|format(field.json_name) }}]),
+            _from_json({{ field.type_ }}, data.get({{ "{:?}"|format(field.json_name) }})),
 {% endfor %}
         )
 
@@ -24,9 +24,14 @@ class {{ name }}({{ parent_name }}):
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
-            {{ "{:?}"|format(tag_json_name) }}: {{ "{:?}"|format(tag_value) }},
+        out = {}
+        out[{{ "{:?}"|format(tag_json_name) }}] = {{ "{:?}"|format(tag_value) }}
 {% for field in fields %}
-            {{ "{:?}"|format(field.json_name) }}: _to_json(self.{{ field.name }}),
+        {% if field.optional %}
+        if self.{{ field.name }} is not None:
+            out[{{ "{:?}"|format(field.json_name) }}] = _to_json(self.{{ field.name }})
+        {% else %}
+        out[{{ "{:?}"|format(field.json_name) }}] = _to_json(self.{{ field.name }})
+        {% endif %}
 {% endfor %}
-        }
+        return out

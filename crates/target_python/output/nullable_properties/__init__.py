@@ -29,25 +29,25 @@ class Root0:
     """
 
 
-    Bar: "str"
+    Bar: 'str'
     """
 
     """
 
 
-    Baz: "List[bool]"
+    Baz: 'List[bool]'
     """
 
     """
 
 
-    Foo: "bool"
+    Foo: 'bool'
     """
 
     """
 
 
-    Quux: "List[bool]"
+    Quux: 'List[bool]'
     """
 
     """
@@ -62,13 +62,13 @@ class Root0:
 
         return cls(
 
-            _from_json(str, data["bar"]),
+            _from_json(str, data.get("bar")),
 
-            _from_json(List[bool], data["baz"]),
+            _from_json(List[bool], data.get("baz")),
 
-            _from_json(bool, data["foo"]),
+            _from_json(bool, data.get("foo")),
 
-            _from_json(List[bool], data["quux"]),
+            _from_json(List[bool], data.get("quux")),
 
         )
 
@@ -77,17 +77,25 @@ class Root0:
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
+        out = {}
 
-            "bar": _to_json(self.Bar),
+        
+        out["bar"] = _to_json(self.Bar)
+        
 
-            "baz": _to_json(self.Baz),
+        
+        out["baz"] = _to_json(self.Baz)
+        
 
-            "foo": _to_json(self.Foo),
+        
+        out["foo"] = _to_json(self.Foo)
+        
 
-            "quux": _to_json(self.Quux),
+        
+        out["quux"] = _to_json(self.Quux)
+        
 
-        }
+        return out
 @dataclass
 class Root:
     """

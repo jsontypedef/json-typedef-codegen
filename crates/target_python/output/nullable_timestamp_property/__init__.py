@@ -29,7 +29,7 @@ class Root:
     """
 
 
-    Foo: "Optional[str]"
+    Foo: 'Optional[str]'
     """
 
     """
@@ -44,7 +44,7 @@ class Root:
 
         return cls(
 
-            _from_json(Optional[str], data["foo"]),
+            _from_json(Optional[str], data.get("foo")),
 
         )
 
@@ -53,8 +53,10 @@ class Root:
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
+        out = {}
 
-            "foo": _to_json(self.Foo),
+        
+        out["foo"] = _to_json(self.Foo)
+        
 
-        }
+        return out

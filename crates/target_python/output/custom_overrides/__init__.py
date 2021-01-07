@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from enum import Enum
 
-from typing import Any, Dict, List, Union, get_args, get_origin
+from typing import Any, Dict, List, Optional, Union, get_args, get_origin
 
 def _from_json(cls, data):
     if data is None or cls in [bool, int, float, str] or cls is Any:
@@ -76,10 +76,10 @@ class RootOverrideTypeDiscriminatorBar(RootOverrideTypeDiscriminator):
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
-            "foo": "bar",
+        out = {}
+        out["foo"] = "bar"
 
-        }
+        return out
 @dataclass
 class RootOverrideTypeDiscriminatorBaz(RootOverrideTypeDiscriminator):
     """
@@ -104,10 +104,10 @@ class RootOverrideTypeDiscriminatorBaz(RootOverrideTypeDiscriminator):
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
-            "foo": "baz",
+        out = {}
+        out["foo"] = "baz"
 
-        }
+        return out
 class RootOverrideTypeEnum(Enum):
     """
 
@@ -164,9 +164,9 @@ class RootOverrideTypeProperties:
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
+        out = {}
 
-        }
+        return out
 @dataclass
 class Root:
     """
@@ -174,37 +174,37 @@ class Root:
     """
 
 
-    OverrideElementsContainer: "List[str]"
+    OverrideElementsContainer: 'List[str]'
     """
 
     """
 
 
-    OverrideTypeDiscriminator: "RootOverrideTypeDiscriminator"
+    OverrideTypeDiscriminator: 'RootOverrideTypeDiscriminator'
     """
 
     """
 
 
-    OverrideTypeEnum: "RootOverrideTypeEnum"
+    OverrideTypeEnum: 'RootOverrideTypeEnum'
     """
 
     """
 
 
-    OverrideTypeExpr: "str"
+    OverrideTypeExpr: 'str'
     """
 
     """
 
 
-    OverrideTypeProperties: "RootOverrideTypeProperties"
+    OverrideTypeProperties: 'RootOverrideTypeProperties'
     """
 
     """
 
 
-    OverrideValuesContainer: "Dict[str, str]"
+    OverrideValuesContainer: 'Dict[str, str]'
     """
 
     """
@@ -219,17 +219,17 @@ class Root:
 
         return cls(
 
-            _from_json(List[str], data["override_elements_container"]),
+            _from_json(List[str], data.get("override_elements_container")),
 
-            _from_json(RootOverrideTypeDiscriminator, data["override_type_discriminator"]),
+            _from_json(RootOverrideTypeDiscriminator, data.get("override_type_discriminator")),
 
-            _from_json(RootOverrideTypeEnum, data["override_type_enum"]),
+            _from_json(RootOverrideTypeEnum, data.get("override_type_enum")),
 
-            _from_json(str, data["override_type_expr"]),
+            _from_json(str, data.get("override_type_expr")),
 
-            _from_json(RootOverrideTypeProperties, data["override_type_properties"]),
+            _from_json(RootOverrideTypeProperties, data.get("override_type_properties")),
 
-            _from_json(Dict[str, str], data["override_values_container"]),
+            _from_json(Dict[str, str], data.get("override_values_container")),
 
         )
 
@@ -238,18 +238,30 @@ class Root:
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
+        out = {}
 
-            "override_elements_container": _to_json(self.OverrideElementsContainer),
+        
+        out["override_elements_container"] = _to_json(self.OverrideElementsContainer)
+        
 
-            "override_type_discriminator": _to_json(self.OverrideTypeDiscriminator),
+        
+        out["override_type_discriminator"] = _to_json(self.OverrideTypeDiscriminator)
+        
 
-            "override_type_enum": _to_json(self.OverrideTypeEnum),
+        
+        out["override_type_enum"] = _to_json(self.OverrideTypeEnum)
+        
 
-            "override_type_expr": _to_json(self.OverrideTypeExpr),
+        
+        out["override_type_expr"] = _to_json(self.OverrideTypeExpr)
+        
 
-            "override_type_properties": _to_json(self.OverrideTypeProperties),
+        
+        out["override_type_properties"] = _to_json(self.OverrideTypeProperties)
+        
 
-            "override_values_container": _to_json(self.OverrideValuesContainer),
+        
+        out["override_values_container"] = _to_json(self.OverrideValuesContainer)
+        
 
-        }
+        return out

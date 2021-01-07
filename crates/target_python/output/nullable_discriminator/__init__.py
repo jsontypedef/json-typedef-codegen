@@ -73,7 +73,7 @@ class RootBar(Root0):
         return cls(
             "bar",
 
-            _from_json(str, data["baz"]),
+            _from_json(str, data.get("baz")),
 
         )
 
@@ -82,12 +82,14 @@ class RootBar(Root0):
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
-            "foo": "bar",
+        out = {}
+        out["foo"] = "bar"
 
-            "baz": _to_json(self.Baz),
+        
+        out["baz"] = _to_json(self.Baz)
+        
 
-        }
+        return out
 @dataclass
 class RootQuux(Root0):
     """
@@ -111,7 +113,7 @@ class RootQuux(Root0):
         return cls(
             "quux",
 
-            _from_json(str, data["quuz"]),
+            _from_json(str, data.get("quuz")),
 
         )
 
@@ -120,12 +122,14 @@ class RootQuux(Root0):
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
-            "foo": "quux",
+        out = {}
+        out["foo"] = "quux"
 
-            "quuz": _to_json(self.Quuz),
+        
+        out["quuz"] = _to_json(self.Quuz)
+        
 
-        }
+        return out
 @dataclass
 class Root:
     """

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from enum import Enum
 
-from typing import Any, Union, get_args, get_origin
+from typing import Any, Optional, Union, get_args, get_origin
 
 def _from_json(cls, data):
     if data is None or cls in [bool, int, float, str] or cls is Any:
@@ -64,7 +64,7 @@ class RootFoo:
     """
 
 
-    Bar: "RootFooBar"
+    Bar: 'RootFooBar'
     """
 
     """
@@ -79,7 +79,7 @@ class RootFoo:
 
         return cls(
 
-            _from_json(RootFooBar, data["bar"]),
+            _from_json(RootFooBar, data.get("bar")),
 
         )
 
@@ -88,11 +88,13 @@ class RootFoo:
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
+        out = {}
 
-            "bar": _to_json(self.Bar),
+        
+        out["bar"] = _to_json(self.Bar)
+        
 
-        }
+        return out
 class RootFooBar0(Enum):
     """
 
@@ -133,13 +135,13 @@ class Root:
     """
 
 
-    Foo: "RootFoo"
+    Foo: 'RootFoo'
     """
 
     """
 
 
-    FooBar: "RootFooBar0"
+    FooBar: 'RootFooBar0'
     """
 
     """
@@ -154,9 +156,9 @@ class Root:
 
         return cls(
 
-            _from_json(RootFoo, data["foo"]),
+            _from_json(RootFoo, data.get("foo")),
 
-            _from_json(RootFooBar0, data["foo_bar"]),
+            _from_json(RootFooBar0, data.get("foo_bar")),
 
         )
 
@@ -165,10 +167,14 @@ class Root:
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
+        out = {}
 
-            "foo": _to_json(self.Foo),
+        
+        out["foo"] = _to_json(self.Foo)
+        
 
-            "foo_bar": _to_json(self.FooBar),
+        
+        out["foo_bar"] = _to_json(self.FooBar)
+        
 
-        }
+        return out

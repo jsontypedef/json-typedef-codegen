@@ -3,6 +3,6 @@ type {{ name }} struct {
 	{{ tag_field_name }} string `json:{{ "{:?}"|format(tag_json_name) }}`
 {% for field in fields %}
 {{ field.metadata|description(1) }}
-	{{ field.name }} {{ field.type_ }} `json:{{ "{:?}"|format(field.json_name) }}`
+	{{ field.name }} {{ field.type_ }} `json:"{{ field.json_name }}{% if field.optional %},omitempty{% endif %}"`
 {% endfor %}
 }

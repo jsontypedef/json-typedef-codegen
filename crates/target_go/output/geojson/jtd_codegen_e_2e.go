@@ -273,6 +273,12 @@ type GeojsonObjectFeature struct {
 
 	Properties map[string]interface{} `json:"properties"`
 
+
+
+
+
+	Id interface{} `json:"id,omitempty"`
+
 }
 
 // A GeoJSON object with the type "FeatureCollection" is a
@@ -331,6 +337,12 @@ type GeojsonObjectGeometryCollection struct {
 
 	Geometries []GeojsonObject `json:"geometries"`
 
+
+
+
+
+	Bbox BoundingBox `json:"bbox,omitempty"`
+
 }
 
 // For type "LineString", the "coordinates" member is an array of two
@@ -345,6 +357,12 @@ type GeojsonObjectLineString struct {
 
 
 	Coordinates []Position `json:"coordinates"`
+
+
+
+
+
+	Bbox BoundingBox `json:"bbox,omitempty"`
 
 }
 
@@ -361,6 +379,12 @@ type GeojsonObjectMultiLineString struct {
 
 	Coordinates []Position `json:"coordinates"`
 
+
+
+
+
+	Bbox BoundingBox `json:"bbox,omitempty"`
+
 }
 
 // For type "MultiPoint", the "coordinates" member is an array of
@@ -375,6 +399,12 @@ type GeojsonObjectMultiPoint struct {
 
 
 	Coordinates []Position `json:"coordinates"`
+
+
+
+
+
+	Bbox BoundingBox `json:"bbox,omitempty"`
 
 }
 
@@ -391,6 +421,12 @@ type GeojsonObjectMultiPolygon struct {
 
 	Coordinates []LinearRing `json:"coordinates"`
 
+
+
+
+
+	Bbox BoundingBox `json:"bbox,omitempty"`
+
 }
 
 // For type "Point", the "coordinates" member is a single position.
@@ -404,6 +440,12 @@ type GeojsonObjectPoint struct {
 
 
 	Coordinates Position `json:"coordinates"`
+
+
+
+
+
+	Bbox BoundingBox `json:"bbox,omitempty"`
 
 }
 
@@ -419,6 +461,12 @@ type GeojsonObjectPolygon struct {
 
 
 	Coordinates []LinearRing `json:"coordinates"`
+
+
+
+
+
+	Bbox BoundingBox `json:"bbox,omitempty"`
 
 }
 

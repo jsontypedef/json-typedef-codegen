@@ -2,7 +2,7 @@
 class {{ name }}:
 {{ metadata|description(1) }}
 {% for field in fields %}
-    {{ field.name }}: {{ "{:?}"|format(field.type_) }}
+    {{ field.name }}: '{% if field.optional %}Optional[{% endif %}{{ field.type_ }}{% if field.optional %}]{% endif %}'
 {{ field.metadata|description(1) }}
 {% endfor %}
 
@@ -14,7 +14,7 @@ class {{ name }}:
 
         return cls(
 {% for field in fields %}
-            _from_json({{ field.type_ }}, data[{{ "{:?}"|format(field.json_name) }}]),
+            _from_json({{ field.type_ }}, data.get({{ "{:?}"|format(field.json_name) }})),
 {% endfor %}
         )
 
@@ -23,8 +23,13 @@ class {{ name }}:
         Generate JSON-ready data from an instance of this class.
         """
 
-        return {
+        out = {}
 {% for field in fields %}
-            {{ "{:?}"|format(field.json_name) }}: _to_json(self.{{ field.name }}),
+        {% if field.optional %}
+        if self.{{ field.name }} is not None:
+            out[{{ "{:?}"|format(field.json_name) }}] = _to_json(self.{{ field.name }})
+        {% else %}
+        out[{{ "{:?}"|format(field.json_name) }}] = _to_json(self.{{ field.name }})
+        {% endif %}
 {% endfor %}
-        }
+        return out

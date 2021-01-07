@@ -29,25 +29,19 @@ class Root:
     """
 
 
-    Bar: 'str'
+    Bar: 'Optional[List[str]]'
     """
 
     """
 
 
-    Baz: 'List[bool]'
+    Baz: 'Optional[bool]'
     """
 
     """
 
 
-    Foo: 'bool'
-    """
-
-    """
-
-
-    Quux: 'List[bool]'
+    Foo: 'Optional[str]'
     """
 
     """
@@ -62,13 +56,11 @@ class Root:
 
         return cls(
 
-            _from_json(str, data.get("bar")),
+            _from_json(List[str], data.get("bar")),
 
-            _from_json(List[bool], data.get("baz")),
+            _from_json(bool, data.get("baz")),
 
-            _from_json(bool, data.get("foo")),
-
-            _from_json(List[bool], data.get("quux")),
+            _from_json(str, data.get("foo")),
 
         )
 
@@ -80,19 +72,18 @@ class Root:
         out = {}
 
         
-        out["bar"] = _to_json(self.Bar)
+        if self.Bar is not None:
+            out["bar"] = _to_json(self.Bar)
         
 
         
-        out["baz"] = _to_json(self.Baz)
+        if self.Baz is not None:
+            out["baz"] = _to_json(self.Baz)
         
 
         
-        out["foo"] = _to_json(self.Foo)
-        
-
-        
-        out["quux"] = _to_json(self.Quux)
+        if self.Foo is not None:
+            out["foo"] = _to_json(self.Foo)
         
 
         return out
