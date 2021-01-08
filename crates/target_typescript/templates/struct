@@ -2,6 +2,6 @@
 export interface {{ name }} {
 {% for field in fields %}
 {{ field.metadata|description(1) }}
-    {{ field.json_name }}: {{ field.type_ }};
+    {{ field.json_name }}{% if field.optional %}?{% endif %}: {{ field.type_ }};
 {% endfor %}
 }

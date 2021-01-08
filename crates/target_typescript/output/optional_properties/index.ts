@@ -8,18 +8,18 @@ export interface Root {
 
      */
 
-    bar: string[];
+    bar?: string[];
 
     /**
 
      */
 
-    baz: boolean;
+    baz?: boolean;
 
     /**
 
      */
 
-    foo: string;
+    foo?: string;
 
 }

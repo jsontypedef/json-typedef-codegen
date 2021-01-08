@@ -156,7 +156,7 @@ export interface GeojsonObjectFeature {
 
      */
 
-    id: any;
+    id?: any;
 
 }
 /**
@@ -220,7 +220,7 @@ export interface GeojsonObjectGeometryCollection {
 
      */
 
-    bbox: BoundingBox;
+    bbox?: BoundingBox;
 
 }
 /**
@@ -241,7 +241,7 @@ export interface GeojsonObjectLineString {
 
      */
 
-    bbox: BoundingBox;
+    bbox?: BoundingBox;
 
 }
 /**
@@ -262,7 +262,7 @@ export interface GeojsonObjectMultiLineString {
 
      */
 
-    bbox: BoundingBox;
+    bbox?: BoundingBox;
 
 }
 /**
@@ -283,7 +283,7 @@ export interface GeojsonObjectMultiPoint {
 
      */
 
-    bbox: BoundingBox;
+    bbox?: BoundingBox;
 
 }
 /**
@@ -304,7 +304,7 @@ export interface GeojsonObjectMultiPolygon {
 
      */
 
-    bbox: BoundingBox;
+    bbox?: BoundingBox;
 
 }
 /**
@@ -324,7 +324,7 @@ export interface GeojsonObjectPoint {
 
      */
 
-    bbox: BoundingBox;
+    bbox?: BoundingBox;
 
 }
 /**
@@ -345,7 +345,7 @@ export interface GeojsonObjectPolygon {
 
      */
 
-    bbox: BoundingBox;
+    bbox?: BoundingBox;
 
 }
 /**

@@ -17,12 +17,12 @@ export interface RootBar {
 
      */
 
-    baz: string[];
+    baz?: string[];
 
     /**
 
      */
 
-    quux: boolean;
+    quux?: boolean;
 
 }
