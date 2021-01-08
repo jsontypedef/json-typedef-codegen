@@ -39,6 +39,7 @@ impl jtd_codegen::target::Target for Target {
         target::Strategy {
             file_partitioning: target::FilePartitioningStrategy::SingleFile("index.ts".into()),
             enum_member_naming: target::EnumMemberNamingStrategy::Modularized,
+            optional_property_handling: target::OptionalPropertyHandlingStrategy::NativeSupport,
             booleans_are_nullable: false,
             int8s_are_nullable: false,
             uint8s_are_nullable: false,
@@ -64,19 +65,14 @@ impl jtd_codegen::target::Target for Target {
             target::NameableKind::Type => TYPE_NAMING_CONVENTION.inflect(parts),
             target::NameableKind::EnumMember => ENUM_MEMBER_NAMING_CONVENTION.inflect(parts),
 
-             // Not used. TypeScript maps directly to the JSON data, so we don't
-             // have the option of distinguishing the JSON name from the
-             // TypeScript name
+            // Not used. TypeScript maps directly to the JSON data, so we don't
+            // have the option of distinguishing the JSON name from the
+            // TypeScript name
             target::NameableKind::Field => "".into(),
         }
     }
 
-    fn expr(
-        &self,
-        _state: &mut (),
-        metadata: metadata::Metadata,
-        expr: target::Expr,
-    ) -> String {
+    fn expr(&self, _state: &mut (), metadata: metadata::Metadata, expr: target::Expr) -> String {
         if let Some(s) = metadata.get("typescriptType").and_then(|v| v.as_str()) {
             return s.into();
         }

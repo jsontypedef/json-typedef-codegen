@@ -1,5 +1,5 @@
 use crate::target::metadata::Metadata;
-use crate::target::{NameableKind, Target};
+use crate::target::{NameableKind, OptionalPropertyHandlingStrategy, Target};
 use jtd::form::TypeValue;
 use jtd::{Form, Schema};
 use std::collections::BTreeMap;
@@ -285,6 +285,20 @@ impl Ast {
                     let ast_name = target.name(NameableKind::Field, path);
                     let ast = Self::new(target, path, sub_schema);
                     path.pop();
+
+                    let ast = match target.strategy().optional_property_handling {
+                        // The target natively supports optional properies. The
+                        // target will know how to "optional-ify" the underlying
+                        // ast directly.
+                        OptionalPropertyHandlingStrategy::NativeSupport => ast,
+
+                        // The target only supports optional properties if they
+                        // are nullable. We'll wrap the underlying ast with a
+                        // NullableOf, assuming it's not already nullable.
+                        OptionalPropertyHandlingStrategy::WrapWithNullable => {
+                            ast.into_nullable(target, true, sub_schema.metadata.clone())
+                        }
+                    };
 
                     fields.push(Field {
                         metadata: sub_schema.metadata.clone(),

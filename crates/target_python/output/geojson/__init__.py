@@ -216,7 +216,7 @@ class GeojsonObjectFeature(GeojsonObject):
     """
 
 
-    Geometry: "Optional[GeojsonObject]"
+    Geometry: 'Optional[GeojsonObject]'
     """
     The GeoJSON specification requires that these elements be
     GeoJSON geometry objects, but such a constraint can't be
@@ -228,13 +228,13 @@ class GeojsonObjectFeature(GeojsonObject):
     """
 
 
-    Properties: "Dict[str, Any]"
+    Properties: 'Dict[str, Any]'
     """
 
     """
 
 
-    Id: "Any"
+    Id: 'Any'
     """
 
     """
@@ -291,7 +291,7 @@ class GeojsonObjectFeatureCollection(GeojsonObject):
     """
 
 
-    Features: "List[GeojsonObject]"
+    Features: 'List[GeojsonObject]'
     """
 
     """
@@ -357,13 +357,13 @@ class GeojsonObjectGeometryCollection(GeojsonObject):
     """
 
 
-    Geometries: "List[GeojsonObject]"
+    Geometries: 'List[GeojsonObject]'
     """
 
     """
 
 
-    Bbox: "BoundingBox"
+    Bbox: 'Optional[BoundingBox]'
     """
 
     """
@@ -381,7 +381,7 @@ class GeojsonObjectGeometryCollection(GeojsonObject):
 
             _from_json(List[GeojsonObject], data.get("geometries")),
 
-            _from_json(BoundingBox, data.get("bbox")),
+            _from_json(Optional[BoundingBox], data.get("bbox")),
 
         )
 
@@ -411,13 +411,13 @@ class GeojsonObjectLineString(GeojsonObject):
     """
 
 
-    Coordinates: "List[Position]"
+    Coordinates: 'List[Position]'
     """
 
     """
 
 
-    Bbox: "BoundingBox"
+    Bbox: 'Optional[BoundingBox]'
     """
 
     """
@@ -435,7 +435,7 @@ class GeojsonObjectLineString(GeojsonObject):
 
             _from_json(List[Position], data.get("coordinates")),
 
-            _from_json(BoundingBox, data.get("bbox")),
+            _from_json(Optional[BoundingBox], data.get("bbox")),
 
         )
 
@@ -465,13 +465,13 @@ class GeojsonObjectMultiLineString(GeojsonObject):
     """
 
 
-    Coordinates: "List[Position]"
+    Coordinates: 'List[Position]'
     """
 
     """
 
 
-    Bbox: "BoundingBox"
+    Bbox: 'Optional[BoundingBox]'
     """
 
     """
@@ -489,7 +489,7 @@ class GeojsonObjectMultiLineString(GeojsonObject):
 
             _from_json(List[Position], data.get("coordinates")),
 
-            _from_json(BoundingBox, data.get("bbox")),
+            _from_json(Optional[BoundingBox], data.get("bbox")),
 
         )
 
@@ -519,13 +519,13 @@ class GeojsonObjectMultiPoint(GeojsonObject):
     """
 
 
-    Coordinates: "List[Position]"
+    Coordinates: 'List[Position]'
     """
 
     """
 
 
-    Bbox: "BoundingBox"
+    Bbox: 'Optional[BoundingBox]'
     """
 
     """
@@ -543,7 +543,7 @@ class GeojsonObjectMultiPoint(GeojsonObject):
 
             _from_json(List[Position], data.get("coordinates")),
 
-            _from_json(BoundingBox, data.get("bbox")),
+            _from_json(Optional[BoundingBox], data.get("bbox")),
 
         )
 
@@ -573,13 +573,13 @@ class GeojsonObjectMultiPolygon(GeojsonObject):
     """
 
 
-    Coordinates: "List[LinearRing]"
+    Coordinates: 'List[LinearRing]'
     """
 
     """
 
 
-    Bbox: "BoundingBox"
+    Bbox: 'Optional[BoundingBox]'
     """
 
     """
@@ -597,7 +597,7 @@ class GeojsonObjectMultiPolygon(GeojsonObject):
 
             _from_json(List[LinearRing], data.get("coordinates")),
 
-            _from_json(BoundingBox, data.get("bbox")),
+            _from_json(Optional[BoundingBox], data.get("bbox")),
 
         )
 
@@ -626,13 +626,13 @@ class GeojsonObjectPoint(GeojsonObject):
     """
 
 
-    Coordinates: "Position"
+    Coordinates: 'Position'
     """
 
     """
 
 
-    Bbox: "BoundingBox"
+    Bbox: 'Optional[BoundingBox]'
     """
 
     """
@@ -650,7 +650,7 @@ class GeojsonObjectPoint(GeojsonObject):
 
             _from_json(Position, data.get("coordinates")),
 
-            _from_json(BoundingBox, data.get("bbox")),
+            _from_json(Optional[BoundingBox], data.get("bbox")),
 
         )
 
@@ -680,13 +680,13 @@ class GeojsonObjectPolygon(GeojsonObject):
     """
 
 
-    Coordinates: "List[LinearRing]"
+    Coordinates: 'List[LinearRing]'
     """
 
     """
 
 
-    Bbox: "BoundingBox"
+    Bbox: 'Optional[BoundingBox]'
     """
 
     """
@@ -704,7 +704,7 @@ class GeojsonObjectPolygon(GeojsonObject):
 
             _from_json(List[LinearRing], data.get("coordinates")),
 
-            _from_json(BoundingBox, data.get("bbox")),
+            _from_json(Optional[BoundingBox], data.get("bbox")),
 
         )
 

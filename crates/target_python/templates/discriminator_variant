@@ -2,7 +2,7 @@
 class {{ name }}({{ parent_name }}):
 {{ metadata|description(1) }}
 {% for field in fields %}
-    {{ field.name }}: {{ "{:?}"|format(field.type_) }}
+    {{ field.name }}: '{{ field.type_ }}'
 {{ field.metadata|description(1) }}
 {% endfor %}
 

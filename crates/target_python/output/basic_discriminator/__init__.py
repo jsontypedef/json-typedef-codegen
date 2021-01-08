@@ -57,7 +57,7 @@ class RootBar(Root):
     """
 
 
-    Baz: "str"
+    Baz: 'str'
     """
 
     """
@@ -97,7 +97,7 @@ class RootQuux(Root):
     """
 
 
-    Quuz: "str"
+    Quuz: 'str'
     """
 
     """

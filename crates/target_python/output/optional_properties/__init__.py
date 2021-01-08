@@ -56,11 +56,11 @@ class Root:
 
         return cls(
 
-            _from_json(List[str], data.get("bar")),
+            _from_json(Optional[List[str]], data.get("bar")),
 
-            _from_json(bool, data.get("baz")),
+            _from_json(Optional[bool], data.get("baz")),
 
-            _from_json(str, data.get("foo")),
+            _from_json(Optional[str], data.get("foo")),
 
         )
 

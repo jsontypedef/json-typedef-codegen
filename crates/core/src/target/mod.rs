@@ -24,6 +24,7 @@ pub trait Target {
 pub struct Strategy {
     pub file_partitioning: FilePartitioningStrategy,
     pub enum_member_naming: EnumMemberNamingStrategy,
+    pub optional_property_handling: OptionalPropertyHandlingStrategy,
     pub booleans_are_nullable: bool,
     pub int8s_are_nullable: bool,
     pub uint8s_are_nullable: bool,
@@ -53,6 +54,12 @@ pub enum FilePartitioningStrategy {
 pub enum EnumMemberNamingStrategy {
     Modularized,
     Unmodularized,
+}
+
+#[derive(Debug)]
+pub enum OptionalPropertyHandlingStrategy {
+    NativeSupport,
+    WrapWithNullable,
 }
 
 #[derive(Debug)]

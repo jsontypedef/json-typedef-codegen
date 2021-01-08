@@ -1,7 +1,7 @@
 
 from dataclasses import dataclass
 
-from typing import Any, List, Union, get_args, get_origin
+from typing import Any, List, Optional, Union, get_args, get_origin
 
 def _from_json(cls, data):
     if data is None or cls in [bool, int, float, str, object] or cls is Any:
@@ -55,13 +55,13 @@ class RootBar(Root):
     """
 
 
-    Baz: "List[str]"
+    Baz: 'Optional[List[str]]'
     """
 
     """
 
 
-    Quux: "bool"
+    Quux: 'Optional[bool]'
     """
 
     """
@@ -77,9 +77,9 @@ class RootBar(Root):
         return cls(
             "bar",
 
-            _from_json(List[str], data.get("baz")),
+            _from_json(Optional[List[str]], data.get("baz")),
 
-            _from_json(bool, data.get("quux")),
+            _from_json(Optional[bool], data.get("quux")),
 
         )
 

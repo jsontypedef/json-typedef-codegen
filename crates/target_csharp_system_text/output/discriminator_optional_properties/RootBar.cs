@@ -28,7 +28,7 @@ namespace JtdCodegenE2E
 
         [JsonPropertyName("quux")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public bool Quux { get; set; }
+        public bool? Quux { get; set; }
 
     }
 }

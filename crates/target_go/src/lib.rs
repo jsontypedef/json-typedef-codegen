@@ -47,6 +47,7 @@ impl jtd_codegen::target::Target for Target {
                 PACKAGE_NAMING_CONVENTION.inflect(&[self.package.clone()]),
             )),
             enum_member_naming: target::EnumMemberNamingStrategy::Unmodularized,
+            optional_property_handling: target::OptionalPropertyHandlingStrategy::WrapWithNullable,
             booleans_are_nullable: false,
             int8s_are_nullable: false,
             uint8s_are_nullable: false,

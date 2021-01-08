@@ -19,12 +19,12 @@ type Root struct {
 
 
 
-    Baz bool `json:"baz,omitempty"`
+    Baz *bool `json:"baz,omitempty"`
 
 
 
 
 
-    Foo string `json:"foo,omitempty"`
+    Foo *string `json:"foo,omitempty"`
 
 }

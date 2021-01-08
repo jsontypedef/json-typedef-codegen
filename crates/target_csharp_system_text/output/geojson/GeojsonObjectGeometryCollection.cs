@@ -54,7 +54,7 @@ namespace JtdCodegenE2E
 
         [JsonPropertyName("bbox")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public BoundingBox Bbox { get; set; }
+        public BoundingBox? Bbox { get; set; }
 
     }
 }

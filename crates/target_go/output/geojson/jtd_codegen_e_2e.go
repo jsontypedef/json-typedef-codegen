@@ -341,7 +341,7 @@ type GeojsonObjectGeometryCollection struct {
 
 
 
-	Bbox BoundingBox `json:"bbox,omitempty"`
+	Bbox *BoundingBox `json:"bbox,omitempty"`
 
 }
 
@@ -362,7 +362,7 @@ type GeojsonObjectLineString struct {
 
 
 
-	Bbox BoundingBox `json:"bbox,omitempty"`
+	Bbox *BoundingBox `json:"bbox,omitempty"`
 
 }
 
@@ -383,7 +383,7 @@ type GeojsonObjectMultiLineString struct {
 
 
 
-	Bbox BoundingBox `json:"bbox,omitempty"`
+	Bbox *BoundingBox `json:"bbox,omitempty"`
 
 }
 
@@ -404,7 +404,7 @@ type GeojsonObjectMultiPoint struct {
 
 
 
-	Bbox BoundingBox `json:"bbox,omitempty"`
+	Bbox *BoundingBox `json:"bbox,omitempty"`
 
 }
 
@@ -425,7 +425,7 @@ type GeojsonObjectMultiPolygon struct {
 
 
 
-	Bbox BoundingBox `json:"bbox,omitempty"`
+	Bbox *BoundingBox `json:"bbox,omitempty"`
 
 }
 
@@ -445,7 +445,7 @@ type GeojsonObjectPoint struct {
 
 
 
-	Bbox BoundingBox `json:"bbox,omitempty"`
+	Bbox *BoundingBox `json:"bbox,omitempty"`
 
 }
 
@@ -466,7 +466,7 @@ type GeojsonObjectPolygon struct {
 
 
 
-	Bbox BoundingBox `json:"bbox,omitempty"`
+	Bbox *BoundingBox `json:"bbox,omitempty"`
 
 }
 

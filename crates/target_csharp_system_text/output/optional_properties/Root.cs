@@ -26,7 +26,7 @@ namespace JtdCodegenE2E
 
         [JsonPropertyName("baz")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public bool Baz { get; set; }
+        public bool? Baz { get; set; }
 
         /// <summary>
 

@@ -64,6 +64,6 @@ type RootBar struct {
 
 
 
-	Quux bool `json:"quux,omitempty"`
+	Quux *bool `json:"quux,omitempty"`
 
 }

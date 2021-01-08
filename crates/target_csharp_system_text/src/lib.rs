@@ -46,6 +46,7 @@ impl jtd_codegen::target::Target for Target {
         target::Strategy {
             file_partitioning: target::FilePartitioningStrategy::FilePerType("cs".into()),
             enum_member_naming: target::EnumMemberNamingStrategy::Modularized,
+            optional_property_handling: target::OptionalPropertyHandlingStrategy::WrapWithNullable,
             booleans_are_nullable: false,
             int8s_are_nullable: false,
             uint8s_are_nullable: false,
