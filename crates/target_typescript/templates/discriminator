@@ -1,0 +1,5 @@
+{{ metadata|description(0) }}
+export type {{ name }} =
+{% for variant in variants %}
+	{% if !loop.first %}| {% endif %}{{ variant.type_name }}
+{% endfor %}

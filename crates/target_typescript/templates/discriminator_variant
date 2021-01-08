@@ -1,0 +1,8 @@
+{{ metadata|description(0) }}
+export interface {{ name }} {
+	{{ tag_json_name }}: {{ "{:?}"|format(tag_value) }};
+{% for field in fields %}
+{{ field.metadata|description(1) }}
+    {{ field.json_name }}: {{ field.type_ }};
+{% endfor %}
+}
