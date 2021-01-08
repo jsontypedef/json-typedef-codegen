@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Any, Union, get_args, get_origin
 
 def _from_json(cls, data):
-    if data is None or cls in [bool, int, float, str] or cls is Any:
+    if data is None or cls in [bool, int, float, str, object] or cls is Any:
         return data
     if get_origin(cls) is Union:
         return _from_json(get_args(cls)[0], data)
@@ -15,7 +15,7 @@ def _from_json(cls, data):
     return cls.from_json(data)
 
 def _to_json(data):
-    if data is None or type(data) in [bool, int, float, str]:
+    if data is None or type(data) in [bool, int, float, str, object]:
         return data
     if type(data) is list:
         return [_to_json(d) for d in data]

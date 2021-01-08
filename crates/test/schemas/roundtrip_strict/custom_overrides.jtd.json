@@ -5,6 +5,7 @@
             "metadata": {
                 "csharpSystemTextType": "object",
                 "goType": "interface{}",
+                "pythonType": "object",
                 "typescriptType": "any"
             }
         },
@@ -31,6 +32,7 @@
             "metadata": {
                 "csharpSystemTextType": "object",
                 "goType": "interface{}",
+                "pythonType": "object",
                 "typescriptType": "any"
             }
         },
@@ -39,6 +41,7 @@
             "metadata": {
                 "csharpSystemTextType": "object",
                 "goType": "interface{}",
+                "pythonType": "object",
                 "typescriptType": "any"
             }
         },
@@ -50,6 +53,7 @@
                     "metadata": {
                         "csharpSystemTextType": "object",
                         "goType": "interface{}",
+                        "pythonType": "object",
                         "typescriptType": "any"
                     }
                 },
@@ -60,6 +64,7 @@
             "metadata": {
                 "csharpSystemTextType": "object",
                 "goType": "interface{}",
+                "pythonType": "object",
                 "typescriptType": "any"
             }
         }
