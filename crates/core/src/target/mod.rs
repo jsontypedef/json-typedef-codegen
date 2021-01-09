@@ -5,6 +5,7 @@ pub mod metadata;
 use crate::error::Result;
 use metadata::Metadata;
 use std::io::Write;
+use std::path::PathBuf;
 
 pub trait Target {
     type FileState: Default;
@@ -90,6 +91,9 @@ pub enum Expr {
 
 #[derive(Debug)]
 pub enum Item {
+    Auxiliary {
+        out_dir: PathBuf,
+    },
     Preamble,
     Alias {
         metadata: Metadata,
@@ -121,6 +125,7 @@ pub enum Item {
         tag_field_name: String,
         tag_json_name: String,
         tag_value: String,
+        has_additional: bool,
         fields: Vec<Field>,
     },
 }

@@ -24,49 +24,6 @@ pub fn codegen<T: Target>(
     let mut code_generator = CodeGenerator::new(target, out_dir);
 
     code_generator.codegen(schema_ast)
-
-    // let (root, definitions) = ast::from_schema(target, root_name, schema);
-
-    // let mut global_namespace = Namespace::new();
-    // let root_name = ast_name(&mut global_namespace, &root);
-    // let definition_names = definitions
-    //     .iter()
-    //     .map(|(name, ast)| (name.clone(), ast_name(&mut global_namespace, ast)))
-    //     .collect();
-
-    // let mut global_state = GlobalState {
-    //     file_partitioning: target.file_partitioning(),
-    //     enum_strategy: target.enum_strategy(),
-    //     names: global_namespace,
-    //     target,
-    //     definition_names: &definition_names,
-    //     out_dir,
-    // };
-
-    // let mut file_state = FileState {
-    //     buf: Vec::new(),
-    //     target_state: T::FileState::default(),
-    // };
-
-    // for (name, ast) in definitions {
-    //     _codegen(
-    //         &mut global_state,
-    //         &mut file_state,
-    //         ast,
-    //         definition_names[&name].clone(),
-    //     )?;
-    // }
-
-    // let root_expr = _codegen(&mut global_state, &mut file_state, root, root_name)?;
-
-    // // If we are doing single-file file partitioning, then no schema will ever
-    // // write itself out to a file. We will need to flush the single file out
-    // // here, now that all code has been generated.
-    // if let FilePartitioning::SingleFile(_) = global_state.file_partitioning {
-    //     write_out_file(&global_state, &mut file_state, &root_expr)?;
-    // }
-
-    // Ok(root_expr)
 }
 
 struct CodeGenerator<'a, T> {
@@ -120,6 +77,7 @@ impl<'a, T: Target> CodeGenerator<'a, T> {
             root_name.clone(),
             schema_ast.root,
         )?;
+
         for (name, ast) in schema_ast.definitions {
             let ast_name = self.definition_names[&name].clone();
             self.codegen_ast(&mut global_namespace, &mut root_file_data, ast_name, ast)?;
@@ -131,6 +89,14 @@ impl<'a, T: Target> CodeGenerator<'a, T> {
         if let FilePartitioningStrategy::SingleFile(_) = self.strategy.file_partitioning {
             self.write_file(&mut root_file_data, &root_name)?;
         }
+
+        self.target.item(
+            &mut vec![],
+            &mut T::FileState::default(),
+            Item::Auxiliary {
+                out_dir: self.out_dir.to_owned(),
+            },
+        )?;
 
         Ok(root_name)
     }
@@ -422,6 +388,7 @@ impl<'a, T: Target> CodeGenerator<'a, T> {
                                 tag_field_name: variant_tag_field_name,
                                 tag_json_name: tag_json_name.clone(),
                                 tag_value: variant.tag_value,
+                                has_additional: variant.has_additional,
                                 fields: variant_fields,
                             },
                         )

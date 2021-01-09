@@ -101,6 +101,11 @@ impl jtd_codegen::target::Target for Target {
         item: target::Item,
     ) -> Result<Option<String>> {
         Ok(match item {
+            target::Item::Auxiliary { .. } => {
+                // No auxiliary files needed.
+                None
+            }
+
             target::Item::Preamble => {
                 // No need for a preamble for TypeScript, because we never have
                 // any imports or similar things.
@@ -316,6 +321,6 @@ mod filters {
 #[cfg(test)]
 mod tests {
     mod std_tests {
-        jtd_codegen_test::std_test_cases!(&crate::Target::new("jtd_codegen_e2e".into()));
+        jtd_codegen_test::std_test_cases!(&crate::Target::new());
     }
 }

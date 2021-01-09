@@ -1,0 +1,25 @@
+{{ metadata|description(0) }}
+@JsonSerialize
+{% if has_additional %}@JsonIgnoreProperties(ignoreUnknown = true){% endif %}
+public class {{ name }} {
+{% for field in fields %}
+    {% if field.optional %}@JsonInclude(JsonInclude.Include.NON_NULL){% endif %}
+    @JsonProperty({{ "{:?}"|format(field.json_name) }})
+    private {{ field.type_ }} {{ field.name }};
+{% endfor %}
+
+    public {{ name }}() {
+    }
+
+{% for field in fields %}
+{{ field.metadata|description(1) }}
+    public {{ field.type_ }} get{{ field.name|field_to_method_name }}() {
+        return this.{{ field.name }};
+    }
+
+{{ field.metadata|description(1) }}
+    public void set{{ field.name|field_to_method_name }}({{ field.type_ }} {{ field.name }}) {
+        this.{{ field.name }} = {{ field.name }};
+    }
+{% endfor %}
+}

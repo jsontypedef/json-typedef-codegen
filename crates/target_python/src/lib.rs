@@ -141,6 +141,11 @@ impl jtd_codegen::target::Target for Target {
         item: target::Item,
     ) -> Result<Option<String>> {
         Ok(match item {
+            target::Item::Auxiliary { .. } => {
+                // No auxiliary files needed.
+                None
+            }
+
             target::Item::Preamble => {
                 state
                     .imports

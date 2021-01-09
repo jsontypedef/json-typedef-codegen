@@ -139,6 +139,7 @@ pub struct DiscriminatorVariant {
     pub type_name: String,
     pub field_name: String,
     pub tag_value: String,
+    pub has_additional: bool,
     pub fields: Vec<Field>,
 }
 
@@ -362,13 +363,14 @@ impl Ast {
                             metadata,
                             name,
                             fields,
-                            ..
+                            has_additional,
                         } => {
                             variants.push(DiscriminatorVariant {
                                 metadata,
                                 type_name: name,
                                 field_name: variant_field_name,
                                 tag_value: tag_value.clone(),
+                                has_additional,
                                 fields,
                             });
                         }

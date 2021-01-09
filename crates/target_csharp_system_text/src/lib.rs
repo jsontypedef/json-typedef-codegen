@@ -137,6 +137,11 @@ impl jtd_codegen::target::Target for Target {
         item: target::Item,
     ) -> Result<Option<String>> {
         Ok(match item {
+            target::Item::Auxiliary { .. } => {
+                // No auxiliary files needed.
+                None
+            }
+
             target::Item::Preamble => {
                 writeln!(
                     out,
@@ -291,6 +296,7 @@ impl jtd_codegen::target::Target for Target {
                 tag_json_name,
                 tag_value,
                 fields,
+                ..
             } => {
                 if let Some(s) = metadata
                     .get("csharpSystemTextType")
