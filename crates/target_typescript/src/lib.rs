@@ -22,13 +22,11 @@ lazy_static! {
         ));
 }
 
-pub struct Target {
-    package: String,
-}
+pub struct Target {}
 
 impl Target {
-    pub fn new(package: String) -> Self {
-        Self { package }
+    pub fn new() -> Self {
+        Self {}
     }
 }
 
@@ -181,9 +179,8 @@ impl jtd_codegen::target::Target for Target {
             target::Item::Discriminator {
                 metadata,
                 name,
-                tag_field_name,
-                tag_json_name,
                 variants,
+                ..
             } => {
                 if let Some(s) = metadata.get("typescriptType").and_then(|v| v.as_str()) {
                     return Ok(Some(s.into()));
@@ -195,8 +192,6 @@ impl jtd_codegen::target::Target for Target {
                     DiscriminatorTemplate {
                         metadata: &metadata,
                         name: &name,
-                        tag_field_name: &tag_field_name,
-                        tag_json_name: &tag_json_name,
                         variants: &variants,
                     }
                     .render()
@@ -209,7 +204,6 @@ impl jtd_codegen::target::Target for Target {
             target::Item::DiscriminatorVariant {
                 metadata,
                 name,
-                tag_field_name,
                 tag_json_name,
                 tag_value,
                 fields,
@@ -225,7 +219,6 @@ impl jtd_codegen::target::Target for Target {
                     DiscriminatorVariantTemplate {
                         metadata: &metadata,
                         name: &name,
-                        tag_field_name: &tag_field_name,
                         tag_json_name: &tag_json_name,
                         tag_value: &tag_value,
                         fields: &fields,
@@ -240,17 +233,9 @@ impl jtd_codegen::target::Target for Target {
     }
 }
 
-#[derive(Default)]
-pub struct FileState {
-    imports: BTreeSet<String>,
-}
-
 #[derive(Template)]
 #[template(path = "preamble")]
-struct PreambleTemplate<'a> {
-    package: &'a str,
-    imports: &'a BTreeSet<String>,
-}
+struct PreambleTemplate {}
 
 #[derive(Template)]
 #[template(path = "alias")]
@@ -281,8 +266,6 @@ struct StructTemplate<'a> {
 struct DiscriminatorTemplate<'a> {
     metadata: &'a metadata::Metadata,
     name: &'a str,
-    tag_field_name: &'a str,
-    tag_json_name: &'a str,
     variants: &'a [target::DiscriminatorVariantInfo],
 }
 
@@ -291,7 +274,6 @@ struct DiscriminatorTemplate<'a> {
 struct DiscriminatorVariantTemplate<'a> {
     metadata: &'a metadata::Metadata,
     name: &'a str,
-    tag_field_name: &'a str,
     tag_json_name: &'a str,
     tag_value: &'a str,
     fields: &'a [target::Field],
