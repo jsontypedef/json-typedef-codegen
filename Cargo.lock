@@ -216,12 +216,11 @@ version = "0.1.0"
 dependencies = [
  "jtd",
  "jtd_codegen",
- "jtd_codegen_csharp_system_text",
  "serde_json",
 ]
 
 [[package]]
-name = "jtd_codegen_csharp_system_text"
+name = "jtd_codegen_target_csharp_system_text"
 version = "0.1.0"
 dependencies = [
  "askama",
@@ -232,7 +231,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "jtd_codegen_go"
+name = "jtd_codegen_target_go"
 version = "0.1.0"
 dependencies = [
  "askama",
@@ -243,7 +242,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "jtd_codegen_python"
+name = "jtd_codegen_target_python"
+version = "0.1.0"
+dependencies = [
+ "askama",
+ "jtd_codegen",
+ "jtd_codegen_test",
+ "lazy_static",
+ "serde_json",
+]
+
+[[package]]
+name = "jtd_codegen_target_typescript"
 version = "0.1.0"
 dependencies = [
  "askama",
@@ -265,17 +275,6 @@ dependencies = [
  "rand_pcg",
  "serde_json",
  "tempfile",
-]
-
-[[package]]
-name = "jtd_codegen_typescript"
-version = "0.1.0"
-dependencies = [
- "askama",
- "jtd_codegen",
- "jtd_codegen_test",
- "lazy_static",
- "serde_json",
 ]
 
 [[package]]

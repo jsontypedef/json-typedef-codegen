@@ -1,5 +1,5 @@
 [package]
-name = "jtd_codegen_typescript"
+name = "jtd_codegen_target_typescript"
 version = "0.1.0"
 authors = ["Ulysse Carion <ulysse@segment.com>"]
 edition = "2018"
