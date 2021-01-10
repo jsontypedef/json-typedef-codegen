@@ -5,7 +5,7 @@ authors = ["Ulysse Carion <ulysse@segment.com>"]
 edition = "2018"
 
 [dependencies]
-jtd_codegen = { path = "../core" }
+jtd-codegen = { path = "../core" }
 jtd_codegen_target_csharp_system_text = { path = "../target_csharp_system_text" }
 jtd_codegen_target_go = { path = "../target_go" }
 jtd_codegen_target_java_jackson = { path = "../target_java_jackson" }

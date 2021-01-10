@@ -197,6 +197,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "jtd-codegen"
+version = "0.2.0-beta.1"
+dependencies = [
+ "Inflector",
+ "jtd",
+ "serde_json",
+ "textwrap 0.13.1",
+ "thiserror",
+]
+
+[[package]]
 name = "jtd-fuzz"
 version = "0.1.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -212,17 +223,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "jtd_codegen"
-version = "0.1.0"
-dependencies = [
- "Inflector",
- "jtd",
- "serde_json",
- "textwrap 0.13.1",
- "thiserror",
-]
-
-[[package]]
 name = "jtd_codegen_cli"
 version = "0.1.0"
 dependencies = [
@@ -230,7 +230,7 @@ dependencies = [
  "clap",
  "colored",
  "jtd",
- "jtd_codegen",
+ "jtd-codegen",
  "jtd_codegen_target_csharp_system_text",
  "jtd_codegen_target_go",
  "jtd_codegen_target_java_jackson",
@@ -245,7 +245,7 @@ name = "jtd_codegen_target_csharp_system_text"
 version = "0.1.0"
 dependencies = [
  "askama",
- "jtd_codegen",
+ "jtd-codegen",
  "jtd_codegen_test",
  "lazy_static",
  "serde_json",
@@ -256,7 +256,7 @@ name = "jtd_codegen_target_go"
 version = "0.1.0"
 dependencies = [
  "askama",
- "jtd_codegen",
+ "jtd-codegen",
  "jtd_codegen_test",
  "lazy_static",
  "serde_json",
@@ -267,7 +267,7 @@ name = "jtd_codegen_target_java_jackson"
 version = "0.1.0"
 dependencies = [
  "askama",
- "jtd_codegen",
+ "jtd-codegen",
  "jtd_codegen_test",
  "lazy_static",
  "serde_json",
@@ -278,7 +278,7 @@ name = "jtd_codegen_target_python"
 version = "0.1.0"
 dependencies = [
  "askama",
- "jtd_codegen",
+ "jtd-codegen",
  "jtd_codegen_test",
  "lazy_static",
  "serde_json",
@@ -289,7 +289,7 @@ name = "jtd_codegen_target_typescript"
 version = "0.1.0"
 dependencies = [
  "askama",
- "jtd_codegen",
+ "jtd-codegen",
  "jtd_codegen_test",
  "lazy_static",
  "serde_json",
@@ -301,8 +301,8 @@ version = "0.1.0"
 dependencies = [
  "difference",
  "jtd",
+ "jtd-codegen",
  "jtd-fuzz",
- "jtd_codegen",
  "rand",
  "rand_pcg",
  "serde_json",
