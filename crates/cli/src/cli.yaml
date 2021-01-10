@@ -1,0 +1,17 @@
+name: jtd-codegen
+args:
+  - SCHEMA:
+      help: Input schema file
+      required: true
+  - csharp-system-text-out:
+      help: Output directory for C# + System.Text.Json code generation
+      long: csharp-system-text-out
+      takes_value: true
+      value_name: dir
+      requires:
+        - csharp-system-text-namespace
+  - csharp-system-text-namespace:
+      help: Namespace for C# + System.Text.Json generated types
+      long: csharp-system-text-namespace
+      takes_value: true
+      value_name: namespace
