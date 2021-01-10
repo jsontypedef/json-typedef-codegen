@@ -14,12 +14,17 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
+pub struct CodegenInfo {
+    pub root_name: String,
+    pub definition_names: BTreeMap<String, String>,
+}
+
 pub fn codegen<T: Target>(
     target: &T,
     root_name: String,
     schema: &Schema,
     out_dir: &Path,
-) -> Result<String> {
+) -> Result<CodegenInfo> {
     let schema_ast = SchemaAst::new(target, root_name, schema);
     let mut code_generator = CodeGenerator::new(target, out_dir);
 
@@ -48,7 +53,7 @@ impl<'a, T: Target> CodeGenerator<'a, T> {
         }
     }
 
-    pub fn codegen(&mut self, schema_ast: SchemaAst) -> Result<String> {
+    pub fn codegen(&mut self, schema_ast: SchemaAst) -> Result<CodegenInfo> {
         let mut global_namespace = Namespace::new();
 
         // Before generating any code, set aside names for the top-level nodes.
@@ -98,7 +103,10 @@ impl<'a, T: Target> CodeGenerator<'a, T> {
             },
         )?;
 
-        Ok(root_name)
+        Ok(CodegenInfo {
+            root_name,
+            definition_names: self.definition_names.clone(),
+        })
     }
 
     fn codegen_ast(

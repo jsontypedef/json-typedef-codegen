@@ -120,10 +120,10 @@ fn generate_code<T: Target>(target: &T, schema: &Schema) -> (tempfile::TempDir, 
     fs::create_dir(&codegen_dir).expect("create gen dir");
 
     // Generate code into codegen_dir.
-    let main = jtd_codegen::codegen(target, "Root".to_owned(), &schema, &codegen_dir)
+    let codegen_info = jtd_codegen::codegen(target, "Root".to_owned(), &schema, &codegen_dir)
         .expect("generate code");
 
-    (tempdir, main)
+    (tempdir, codegen_info.root_name)
 }
 
 fn assert_roundtrip(

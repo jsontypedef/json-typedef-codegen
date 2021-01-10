@@ -3,6 +3,16 @@ args:
   - SCHEMA:
       help: Input schema file
       required: true
+  - log-format:
+      help: Format for diagnostic messages
+      long: log-format
+      takes_value: true
+      value_name: fmt
+      possible_values:
+        - pretty
+        - minimal
+        - json
+      default_value: pretty
   - csharp-system-text-out:
       help: Output directory for C# + System.Text.Json code generation
       long: csharp-system-text-out
