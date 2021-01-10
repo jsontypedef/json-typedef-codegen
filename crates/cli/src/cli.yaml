@@ -1,8 +1,14 @@
 name: jtd-codegen
 args:
-  - SCHEMA:
-      help: Input schema file
+  - schema:
+      help: Input schema file. To read schema from stdin, use "-".
       required: true
+  - root-name:
+      help: Desired "root" name of generated code
+      long: root-name
+      takes_value: true
+      required_if:
+        - [schema, -]
   - log-format:
       help: Format for diagnostic messages
       long: log-format

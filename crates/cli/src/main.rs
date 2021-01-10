@@ -1,5 +1,6 @@
 mod root_name;
 
+use std::io::Read;
 use anyhow::{format_err, Context, Result};
 use clap::{crate_version, load_yaml, App};
 use jtd::{Schema, SerdeSchema};
@@ -20,20 +21,30 @@ fn main() -> Result<()> {
         _ => unreachable!(),
     };
 
-    let input = matches.value_of("SCHEMA").unwrap();
+    let input = matches.value_of("schema").unwrap();
 
-    // TODO: support overriding root name by cli argument
-    let root_name = root_name::root_name_from_input_name(input).to_owned();
+    // Determine the desired root name to pass to jtd_codegen. If the user has
+    // supplied root-name, we'll use that. Otherwise, we'll infer a desired root
+    // name from the name of the input file.
+    let root_name =
+        root_name::root_name_from_input_name(matches.value_of("root-name").unwrap_or(input))
+            .to_owned();
 
-    let input_file = File::open(input).with_context(|| "Failed to open input file")?;
+    // Open, parse, and validate the input schema.
+    let input_reader: Box<dyn Read> = match input {
+        "-" => Box::new(std::io::stdin()),
+        _ => Box::new(File::open(input).with_context(|| "Failed to open input file")?),
+    };
 
     let serde_schema: SerdeSchema =
-        serde_json::from_reader(input_file).with_context(|| "Failed to parse input file")?;
+        serde_json::from_reader(input_reader).with_context(|| "Failed to parse input as JSON")?;
 
     let schema: Schema = serde_schema
         .try_into()
         .map_err(|err| format_err!("{:?}", err))
         .with_context(|| "Failed to validate input schema")?;
+
+    // Generate code for all enabled targets.
 
     if let Some(out_dir) = matches.value_of("csharp-system-text-out") {
         log.start("C# + System.Text.Json", out_dir);
