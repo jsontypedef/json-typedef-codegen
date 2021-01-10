@@ -1,5 +1,6 @@
 mod root_name;
 
+use anyhow::{format_err, Context, Result};
 use clap::{crate_version, load_yaml, App};
 use jtd::{Schema, SerdeSchema};
 use serde::Serialize;
@@ -8,7 +9,7 @@ use std::convert::TryInto;
 use std::fs::File;
 use std::path::Path;
 
-fn main() {
+fn main() -> Result<()> {
     let cli_yaml = load_yaml!("cli.yaml");
     let matches = App::from(cli_yaml).version(crate_version!()).get_matches();
 
@@ -24,10 +25,15 @@ fn main() {
     // TODO: support overriding root name by cli argument
     let root_name = root_name::root_name_from_input_name(input).to_owned();
 
-    // TODO: Error handling here
-    let input_file = File::open(input).unwrap();
-    let serde_schema: SerdeSchema = serde_json::from_reader(input_file).unwrap();
-    let schema: Schema = serde_schema.try_into().unwrap();
+    let input_file = File::open(input).with_context(|| "Failed to open input file")?;
+
+    let serde_schema: SerdeSchema =
+        serde_json::from_reader(input_file).with_context(|| "Failed to parse input file")?;
+
+    let schema: Schema = serde_schema
+        .try_into()
+        .map_err(|err| format_err!("{:?}", err))
+        .with_context(|| "Failed to validate input schema")?;
 
     if let Some(out_dir) = matches.value_of("csharp-system-text-out") {
         log.start("C# + System.Text.Json", out_dir);
@@ -39,14 +45,15 @@ fn main() {
 
         let target = jtd_codegen_target_csharp_system_text::Target::new(namespace);
 
-        // Error handling
         let codegen_info =
-            jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir)).unwrap();
+            jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
+                .with_context(|| "Failed to generate C# + System.Text.Json code")?;
 
         log.finish("C# + System.Text.Json", &codegen_info);
     }
 
     log.flush();
+    Ok(())
 }
 
 trait Log {

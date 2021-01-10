@@ -226,6 +226,7 @@ dependencies = [
 name = "jtd_codegen_cli"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "clap",
  "colored",
  "jtd",
