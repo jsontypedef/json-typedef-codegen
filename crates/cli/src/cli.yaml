@@ -19,6 +19,8 @@ args:
         - minimal
         - json
       default_value: pretty
+
+  # C# + System.Text.Json
   - csharp-system-text-out:
       help: Output directory for C# + System.Text.Json code generation
       long: csharp-system-text-out
@@ -31,3 +33,45 @@ args:
       long: csharp-system-text-namespace
       takes_value: true
       value_name: namespace
+
+  # Go
+  - go-out:
+      help: Output directory for Go code generation
+      long: go-out
+      takes_value: true
+      value_name: dir
+      requires:
+        - go-package
+  - go-package:
+      help: Package for Go generated types
+      long: go-package
+      takes_value: true
+      value_name: package
+
+    # Java + Jackson
+  - java-jackson-out:
+      help: Output directory for Java + Jackson code generation
+      long: java-jackson-out
+      takes_value: true
+      value_name: dir
+      requires:
+        - java-jackson-package
+  - java-jackson-package:
+      help: Package for Java + Jackson generated types
+      long: java-jackson-package
+      takes_value: true
+      value_name: package
+
+  # Python
+  - python-out:
+      help: Output directory for Python code generation
+      long: python-out
+      takes_value: true
+      value_name: dir
+
+  # TypeScript
+  - typescript-out:
+      help: Output directory for TypeScript code generation
+      long: typescript-out
+      takes_value: true
+      value_name: dir

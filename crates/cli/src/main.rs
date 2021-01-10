@@ -63,6 +63,64 @@ fn main() -> Result<()> {
         log.finish("C# + System.Text.Json", &codegen_info);
     }
 
+    if let Some(out_dir) = matches.value_of("go-out") {
+        log.start("Go", out_dir);
+
+        let package = matches
+            .value_of("go-package")
+            .unwrap()
+            .to_owned();
+
+        let target = jtd_codegen_target_go::Target::new(package);
+
+        let codegen_info =
+            jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
+                .with_context(|| "Failed to generate Go code")?;
+
+        log.finish("Go", &codegen_info);
+    }
+
+    if let Some(out_dir) = matches.value_of("java-jackson-out") {
+        log.start("Java + Jackson", out_dir);
+
+        let package = matches
+            .value_of("java-jackson-package")
+            .unwrap()
+            .to_owned();
+
+        let target = jtd_codegen_target_java_jackson::Target::new(package);
+
+        let codegen_info =
+            jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
+                .with_context(|| "Failed to generate Java + Jackson code")?;
+
+        log.finish("Java + Jackson", &codegen_info);
+    }
+
+    if let Some(out_dir) = matches.value_of("python-out") {
+        log.start("Python", out_dir);
+
+        let target = jtd_codegen_target_python::Target::new();
+
+        let codegen_info =
+            jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
+                .with_context(|| "Failed to generate Python code")?;
+
+        log.finish("Python", &codegen_info);
+    }
+
+    if let Some(out_dir) = matches.value_of("typescript-out") {
+        log.start("TypeScript", out_dir);
+
+        let target = jtd_codegen_target_typescript::Target::new();
+
+        let codegen_info =
+            jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
+                .with_context(|| "Failed to generate TypeScript code")?;
+
+        log.finish("TypeScript", &codegen_info);
+    }
+
     log.flush();
     Ok(())
 }
