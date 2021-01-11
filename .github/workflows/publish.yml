@@ -3,7 +3,6 @@ on:	release
 jobs:
   release_binary:
     runs-on: ${{ matrix.runs_on }}
-    needs: create_release
     strategy:
       matrix:
         target:
