@@ -4,6 +4,10 @@ version = "0.1.0"
 authors = ["Ulysse Carion <ulysse@segment.com>"]
 edition = "2018"
 
+[[bin]]
+name = "jtd-codegen"
+path = "src/main.rs"
+
 [dependencies]
 jtd-codegen = { path = "../core" }
 jtd_codegen_target_csharp_system_text = { path = "../target_csharp_system_text" }
