@@ -1,6 +1,6 @@
 [package]
 name = "jtd-codegen"
-version = "0.2.0-beta.1"
+version = "0.1.0"
 authors = ["Ulysse Carion <ulysse@segment.com>"]
 edition = "2018"
 description = "A framework for generating code from JSON Typedef schemas"
