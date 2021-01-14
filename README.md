@@ -132,7 +132,6 @@ of the relevant parameters in the `jtd-codegen` invocation. For example:
 
 ```
 $ jtd-codegen user.jtd.json --typescript-out ts-user --python-out py-user
-✍️  Writing Python code to: py-user
 📝 Writing Python code to: py-user
 📦 Generated Python code.
 📦     Root schema converted into type: User
