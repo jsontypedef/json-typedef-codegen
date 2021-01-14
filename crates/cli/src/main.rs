@@ -137,7 +137,7 @@ impl Log for PrettyLog {
         use colored::*;
 
         println!(
-            "✍️  Writing {} code to: {}",
+            "📝 Writing {} code to: {}",
             target.green().bold(),
             out_dir.bold()
         );
@@ -148,12 +148,12 @@ impl Log for PrettyLog {
 
         println!("📦 Generated {} code.", target.green().bold());
         println!(
-            "📦\tRoot schema converted into type: {}",
+            "📦     Root schema converted into type: {}",
             info.root_name.bold()
         );
         for (definition_name, type_name) in &info.definition_names {
             println!(
-                "📦\tDefinition {} converted into type: {}",
+                "📦     Definition {} converted into type: {}",
                 format!("{:?}", definition_name).bold(),
                 type_name.bold()
             );

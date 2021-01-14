@@ -111,9 +111,9 @@ Then you can invoke `jtd-codegen` as:
 ```bash
 # make sure you've already created the "user" directory before running this
 $ jtd-codegen user.jtd.json --typescript-out user
-✍️  Writing TypeScript code to: user
+📝 Writing TypeScript code to: user
 📦 Generated TypeScript code.
-📦	Root schema converted into type: User
+📦     Root schema converted into type: User
 ```
 
 In that example, we generated TypeScript code. If you want to generate something
@@ -133,13 +133,12 @@ of the relevant parameters in the `jtd-codegen` invocation. For example:
 ```
 $ jtd-codegen user.jtd.json --typescript-out ts-user --python-out py-user
 ✍️  Writing Python code to: py-user
+📝 Writing Python code to: py-user
 📦 Generated Python code.
-📦	Root schema converted into type: User
-📦	Definition "name" converted into type: Name
-✍️  Writing TypeScript code to: ts-user
+📦     Root schema converted into type: User
+📝 Writing TypeScript code to: ts-user
 📦 Generated TypeScript code.
-📦	Root schema converted into type: User
-📦	Definition "name" converted into type: Name
+📦     Root schema converted into type: User
 ```
 
 ### Advanced Usage: Adding descriptions to generated code
@@ -270,10 +269,10 @@ By default, `jtd-codegen` uses `--log-format pretty`, which outputs
 human-friendly text to stdout. This is an example of `pretty` output:
 
 ```
-✍️  Writing TypeScript code to: user
+📝 Writing TypeScript code to: user
 📦 Generated TypeScript code.
-📦	Root schema converted into type: User
-📦	Definition "name" converted into type: Name
+📦     Root schema converted into type: User
+📦     Definition "name" converted into type: Name
 ```
 
 If instead you use `--log-format minimal`, then `jtd-codegen` outputs startup
