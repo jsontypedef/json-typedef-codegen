@@ -55,11 +55,12 @@ included, please open an issue on this repo!
 
 ## What is JSON Type Definition?
 
-JSON Type Definition is a schema format for JSON data. A JSON Type Definition
-schema describes what is and isn't a "valid" JSON document. JSON Type Definition
-is easy to learn, portable (there are functionally-identical implementations
-across many programming languages) and standardized (the spec is set in stone as
-IETF RFC 8927).
+[JSON Type Definition](https://jsontypedef.com) is a schema format for JSON
+data. A JSON Type Definition schema describes what is and isn't a "valid" JSON
+document. JSON Type Definition is easy to learn, portable (there are
+functionally-identical implementations across many programming languages) and
+standardized (the spec is set in stone as [IETF RFC
+8927](https://tools.ietf.org/html/rfc8927)).
 
 Here's an example of a JSON Type Definition schema:
 
