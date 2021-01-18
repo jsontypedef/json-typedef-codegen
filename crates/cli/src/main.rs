@@ -103,6 +103,18 @@ fn main() -> Result<()> {
         log.finish("Python", &codegen_info);
     }
 
+    if let Some(out_dir) = matches.value_of("rust-out") {
+        log.start("Rust", out_dir);
+
+        let target = jtd_codegen_target_rust::Target::new();
+
+        let codegen_info =
+            jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
+                .with_context(|| "Failed to generate Rust code")?;
+
+        log.finish("Rust", &codegen_info);
+    }
+
     if let Some(out_dir) = matches.value_of("typescript-out") {
         log.start("TypeScript", out_dir);
 

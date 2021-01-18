@@ -235,6 +235,7 @@ dependencies = [
  "jtd_codegen_target_go",
  "jtd_codegen_target_java_jackson",
  "jtd_codegen_target_python",
+ "jtd_codegen_target_rust",
  "jtd_codegen_target_typescript",
  "serde",
  "serde_json",
