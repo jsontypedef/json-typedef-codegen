@@ -285,6 +285,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "jtd_codegen_target_rust"
+version = "0.1.0"
+dependencies = [
+ "askama",
+ "jtd-codegen",
+ "jtd_codegen_test",
+ "lazy_static",
+ "serde_json",
+]
+
+[[package]]
 name = "jtd_codegen_target_typescript"
 version = "0.1.0"
 dependencies = [

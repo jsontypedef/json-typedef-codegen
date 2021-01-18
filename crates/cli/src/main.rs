@@ -1,6 +1,5 @@
 mod root_name;
 
-use std::io::Read;
 use anyhow::{format_err, Context, Result};
 use clap::{crate_version, load_yaml, App};
 use jtd::{Schema, SerdeSchema};
@@ -8,6 +7,7 @@ use serde::Serialize;
 use std::collections::BTreeMap;
 use std::convert::TryInto;
 use std::fs::File;
+use std::io::Read;
 use std::path::Path;
 
 fn main() -> Result<()> {
@@ -66,10 +66,7 @@ fn main() -> Result<()> {
     if let Some(out_dir) = matches.value_of("go-out") {
         log.start("Go", out_dir);
 
-        let package = matches
-            .value_of("go-package")
-            .unwrap()
-            .to_owned();
+        let package = matches.value_of("go-package").unwrap().to_owned();
 
         let target = jtd_codegen_target_go::Target::new(package);
 
@@ -83,10 +80,7 @@ fn main() -> Result<()> {
     if let Some(out_dir) = matches.value_of("java-jackson-out") {
         log.start("Java + Jackson", out_dir);
 
-        let package = matches
-            .value_of("java-jackson-package")
-            .unwrap()
-            .to_owned();
+        let package = matches.value_of("java-jackson-package").unwrap().to_owned();
 
         let target = jtd_codegen_target_java_jackson::Target::new(package);
 

@@ -1,0 +1,9 @@
+{{ metadata|description(0) }}
+#[derive(Serialize, Deserialize)]
+#[serde(tag = {{ "{:?}"|format(tag_json_name) }})]
+pub enum {{ name }} {
+{% for variant in variants %}
+	#[serde(rename = {{ "{:?}"|format(variant.tag_value) }})]
+	{{ variant.field_name|capitalize }}({{ variant.type_name }}),
+{% endfor %}
+}
