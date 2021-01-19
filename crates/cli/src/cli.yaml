@@ -69,6 +69,13 @@ args:
       takes_value: true
       value_name: dir
 
+  # Rust
+  - rust-out:
+      help: Output directory for Rust code generation
+      long: rust-out
+      takes_value: true
+      value_name: dir
+
   # TypeScript
   - typescript-out:
       help: Output directory for TypeScript code generation

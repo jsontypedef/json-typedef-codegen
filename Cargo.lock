@@ -235,6 +235,7 @@ dependencies = [
  "jtd_codegen_target_go",
  "jtd_codegen_target_java_jackson",
  "jtd_codegen_target_python",
+ "jtd_codegen_target_rust",
  "jtd_codegen_target_typescript",
  "serde",
  "serde_json",
@@ -275,6 +276,17 @@ dependencies = [
 
 [[package]]
 name = "jtd_codegen_target_python"
+version = "0.1.0"
+dependencies = [
+ "askama",
+ "jtd-codegen",
+ "jtd_codegen_test",
+ "lazy_static",
+ "serde_json",
+]
+
+[[package]]
+name = "jtd_codegen_target_rust"
 version = "0.1.0"
 dependencies = [
  "askama",

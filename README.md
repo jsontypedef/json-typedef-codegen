@@ -48,6 +48,7 @@ Or types/classes/structs for any of the following programming languages:
 * Golang
 * Java with Jackson as the JSON backend
 * Python
+* Rust
 * TypeScript
 
 With many more on the way. If you'd like a particular programming language
@@ -254,6 +255,8 @@ Each language supported by `jtd-codegen` supports a different set of overrides:
       a different container type
 * Python
     * `pythonType` overrides the entire outputted type
+* Rust
+    * `rustType` overrides the entire outputted type
 * TypeScript
     * `typescriptType` overrides the entire outputted type
 

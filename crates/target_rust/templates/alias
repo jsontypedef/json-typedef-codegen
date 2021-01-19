@@ -1,0 +1,2 @@
+{{ metadata|description(0) }}
+pub type {{ name }} = {{ type_ }};
