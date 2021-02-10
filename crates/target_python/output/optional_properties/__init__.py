@@ -29,19 +29,19 @@ class Root:
     """
 
 
-    Bar: 'Optional[List[str]]'
+    bar: 'Optional[List[str]]'
     """
 
     """
 
 
-    Baz: 'Optional[bool]'
+    baz: 'Optional[bool]'
     """
 
     """
 
 
-    Foo: 'Optional[str]'
+    foo: 'Optional[str]'
     """
 
     """
@@ -72,18 +72,18 @@ class Root:
         out = {}
 
         
-        if self.Bar is not None:
-            out["bar"] = _to_json(self.Bar)
+        if self.bar is not None:
+            out["bar"] = _to_json(self.bar)
         
 
         
-        if self.Baz is not None:
-            out["baz"] = _to_json(self.Baz)
+        if self.baz is not None:
+            out["baz"] = _to_json(self.baz)
         
 
         
-        if self.Foo is not None:
-            out["foo"] = _to_json(self.Foo)
+        if self.foo is not None:
+            out["foo"] = _to_json(self.foo)
         
 
         return out

@@ -29,37 +29,37 @@ class Root:
     """
 
 
-    NotnullRefNotnullString: 'NotnullRefNotnullString'
+    notnull_ref_notnull_string: 'NotnullRefNotnullString'
     """
 
     """
 
 
-    NotnullRefNullString: 'NotnullRefNullString'
+    notnull_ref_null_string: 'NotnullRefNullString'
     """
 
     """
 
 
-    NotnullString: 'NotnullString'
+    notnull_string: 'NotnullString'
     """
 
     """
 
 
-    NullRefNotnullString: 'NullRefNotnullString'
+    null_ref_notnull_string: 'NullRefNotnullString'
     """
 
     """
 
 
-    NullRefNullString: 'NullRefNullString'
+    null_ref_null_string: 'NullRefNullString'
     """
 
     """
 
 
-    NullString: 'NullString'
+    null_string: 'NullString'
     """
 
     """
@@ -96,27 +96,27 @@ class Root:
         out = {}
 
         
-        out["notnull_ref_notnull_string"] = _to_json(self.NotnullRefNotnullString)
+        out["notnull_ref_notnull_string"] = _to_json(self.notnull_ref_notnull_string)
         
 
         
-        out["notnull_ref_null_string"] = _to_json(self.NotnullRefNullString)
+        out["notnull_ref_null_string"] = _to_json(self.notnull_ref_null_string)
         
 
         
-        out["notnull_string"] = _to_json(self.NotnullString)
+        out["notnull_string"] = _to_json(self.notnull_string)
         
 
         
-        out["null_ref_notnull_string"] = _to_json(self.NullRefNotnullString)
+        out["null_ref_notnull_string"] = _to_json(self.null_ref_notnull_string)
         
 
         
-        out["null_ref_null_string"] = _to_json(self.NullRefNullString)
+        out["null_ref_null_string"] = _to_json(self.null_ref_null_string)
         
 
         
-        out["null_string"] = _to_json(self.NullString)
+        out["null_string"] = _to_json(self.null_string)
         
 
         return out

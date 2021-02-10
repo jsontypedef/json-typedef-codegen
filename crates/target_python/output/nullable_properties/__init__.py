@@ -29,25 +29,25 @@ class Root0:
     """
 
 
-    Bar: 'str'
+    bar: 'str'
     """
 
     """
 
 
-    Baz: 'List[bool]'
+    baz: 'List[bool]'
     """
 
     """
 
 
-    Foo: 'bool'
+    foo: 'bool'
     """
 
     """
 
 
-    Quux: 'List[bool]'
+    quux: 'List[bool]'
     """
 
     """
@@ -80,19 +80,19 @@ class Root0:
         out = {}
 
         
-        out["bar"] = _to_json(self.Bar)
+        out["bar"] = _to_json(self.bar)
         
 
         
-        out["baz"] = _to_json(self.Baz)
+        out["baz"] = _to_json(self.baz)
         
 
         
-        out["foo"] = _to_json(self.Foo)
+        out["foo"] = _to_json(self.foo)
         
 
         
-        out["quux"] = _to_json(self.Quux)
+        out["quux"] = _to_json(self.quux)
         
 
         return out

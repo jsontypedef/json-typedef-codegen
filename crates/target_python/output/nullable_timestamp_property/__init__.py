@@ -29,7 +29,7 @@ class Root:
     """
 
 
-    Foo: 'Optional[str]'
+    foo: 'Optional[str]'
     """
 
     """
@@ -56,7 +56,7 @@ class Root:
         out = {}
 
         
-        out["foo"] = _to_json(self.Foo)
+        out["foo"] = _to_json(self.foo)
         
 
         return out

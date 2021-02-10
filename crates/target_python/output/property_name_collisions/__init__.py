@@ -29,13 +29,13 @@ class Root:
     """
 
 
-    Foo: 'str'
+    foo: 'str'
     """
 
     """
 
 
-    Foo0: 'str'
+    foo0: 'str'
     """
 
     """
@@ -64,11 +64,11 @@ class Root:
         out = {}
 
         
-        out["Foo"] = _to_json(self.Foo)
+        out["Foo"] = _to_json(self.foo)
         
 
         
-        out["foo"] = _to_json(self.Foo0)
+        out["foo"] = _to_json(self.foo0)
         
 
         return out

@@ -57,37 +57,37 @@ class Root:
     """
 
 
-    OverrideElementsContainer: 'List[str]'
+    override_elements_container: 'List[str]'
     """
 
     """
 
 
-    OverrideTypeDiscriminator: 'object'
+    override_type_discriminator: 'object'
     """
 
     """
 
 
-    OverrideTypeEnum: 'object'
+    override_type_enum: 'object'
     """
 
     """
 
 
-    OverrideTypeExpr: 'object'
+    override_type_expr: 'object'
     """
 
     """
 
 
-    OverrideTypeProperties: 'object'
+    override_type_properties: 'object'
     """
 
     """
 
 
-    OverrideValuesContainer: 'Dict[str, str]'
+    override_values_container: 'Dict[str, str]'
     """
 
     """
@@ -124,27 +124,27 @@ class Root:
         out = {}
 
         
-        out["override_elements_container"] = _to_json(self.OverrideElementsContainer)
+        out["override_elements_container"] = _to_json(self.override_elements_container)
         
 
         
-        out["override_type_discriminator"] = _to_json(self.OverrideTypeDiscriminator)
+        out["override_type_discriminator"] = _to_json(self.override_type_discriminator)
         
 
         
-        out["override_type_enum"] = _to_json(self.OverrideTypeEnum)
+        out["override_type_enum"] = _to_json(self.override_type_enum)
         
 
         
-        out["override_type_expr"] = _to_json(self.OverrideTypeExpr)
+        out["override_type_expr"] = _to_json(self.override_type_expr)
         
 
         
-        out["override_type_properties"] = _to_json(self.OverrideTypeProperties)
+        out["override_type_properties"] = _to_json(self.override_type_properties)
         
 
         
-        out["override_values_container"] = _to_json(self.OverrideValuesContainer)
+        out["override_values_container"] = _to_json(self.override_values_container)
         
 
         return out

@@ -28,7 +28,7 @@ class Root:
 
     """
 
-    Foo: str
+    foo: str
 
     @classmethod
     def from_json(cls, data) -> "Root":
@@ -55,13 +55,13 @@ class RootBar(Root):
     """
 
 
-    Baz: 'Optional[List[str]]'
+    baz: 'Optional[List[str]]'
     """
 
     """
 
 
-    Quux: 'Optional[bool]'
+    quux: 'Optional[bool]'
     """
 
     """
@@ -92,13 +92,13 @@ class RootBar(Root):
         out["foo"] = "bar"
 
         
-        if self.Baz is not None:
-            out["baz"] = _to_json(self.Baz)
+        if self.baz is not None:
+            out["baz"] = _to_json(self.baz)
         
 
         
-        if self.Quux is not None:
-            out["quux"] = _to_json(self.Quux)
+        if self.quux is not None:
+            out["quux"] = _to_json(self.quux)
         
 
         return out

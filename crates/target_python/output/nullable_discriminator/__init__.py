@@ -28,7 +28,7 @@ class Root0:
 
     """
 
-    Foo: str
+    foo: str
 
     @classmethod
     def from_json(cls, data) -> "Root0":
@@ -57,7 +57,7 @@ class RootBar(Root0):
     """
 
 
-    Baz: 'str'
+    baz: 'str'
     """
 
     """
@@ -86,7 +86,7 @@ class RootBar(Root0):
         out["foo"] = "bar"
 
         
-        out["baz"] = _to_json(self.Baz)
+        out["baz"] = _to_json(self.baz)
         
 
         return out
@@ -97,7 +97,7 @@ class RootQuux(Root0):
     """
 
 
-    Quuz: 'str'
+    quuz: 'str'
     """
 
     """
@@ -126,7 +126,7 @@ class RootQuux(Root0):
         out["foo"] = "quux"
 
         
-        out["quuz"] = _to_json(self.Quuz)
+        out["quuz"] = _to_json(self.quuz)
         
 
         return out

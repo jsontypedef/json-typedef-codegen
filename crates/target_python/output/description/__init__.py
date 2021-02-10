@@ -30,7 +30,7 @@ class RootDiscriminatorWithDescription:
     A description for discriminator
     """
 
-    Foo: str
+    foo: str
 
     @classmethod
     def from_json(cls, data) -> "RootDiscriminatorWithDescription":
@@ -150,19 +150,19 @@ class Root:
     """
 
 
-    DiscriminatorWithDescription: 'RootDiscriminatorWithDescription'
+    discriminator_with_description: 'RootDiscriminatorWithDescription'
     """
     A description for discriminator
     """
 
 
-    EnumWithDescription: 'RootEnumWithDescription'
+    enum_with_description: 'RootEnumWithDescription'
     """
     A description for enum
     """
 
 
-    LongDescription: 'str'
+    long_description: 'str'
     """
     Whereas disregard and contempt for human rights have resulted in barbarous
     acts which have outraged the conscience of mankind, and the advent of a
@@ -172,19 +172,19 @@ class Root:
     """
 
 
-    PropertiesWithDescription: 'RootPropertiesWithDescription'
+    properties_with_description: 'RootPropertiesWithDescription'
     """
     A description for properties
     """
 
 
-    RefWithDescription: 'Baz'
+    ref_with_description: 'Baz'
     """
     A description for ref
     """
 
 
-    StringWithDescription: 'str'
+    string_with_description: 'str'
     """
     A description for string
     """
@@ -221,27 +221,27 @@ class Root:
         out = {}
 
         
-        out["discriminator_with_description"] = _to_json(self.DiscriminatorWithDescription)
+        out["discriminator_with_description"] = _to_json(self.discriminator_with_description)
         
 
         
-        out["enum_with_description"] = _to_json(self.EnumWithDescription)
+        out["enum_with_description"] = _to_json(self.enum_with_description)
         
 
         
-        out["long_description"] = _to_json(self.LongDescription)
+        out["long_description"] = _to_json(self.long_description)
         
 
         
-        out["properties_with_description"] = _to_json(self.PropertiesWithDescription)
+        out["properties_with_description"] = _to_json(self.properties_with_description)
         
 
         
-        out["ref_with_description"] = _to_json(self.RefWithDescription)
+        out["ref_with_description"] = _to_json(self.ref_with_description)
         
 
         
-        out["string_with_description"] = _to_json(self.StringWithDescription)
+        out["string_with_description"] = _to_json(self.string_with_description)
         
 
         return out

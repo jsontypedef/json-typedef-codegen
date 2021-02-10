@@ -64,7 +64,7 @@ class RootFoo:
     """
 
 
-    Bar: 'RootFooBar'
+    bar: 'RootFooBar'
     """
 
     """
@@ -91,7 +91,7 @@ class RootFoo:
         out = {}
 
         
-        out["bar"] = _to_json(self.Bar)
+        out["bar"] = _to_json(self.bar)
         
 
         return out
@@ -135,13 +135,13 @@ class Root:
     """
 
 
-    Foo: 'RootFoo'
+    foo: 'RootFoo'
     """
 
     """
 
 
-    FooBar: 'RootFooBar0'
+    foo_bar: 'RootFooBar0'
     """
 
     """
@@ -170,11 +170,11 @@ class Root:
         out = {}
 
         
-        out["foo"] = _to_json(self.Foo)
+        out["foo"] = _to_json(self.foo)
         
 
         
-        out["foo_bar"] = _to_json(self.FooBar)
+        out["foo_bar"] = _to_json(self.foo_bar)
         
 
         return out
