@@ -1,6 +1,5 @@
 mod ast;
 mod namespace;
-mod name_path;
 
 use crate::error::Result;
 use crate::target::{

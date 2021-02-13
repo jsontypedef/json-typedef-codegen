@@ -9,10 +9,10 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "foo")]
 pub enum Root {
 
-	#[serde(rename = "bar")]
-	Bar(RootBar),
+	#[serde(rename = "BAR_BAZ")]
+	Barbaz(RootBarBaz),
 
-	#[serde(rename = "quux")]
+	#[serde(rename = "QUUX")]
 	Quux(RootQuux),
 
 }
@@ -21,7 +21,7 @@ pub enum Root {
 
 
 #[derive(Serialize, Deserialize)]
-pub struct RootBar {
+pub struct RootBarBaz {
 
 
 

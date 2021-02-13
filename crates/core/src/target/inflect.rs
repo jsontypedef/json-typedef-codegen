@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 pub trait Inflector {
-    fn inflect(&self, name_parts: &[String]) -> String;
+    fn inflect(&self, words: &[String]) -> String;
 }
 
 pub struct KeywordAvoidingInflector<I> {
@@ -19,8 +19,8 @@ impl<I> KeywordAvoidingInflector<I> {
 }
 
 impl<I: Inflector> Inflector for KeywordAvoidingInflector<I> {
-    fn inflect(&self, name_parts: &[String]) -> String {
-        let raw_name = self.inflector.inflect(name_parts);
+    fn inflect(&self, words: &[String]) -> String {
+        let raw_name = self.inflector.inflect(words);
 
         if self.keywords.contains(&raw_name) {
             format!("{}_", raw_name)
@@ -41,8 +41,8 @@ impl CombiningInflector {
 }
 
 impl Inflector for CombiningInflector {
-    fn inflect(&self, name_parts: &[String]) -> String {
-        self.case.inflect(name_parts)
+    fn inflect(&self, words: &[String]) -> String {
+        self.case.inflect(words)
     }
 }
 
@@ -57,36 +57,13 @@ impl TailInflector {
 }
 
 impl Inflector for TailInflector {
-    fn inflect(&self, name_parts: &[String]) -> String {
+    fn inflect(&self, words: &[String]) -> String {
         self.case
-            .inflect(&[name_parts.last().expect("TailInflector: empty name_parts").clone()])
+            .inflect(&[words.last().expect("TailInflector: empty words").clone()])
     }
 }
 
-// pub enum Case {
-//     SnakeCase,
-//     CamelCase,
-//     PascalCase,
-//     ScreamingSnakeCase,
-// }
-
-// impl Case {
-//     fn to_case(&self, s: &str) -> String {
-//         use teeter_inflector::cases::camelcase::to_camel_case;
-//         use teeter_inflector::cases::pascalcase::to_pascal_case;
-//         use teeter_inflector::cases::screamingsnakecase::to_screaming_snake_case;
-//         use teeter_inflector::cases::snakecase::to_snake_case;
-
-//         match self {
-//             Self::SnakeCase => to_snake_case(s),
-//             Self::CamelCase => to_camel_case(s),
-//             Self::PascalCase => to_pascal_case(s),
-//             Self::ScreamingSnakeCase => to_screaming_snake_case(s),
-//         }
-//     }
-// }
-
-pub fn decompose(s: &str) -> Vec<String> {
+fn decompose(s: &str) -> Vec<String> {
     let mut out: Vec<Vec<char>> = vec![vec![]];
     for c in s.chars() {
         if c.is_whitespace() || c == '-' || c == '_' {
@@ -144,19 +121,20 @@ impl Case {
         Self::new(CaseCapitalization::All, CaseCapitalization::All, Some('_'))
     }
 
-    pub fn inflect(&self, words: &[String]) -> String {
+    fn inflect(&self, words: &[String]) -> String {
         if words.is_empty() {
             return "".to_owned();
         }
 
         let parts: Vec<_> = words
             .into_iter()
+            .flat_map(|word| decompose(word))
             .enumerate()
             .map(|(i, word)| {
                 if i == 0 {
-                    self.first_capitalization.inflect(word)
+                    self.first_capitalization.inflect(&word)
                 } else {
-                    self.rest_capitalization.inflect(word)
+                    self.rest_capitalization.inflect(&word)
                 }
             })
             .collect();

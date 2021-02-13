@@ -1,14 +1,14 @@
 {
     "discriminator": "foo",
     "mapping": {
-        "bar": {
+        "BAR_BAZ": {
             "properties": {
                 "baz": {
                     "type": "string"
                 }
             }
         },
-        "quux": {
+        "QUUX": {
             "properties": {
                 "quuz": {
                     "type": "string"

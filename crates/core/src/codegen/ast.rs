@@ -1,9 +1,9 @@
 use crate::target::metadata::Metadata;
 use crate::target::{NameableKind, OptionalPropertyHandlingStrategy, Target};
-use super::name_path::NamePath;
 use jtd::form::TypeValue;
 use jtd::{Form, Schema};
 use std::collections::BTreeMap;
+use teeter_inflector::string::singularize::to_singular;
 
 #[derive(Debug)]
 pub struct SchemaAst {
@@ -154,10 +154,7 @@ pub struct Field {
 
 impl Ast {
     fn new_top_level<T: Target>(target: &T, name: String, schema: &Schema) -> Self {
-        let mut name_path = NamePath::new();
-        name_path.push(&name);
-
-        let ast = Self::new(target, &mut name_path, schema);
+        let ast = Self::new(target, &mut vec![name.clone()], schema);
 
         match ast {
             Self::Alias { .. }
@@ -172,7 +169,7 @@ impl Ast {
         }
     }
 
-    fn new<T: Target>(target: &T, path: &mut NamePath, schema: &Schema) -> Self {
+    fn new<T: Target>(target: &T, path: &mut Vec<String>, schema: &Schema) -> Self {
         match schema.form {
             Form::Empty => Self::Empty {
                 metadata: schema.metadata.clone(),
@@ -224,10 +221,9 @@ impl Ast {
             Form::Enum(ref enum_) => {
                 let mut members = Vec::new();
                 for value in &enum_.values {
-
-                    path.push(value);
+                    path.push(value.into());
                     members.push(EnumMember {
-                        name: target.name(NameableKind::EnumMember, path.get()),
+                        name: target.name(NameableKind::EnumMember, path),
                         json_value: value.into(),
                     });
                     path.pop();
@@ -235,7 +231,7 @@ impl Ast {
 
                 Ast::Enum {
                     metadata: schema.metadata.clone(),
-                    name: target.name(NameableKind::Type, path.get()),
+                    name: target.name(NameableKind::Type, path),
                     members,
                 }
                 .into_nullable(target, enum_.nullable, schema.metadata.clone())
@@ -258,7 +254,8 @@ impl Ast {
                 //
                 // We here count on the invariant that the inputted path is
                 // never empty.
-                path.singularize();
+                let last = path.pop().expect("empty path");
+                path.push(to_singular(&last));
 
                 Ast::ArrayOf {
                     metadata: schema.metadata.clone(),
@@ -270,8 +267,8 @@ impl Ast {
             Form::Properties(ref properties) => {
                 let mut fields = Vec::new();
                 for (json_name, sub_schema) in &properties.required {
-                    path.push(json_name);
-                    let ast_name = target.name(NameableKind::Field, path.get());
+                    path.push(json_name.into());
+                    let ast_name = target.name(NameableKind::Field, path);
                     let ast = Self::new(target, path, sub_schema);
                     path.pop();
 
@@ -285,8 +282,8 @@ impl Ast {
                 }
 
                 for (json_name, sub_schema) in &properties.optional {
-                    path.push(json_name);
-                    let ast_name = target.name(NameableKind::Field, path.get());
+                    path.push(json_name.into());
+                    let ast_name = target.name(NameableKind::Field, path);
                     let ast = Self::new(target, path, sub_schema);
                     path.pop();
 
@@ -315,7 +312,7 @@ impl Ast {
 
                 Ast::Struct {
                     metadata: schema.metadata.clone(),
-                    name: target.name(NameableKind::Type, path.get()),
+                    name: target.name(NameableKind::Type, path),
                     has_additional: properties.additional,
                     fields,
                 }
@@ -329,7 +326,8 @@ impl Ast {
             Form::Values(ref values) => {
                 // See comment for Elements for why we singularize the last
                 // segment.
-                path.singularize();
+                let last = path.pop().expect("empty path");
+                path.push(to_singular(&last));
 
                 Ast::DictOf {
                     metadata: schema.metadata.clone(),
@@ -339,16 +337,16 @@ impl Ast {
             }
 
             Form::Discriminator(ref discriminator) => {
-                let discriminator_name = target.name(NameableKind::Type, path.get());
+                let discriminator_name = target.name(NameableKind::Type, path);
 
-                path.push(&discriminator.discriminator);
-                let tag_field_name = target.name(NameableKind::Field, path.get());
+                path.push(discriminator.discriminator.clone());
+                let tag_field_name = target.name(NameableKind::Field, path);
                 path.pop();
 
                 let mut variants = Vec::new();
                 for (tag_value, sub_schema) in &discriminator.mapping {
-                    path.push(tag_value);
-                    let variant_field_name = target.name(NameableKind::Field, path.get());
+                    path.push(tag_value.into());
+                    let variant_field_name = target.name(NameableKind::Field, path);
                     let variant_ast = Self::new(target, path, sub_schema);
                     path.pop();
 

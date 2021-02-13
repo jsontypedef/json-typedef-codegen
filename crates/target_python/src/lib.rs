@@ -15,17 +15,17 @@ lazy_static! {
     static ref TYPE_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
             KEYWORDS.clone(),
-            inflect::CombiningInflector::new(inflect::Case::PascalCase)
+            inflect::CombiningInflector::new(inflect::Case::pascal_case())
         ));
     static ref FIELD_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
             KEYWORDS.clone(),
-            inflect::TailInflector::new(inflect::Case::SnakeCase)
+            inflect::TailInflector::new(inflect::Case::snake_case())
         ));
     static ref ENUM_MEMBER_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
             KEYWORDS.clone(),
-            inflect::TailInflector::new(inflect::Case::ScreamingSnakeCase)
+            inflect::TailInflector::new(inflect::Case::screaming_snake_case())
         ));
 }
 
