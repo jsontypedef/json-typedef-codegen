@@ -15,18 +15,18 @@ const (
 
 
 
-	RootFOO Root = "FOO"
+	RootFoo Root = "FOO"
 
 
 
 
 
-	RootFoo Root = "Foo"
+	RootFoo0 Root = "Foo"
 
 
 
 
 
-	RootFoo0 Root = "foo"
+	RootFoo1 Root = "foo"
 
 )
