@@ -38,9 +38,9 @@ class Root:
 
         return {
 
-            "bar": RootBar,
+            "BAR_BAZ": RootBarBaz,
 
-            "quux": RootQuux,
+            "QUUX": RootQuux,
 
         }[data["foo"]].from_json(data)
 
@@ -51,7 +51,7 @@ class Root:
 
         pass # subclasses will implement this
 @dataclass
-class RootBar(Root):
+class RootBarBaz(Root):
     """
 
     """
@@ -65,13 +65,13 @@ class RootBar(Root):
 
 
     @classmethod
-    def from_json(cls, data) -> "RootBar":
+    def from_json(cls, data) -> "RootBarBaz":
         """
         Construct an instance of this class from parsed JSON data.
         """
 
         return cls(
-            "bar",
+            "BAR_BAZ",
 
             _from_json(str, data.get("baz")),
 
@@ -83,7 +83,7 @@ class RootBar(Root):
         """
 
         out = {}
-        out["foo"] = "bar"
+        out["foo"] = "BAR_BAZ"
 
         
         out["baz"] = _to_json(self.baz)
@@ -111,7 +111,7 @@ class RootQuux(Root):
         """
 
         return cls(
-            "quux",
+            "QUUX",
 
             _from_json(str, data.get("quuz")),
 
@@ -123,7 +123,7 @@ class RootQuux(Root):
         """
 
         out = {}
-        out["foo"] = "quux"
+        out["foo"] = "QUUX"
 
         
         out["quuz"] = _to_json(self.quuz)

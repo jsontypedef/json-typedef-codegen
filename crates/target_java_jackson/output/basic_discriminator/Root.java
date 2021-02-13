@@ -12,9 +12,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "foo")
 @JsonSubTypes({
 
-    @JsonSubTypes.Type(name = "bar", value = RootBar.class),
+    @JsonSubTypes.Type(name = "BAR_BAZ", value = RootBarBaz.class),
 
-    @JsonSubTypes.Type(name = "quux", value = RootQuux.class),
+    @JsonSubTypes.Type(name = "QUUX", value = RootQuux.class),
 
 })
 public abstract class Root {

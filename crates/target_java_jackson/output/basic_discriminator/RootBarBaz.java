@@ -11,14 +11,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @JsonSerialize
 
-public class RootBar extends Root {
+public class RootBarBaz extends Root {
 
     
     @JsonProperty("baz")
     private String baz;
 
 
-    public RootBar() {
+    public RootBarBaz() {
     }
 
 

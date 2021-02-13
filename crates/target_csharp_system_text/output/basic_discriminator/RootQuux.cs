@@ -10,7 +10,7 @@ namespace JtdCodegenE2E
     public class RootQuux : Root
     {
         [JsonPropertyName("foo")]
-        public string Foo { get => "quux"; }
+        public string Foo { get => "QUUX"; }
 
         /// <summary>
 

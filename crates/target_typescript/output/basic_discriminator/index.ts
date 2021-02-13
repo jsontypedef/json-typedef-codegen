@@ -4,7 +4,7 @@
 
 export type Root =
 
-	RootBar
+	RootBarBaz
 
 	| RootQuux
 
@@ -12,8 +12,8 @@ export type Root =
 
  */
 
-export interface RootBar {
-	foo: "bar";
+export interface RootBarBaz {
+	foo: "BAR_BAZ";
 
     /**
 
@@ -27,7 +27,7 @@ export interface RootBar {
  */
 
 export interface RootQuux {
-	foo: "quux";
+	foo: "QUUX";
 
     /**
 

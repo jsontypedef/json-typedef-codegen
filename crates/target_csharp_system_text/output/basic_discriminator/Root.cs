@@ -25,9 +25,9 @@ namespace JtdCodegenE2E
 
             switch (tagValue)
             {
-                case "bar":
-                    return JsonSerializer.Deserialize<RootBar>(ref readerCopy, options);
-                case "quux":
+                case "BAR_BAZ":
+                    return JsonSerializer.Deserialize<RootBarBaz>(ref readerCopy, options);
+                case "QUUX":
                     return JsonSerializer.Deserialize<RootQuux>(ref readerCopy, options);
                 default:
                     throw new ArgumentException(String.Format("Bad Foo value: {0}", tagValue));

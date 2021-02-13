@@ -14,7 +14,7 @@ import (
 type Root struct {
 	Foo string
 
-	Bar RootBar
+	BarBaz RootBarBaz
 
 	Quux RootQuux
 
@@ -23,10 +23,10 @@ type Root struct {
 func (v Root) MarshalJSON() ([]byte, error) {
 	switch (v.Foo) {
 
-	case "bar":
-		return json.Marshal(struct { T string `json:"foo"`; RootBar }{ v.Foo, v.Bar })
+	case "BAR_BAZ":
+		return json.Marshal(struct { T string `json:"foo"`; RootBarBaz }{ v.Foo, v.BarBaz })
 
-	case "quux":
+	case "QUUX":
 		return json.Marshal(struct { T string `json:"foo"`; RootQuux }{ v.Foo, v.Quux })
 
 	}
@@ -41,14 +41,14 @@ func (v *Root) UnmarshalJSON(b []byte) error {
 	}
 	switch t.T {
 
-	case "bar":
-		if err := json.Unmarshal(b, &v.Bar); err != nil {
+	case "BAR_BAZ":
+		if err := json.Unmarshal(b, &v.BarBaz); err != nil {
 			return err
 		}
 		v.Foo = t.T
 		return nil
 
-	case "quux":
+	case "QUUX":
 		if err := json.Unmarshal(b, &v.Quux); err != nil {
 			return err
 		}
@@ -63,7 +63,7 @@ func (v *Root) UnmarshalJSON(b []byte) error {
 
 
 
-type RootBar struct {
+type RootBarBaz struct {
 	Foo string `json:"foo"`
 
 
