@@ -56,7 +56,10 @@
     },
     "definitions": {
         "baz": {
-            "type": "string"
+            "type": "string",
+            "metadata": {
+                "description": "A description for a definition"
+            }
         }
     }
 }

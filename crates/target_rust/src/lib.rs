@@ -2,6 +2,7 @@ use askama::Template;
 use jtd_codegen::target::{self, inflect, metadata};
 use jtd_codegen::Result;
 use lazy_static::lazy_static;
+use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 use std::io::Write;
 
@@ -145,21 +146,18 @@ impl jtd_codegen::target::Target for Target {
             }
 
             target::Item::Preamble => {
-                state
-                    .imports
-                    .entry("serde".into())
-                    .or_default()
-                    .extend(vec!["Deserialize".to_owned(), "Serialize".to_owned()]);
+                for (module, idents) in &state.imports {
+                    write!(out, "use {}::", module)?;
 
-                writeln!(
-                    out,
-                    "{}",
-                    PreambleTemplate {
-                        imports: &state.imports,
+                    let idents: Vec<String> = idents.iter().cloned().collect();
+                    if idents.len() == 1 {
+                        write!(out, "{}", &idents[0])?;
+                    } else {
+                        write!(out, "{{{}}}", idents.join(", "))?;
                     }
-                    .render()
-                    .unwrap()
-                )?;
+
+                    writeln!(out, ";")?;
+                }
 
                 None
             }
@@ -169,17 +167,9 @@ impl jtd_codegen::target::Target for Target {
                 name,
                 type_,
             } => {
-                writeln!(
-                    out,
-                    "{}",
-                    AliasTemplate {
-                        metadata: &metadata,
-                        name: &name,
-                        type_: &type_,
-                    }
-                    .render()
-                    .unwrap()
-                )?;
+                writeln!(out)?;
+                write!(out, "{}", description(&metadata, 0))?;
+                writeln!(out, "pub type {} = {};", name, type_)?;
 
                 None
             }
@@ -193,17 +183,32 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
-                writeln!(
-                    out,
-                    "{}",
-                    EnumTemplate {
-                        metadata: &metadata,
-                        name: &name,
-                        members: &members,
+                state
+                    .imports
+                    .entry("serde".into())
+                    .or_default()
+                    .extend(vec!["Deserialize".to_owned(), "Serialize".to_owned()]);
+
+                writeln!(out)?;
+                write!(out, "{}", description(&metadata, 0))?;
+                writeln!(out, "#[derive(Serialize, Deserialize)]")?;
+                writeln!(out, "pub enum {} {{", name)?;
+
+                for (index, member) in members.into_iter().enumerate() {
+                    if index != 0 {
+                        writeln!(out)?;
                     }
-                    .render()
-                    .unwrap()
-                )?;
+
+                    write!(
+                        out,
+                        "{}",
+                        enum_variant_description(&metadata, 1, &member.json_value)
+                    )?;
+                    writeln!(out, "    #[serde(rename = {:?})]", member.json_value)?;
+                    writeln!(out, "    {},", member.name)?;
+                }
+
+                writeln!(out, "}}")?;
 
                 None
             }
@@ -218,17 +223,38 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
-                writeln!(
-                    out,
-                    "{}",
-                    StructTemplate {
-                        metadata: &metadata,
-                        name: &name,
-                        fields: &fields,
+                state
+                    .imports
+                    .entry("serde".into())
+                    .or_default()
+                    .extend(vec!["Deserialize".to_owned(), "Serialize".to_owned()]);
+
+                writeln!(out)?;
+                write!(out, "{}", description(&metadata, 0))?;
+                writeln!(out, "#[derive(Serialize, Deserialize)]")?;
+
+                if fields.is_empty() {
+                    writeln!(out, "pub struct {} {{}}", name)?;
+                } else {
+                    writeln!(out, "pub struct {} {{", name)?;
+                    for (index, field) in fields.into_iter().enumerate() {
+                        if index != 0 {
+                            writeln!(out)?;
+                        }
+
+                        write!(out, "{}", description(&field.metadata, 1))?;
+                        writeln!(out, "    #[serde(rename = {:?})]", field.json_name)?;
+                        if field.optional {
+                            writeln!(
+                                out,
+                                "    #[serde(skip_serializing_if = \"Option::is_none\")]"
+                            )?;
+                        }
+                        writeln!(out, "    pub {}: {},", field.name, field.type_)?;
                     }
-                    .render()
-                    .unwrap()
-                )?;
+
+                    writeln!(out, "}}")?;
+                }
 
                 None
             }
@@ -244,18 +270,33 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
-                writeln!(
-                    out,
-                    "{}",
-                    DiscriminatorTemplate {
-                        metadata: &metadata,
-                        name: &name,
-                        variants: &variants,
-                        tag_json_name: &tag_json_name,
+                state
+                    .imports
+                    .entry("serde".into())
+                    .or_default()
+                    .extend(vec!["Deserialize".to_owned(), "Serialize".to_owned()]);
+
+                writeln!(out)?;
+                write!(out, "{}", description(&metadata, 0))?;
+                writeln!(out, "#[derive(Serialize, Deserialize)]")?;
+                writeln!(out, "#[serde(tag = {:?})]", tag_json_name)?;
+                writeln!(out, "pub enum {} {{", name)?;
+
+                for (index, variant) in variants.into_iter().enumerate() {
+                    if index != 0 {
+                        writeln!(out)?;
                     }
-                    .render()
-                    .unwrap()
-                )?;
+
+                    writeln!(out, "    #[serde(rename = {:?})]", variant.tag_value)?;
+                    writeln!(
+                        out,
+                        "    {}({}),",
+                        inflect::Case::pascal_case().inflect(&[variant.field_name]),
+                        variant.type_name
+                    )?;
+                }
+
+                writeln!(out, "}}")?;
 
                 None
             }
@@ -270,17 +311,38 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
-                writeln!(
-                    out,
-                    "{}",
-                    DiscriminatorVariantTemplate {
-                        metadata: &metadata,
-                        name: &name,
-                        fields: &fields,
+                state
+                    .imports
+                    .entry("serde".into())
+                    .or_default()
+                    .extend(vec!["Deserialize".to_owned(), "Serialize".to_owned()]);
+
+                writeln!(out)?;
+                write!(out, "{}", description(&metadata, 0))?;
+                writeln!(out, "#[derive(Serialize, Deserialize)]")?;
+
+                if fields.is_empty() {
+                    writeln!(out, "pub struct {} {{}}", name)?;
+                } else {
+                    writeln!(out, "pub struct {} {{", name)?;
+                    for (index, field) in fields.into_iter().enumerate() {
+                        if index != 0 {
+                            writeln!(out)?;
+                        }
+
+                        write!(out, "{}", description(&field.metadata, 1))?;
+                        writeln!(out, "    #[serde(rename = {:?})]", field.json_name)?;
+                        if field.optional {
+                            writeln!(
+                                out,
+                                "    #[serde(skip_serializing_if = \"Option::is_none\")]"
+                            )?;
+                        }
+                        writeln!(out, "    pub {}: {},", field.name, field.type_)?;
                     }
-                    .render()
-                    .unwrap()
-                )?;
+
+                    writeln!(out, "}}")?;
+                }
 
                 None
             }
@@ -338,6 +400,26 @@ struct DiscriminatorVariantTemplate<'a> {
 #[derive(Default)]
 pub struct FileState {
     imports: BTreeMap<String, BTreeSet<String>>,
+}
+
+fn description(metadata: &BTreeMap<String, Value>, indent: usize) -> String {
+    doc(indent, jtd_codegen::target::metadata::description(metadata))
+}
+
+fn enum_variant_description(
+    metadata: &BTreeMap<String, Value>,
+    indent: usize,
+    value: &str,
+) -> String {
+    doc(
+        indent,
+        jtd_codegen::target::metadata::enum_variant_description(metadata, value),
+    )
+}
+
+fn doc(ident: usize, s: &str) -> String {
+    let prefix = "    ".repeat(ident);
+    jtd_codegen::target::fmt::comment_block("", &format!("{}/// ", prefix), "", s)
 }
 
 mod filters {

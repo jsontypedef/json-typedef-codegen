@@ -110,18 +110,26 @@ impl Case {
     }
 
     pub fn pascal_case() -> Self {
-        Self::new(CaseCapitalization::Initial, CaseCapitalization::Initial, None)
+        Self::new(
+            CaseCapitalization::Initial,
+            CaseCapitalization::Initial,
+            None,
+        )
     }
 
     pub fn snake_case() -> Self {
-        Self::new(CaseCapitalization::None, CaseCapitalization::None, Some('_'))
+        Self::new(
+            CaseCapitalization::None,
+            CaseCapitalization::None,
+            Some('_'),
+        )
     }
 
     pub fn screaming_snake_case() -> Self {
         Self::new(CaseCapitalization::All, CaseCapitalization::All, Some('_'))
     }
 
-    fn inflect(&self, words: &[String]) -> String {
+    pub fn inflect(&self, words: &[String]) -> String {
         if words.is_empty() {
             return "".to_owned();
         }
@@ -209,7 +217,10 @@ mod tests {
         assert_eq!("", Case::camel_case().inflect(&[]));
 
         assert_eq!("foo", Case::camel_case().inflect(&["foo".to_owned()]));
-        assert_eq!("fooBar", Case::camel_case().inflect(&["foo".to_owned(), "bar".to_owned()]));
+        assert_eq!(
+            "fooBar",
+            Case::camel_case().inflect(&["foo".to_owned(), "bar".to_owned()])
+        );
         assert_eq!(
             "fooBarBaz",
             Case::camel_case().inflect(&["foo".to_owned(), "bar".to_owned(), "baz".to_owned()])
@@ -221,7 +232,10 @@ mod tests {
         assert_eq!("", Case::pascal_case().inflect(&[]));
 
         assert_eq!("Foo", Case::pascal_case().inflect(&["foo".to_owned()]));
-        assert_eq!("FooBar", Case::pascal_case().inflect(&["foo".to_owned(), "bar".to_owned()]));
+        assert_eq!(
+            "FooBar",
+            Case::pascal_case().inflect(&["foo".to_owned(), "bar".to_owned()])
+        );
         assert_eq!(
             "FooBarBaz",
             Case::pascal_case().inflect(&["foo".to_owned(), "bar".to_owned(), "baz".to_owned()])
@@ -233,7 +247,10 @@ mod tests {
         assert_eq!("", Case::snake_case().inflect(&[]));
 
         assert_eq!("foo", Case::snake_case().inflect(&["foo".to_owned()]));
-        assert_eq!("foo_bar", Case::snake_case().inflect(&["foo".to_owned(), "bar".to_owned()]));
+        assert_eq!(
+            "foo_bar",
+            Case::snake_case().inflect(&["foo".to_owned(), "bar".to_owned()])
+        );
         assert_eq!(
             "foo_bar_baz",
             Case::snake_case().inflect(&["foo".to_owned(), "bar".to_owned(), "baz".to_owned()])
@@ -244,11 +261,21 @@ mod tests {
     fn test_screaming_snake_case() {
         assert_eq!("", Case::screaming_snake_case().inflect(&[]));
 
-        assert_eq!("FOO", Case::screaming_snake_case().inflect(&["foo".to_owned()]));
-        assert_eq!("FOO_BAR", Case::screaming_snake_case().inflect(&["foo".to_owned(), "bar".to_owned()]));
+        assert_eq!(
+            "FOO",
+            Case::screaming_snake_case().inflect(&["foo".to_owned()])
+        );
+        assert_eq!(
+            "FOO_BAR",
+            Case::screaming_snake_case().inflect(&["foo".to_owned(), "bar".to_owned()])
+        );
         assert_eq!(
             "FOO_BAR_BAZ",
-            Case::screaming_snake_case().inflect(&["foo".to_owned(), "bar".to_owned(), "baz".to_owned()])
+            Case::screaming_snake_case().inflect(&[
+                "foo".to_owned(),
+                "bar".to_owned(),
+                "baz".to_owned()
+            ])
         );
     }
 }
