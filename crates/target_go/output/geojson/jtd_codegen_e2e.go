@@ -1,15 +1,9 @@
 package jtd_codegen_e2e
 
 import (
-
 	"encoding/json"
-
 	"fmt"
-
 )
-
-
-
 
 type Root = GeojsonObject
 
@@ -84,8 +78,6 @@ type Root = GeojsonObject
 // 
 // Implementers MUST NOT use latitude values greater than 90 or less than
 // -90 to imply an extent that is not a spherical cap.
-
-
 type BoundingBox = []float64
 
 // A Geometry object represents points, curves, and surfaces in coordinate
@@ -101,8 +93,6 @@ type BoundingBox = []float64
 //     elements in this array is determined by the type of geometry.
 //     GeoJSON processors MAY interpret Geometry objects with empty
 //     "coordinates" arrays as null objects.
-
-
 type GeojsonObject struct {
 	Type string
 
@@ -123,39 +113,28 @@ type GeojsonObject struct {
 	Point GeojsonObjectPoint
 
 	Polygon GeojsonObjectPolygon
-
 }
 
 func (v GeojsonObject) MarshalJSON() ([]byte, error) {
-	switch (v.Type) {
-
+	switch v.Type {
 	case "Feature":
 		return json.Marshal(struct { T string `json:"type"`; GeojsonObjectFeature }{ v.Type, v.Feature })
-
 	case "FeatureCollection":
 		return json.Marshal(struct { T string `json:"type"`; GeojsonObjectFeatureCollection }{ v.Type, v.FeatureCollection })
-
 	case "GeometryCollection":
 		return json.Marshal(struct { T string `json:"type"`; GeojsonObjectGeometryCollection }{ v.Type, v.GeometryCollection })
-
 	case "LineString":
 		return json.Marshal(struct { T string `json:"type"`; GeojsonObjectLineString }{ v.Type, v.LineString })
-
 	case "MultiLineString":
 		return json.Marshal(struct { T string `json:"type"`; GeojsonObjectMultiLineString }{ v.Type, v.MultiLineString })
-
 	case "MultiPoint":
 		return json.Marshal(struct { T string `json:"type"`; GeojsonObjectMultiPoint }{ v.Type, v.MultiPoint })
-
 	case "MultiPolygon":
 		return json.Marshal(struct { T string `json:"type"`; GeojsonObjectMultiPolygon }{ v.Type, v.MultiPolygon })
-
 	case "Point":
 		return json.Marshal(struct { T string `json:"type"`; GeojsonObjectPoint }{ v.Type, v.Point })
-
 	case "Polygon":
 		return json.Marshal(struct { T string `json:"type"`; GeojsonObjectPolygon }{ v.Type, v.Polygon })
-
 	}
 
 	return nil, fmt.Errorf("bad Type value: %s", v.Type)
@@ -166,74 +145,37 @@ func (v *GeojsonObject) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &t); err != nil {
 		return err
 	}
+
+	var err error
 	switch t.T {
-
 	case "Feature":
-		if err := json.Unmarshal(b, &v.Feature); err != nil {
-			return err
-		}
-		v.Type = t.T
-		return nil
-
+		err = json.Unmarshal(b, &v.Feature)
 	case "FeatureCollection":
-		if err := json.Unmarshal(b, &v.FeatureCollection); err != nil {
-			return err
-		}
-		v.Type = t.T
-		return nil
-
+		err = json.Unmarshal(b, &v.FeatureCollection)
 	case "GeometryCollection":
-		if err := json.Unmarshal(b, &v.GeometryCollection); err != nil {
-			return err
-		}
-		v.Type = t.T
-		return nil
-
+		err = json.Unmarshal(b, &v.GeometryCollection)
 	case "LineString":
-		if err := json.Unmarshal(b, &v.LineString); err != nil {
-			return err
-		}
-		v.Type = t.T
-		return nil
-
+		err = json.Unmarshal(b, &v.LineString)
 	case "MultiLineString":
-		if err := json.Unmarshal(b, &v.MultiLineString); err != nil {
-			return err
-		}
-		v.Type = t.T
-		return nil
-
+		err = json.Unmarshal(b, &v.MultiLineString)
 	case "MultiPoint":
-		if err := json.Unmarshal(b, &v.MultiPoint); err != nil {
-			return err
-		}
-		v.Type = t.T
-		return nil
-
+		err = json.Unmarshal(b, &v.MultiPoint)
 	case "MultiPolygon":
-		if err := json.Unmarshal(b, &v.MultiPolygon); err != nil {
-			return err
-		}
-		v.Type = t.T
-		return nil
-
+		err = json.Unmarshal(b, &v.MultiPolygon)
 	case "Point":
-		if err := json.Unmarshal(b, &v.Point); err != nil {
-			return err
-		}
-		v.Type = t.T
-		return nil
-
+		err = json.Unmarshal(b, &v.Point)
 	case "Polygon":
-		if err := json.Unmarshal(b, &v.Polygon); err != nil {
-			return err
-		}
-		v.Type = t.T
-		return nil
-
+		err = json.Unmarshal(b, &v.Polygon)
+	default:
+		err = fmt.Errorf("bad Type value: %s", t.T)
 	}
 
-	return fmt.Errorf("bad Type value: %s", t.T)
+	if err != nil {
+		return err
+	}
+
+	v.Type = t.T
+	return nil
 }
 
 // A Feature object represents a spatially bounded thing.  Every
@@ -250,35 +192,19 @@ func (v *GeojsonObject) UnmarshalJSON(b []byte) error {
 // o  A Feature object has a member with the name "properties".  The
 //     value of the properties member is an object (any JSON object or
 //     a JSON null value).
-
-
 type GeojsonObjectFeature struct {
-	Type string `json:"type"`
-
-
-    // The GeoJSON specification requires that these elements be
-    // GeoJSON geometry objects, but such a constraint can't be
-    // expressed in JSON Type Definition.
-    // 
-    // It is semantically invalid at the GeoJSON level for this
-    // member to be any GeoJSON object type other than one of the
-    // geometry types.
-
-
+	// The GeoJSON specification requires that these elements be
+	// GeoJSON geometry objects, but such a constraint can't be
+	// expressed in JSON Type Definition.
+	// 
+	// It is semantically invalid at the GeoJSON level for this
+	// member to be any GeoJSON object type other than one of the
+	// geometry types.
 	Geometry *GeojsonObject `json:"geometry"`
-
-
-
-
 
 	Properties map[string]interface{} `json:"properties"`
 
-
-
-
-
-	Id interface{} `json:"id,omitempty"`
-
+	ID interface{} `json:"id,omitempty"`
 }
 
 // A GeoJSON object with the type "FeatureCollection" is a
@@ -286,17 +212,8 @@ type GeojsonObjectFeature struct {
 // with the name "features".  The value of "features" is a JSON array.
 // Each element of the array is a Feature object as defined above.  It
 // is possible for this array to be empty.
-
-
 type GeojsonObjectFeatureCollection struct {
-	Type string `json:"type"`
-
-
-
-
-
 	Features []GeojsonObject `json:"features"`
-
 }
 
 // A GeoJSON object with type "GeometryCollection" is a Geometry
@@ -326,148 +243,57 @@ type GeojsonObjectFeatureCollection struct {
 // when that single part or a single object of multipart type
 // (MultiPoint, MultiLineString, or MultiPolygon) could be used
 // instead.
-
-
 type GeojsonObjectGeometryCollection struct {
-	Type string `json:"type"`
-
-
-
-
-
 	Geometries []GeojsonObject `json:"geometries"`
 
-
-
-
-
 	Bbox *BoundingBox `json:"bbox,omitempty"`
-
 }
 
 // For type "LineString", the "coordinates" member is an array of two
 // or more positions.
-
-
 type GeojsonObjectLineString struct {
-	Type string `json:"type"`
-
-
-
-
-
 	Coordinates []Position `json:"coordinates"`
 
-
-
-
-
 	Bbox *BoundingBox `json:"bbox,omitempty"`
-
 }
 
 // For type "MultiLineString", the "coordinates" member is an array of
 // LineString coordinate arrays.
-
-
 type GeojsonObjectMultiLineString struct {
-	Type string `json:"type"`
-
-
-
-
-
 	Coordinates []Position `json:"coordinates"`
 
-
-
-
-
 	Bbox *BoundingBox `json:"bbox,omitempty"`
-
 }
 
 // For type "MultiPoint", the "coordinates" member is an array of
 // positions.
-
-
 type GeojsonObjectMultiPoint struct {
-	Type string `json:"type"`
-
-
-
-
-
 	Coordinates []Position `json:"coordinates"`
 
-
-
-
-
 	Bbox *BoundingBox `json:"bbox,omitempty"`
-
 }
 
 // For type "MultiPolygon", the "coordinates" member is an array of
 // Polygon coordinate arrays.
-
-
 type GeojsonObjectMultiPolygon struct {
-	Type string `json:"type"`
-
-
-
-
-
 	Coordinates []LinearRing `json:"coordinates"`
 
-
-
-
-
 	Bbox *BoundingBox `json:"bbox,omitempty"`
-
 }
 
 // For type "Point", the "coordinates" member is a single position.
-
-
 type GeojsonObjectPoint struct {
-	Type string `json:"type"`
-
-
-
-
-
 	Coordinates Position `json:"coordinates"`
 
-
-
-
-
 	Bbox *BoundingBox `json:"bbox,omitempty"`
-
 }
 
 // For type "Polygon", the "coordinates" member MUST be an array of
 // linear ring coordinate arrays.
-
-
 type GeojsonObjectPolygon struct {
-	Type string `json:"type"`
-
-
-
-
-
 	Coordinates []LinearRing `json:"coordinates"`
 
-
-
-
-
 	Bbox *BoundingBox `json:"bbox,omitempty"`
-
 }
 
 // To specify a constraint specific to Polygons, it is useful to
@@ -497,8 +323,6 @@ type GeojsonObjectPolygon struct {
 // exterior ring, and any others MUST be interior rings.  The exterior ring
 // bounds the surface, and the interior rings (if present) bound holes
 // within the surface.
-
-
 type LinearRing = []Position
 
 // A position is the fundamental geometry construct.
@@ -538,6 +362,4 @@ type LinearRing = []Position
 // Note that, again, this does not mean that a surface with equal height
 // follows, for example, the curvature of a body of water.  Nor is a
 // surface of equal height perpendicular to a plumb line.
-
-
 type Position = []float64

@@ -90,6 +90,7 @@ pub struct Case {
     first_capitalization: CaseCapitalization,
     rest_capitalization: CaseCapitalization,
     delimiter: Option<char>,
+    initialisms: BTreeSet<String>,
 }
 
 impl Case {
@@ -97,16 +98,18 @@ impl Case {
         first_capitalization: CaseCapitalization,
         rest_capitalization: CaseCapitalization,
         delimiter: Option<char>,
+        initialisms: BTreeSet<String>,
     ) -> Self {
         Self {
             first_capitalization,
             rest_capitalization,
             delimiter,
+            initialisms,
         }
     }
 
     pub fn camel_case() -> Self {
-        Self::new(CaseCapitalization::None, CaseCapitalization::Initial, None)
+        Self::new(CaseCapitalization::None, CaseCapitalization::Initial, None, BTreeSet::new())
     }
 
     pub fn pascal_case() -> Self {
@@ -114,6 +117,16 @@ impl Case {
             CaseCapitalization::Initial,
             CaseCapitalization::Initial,
             None,
+            BTreeSet::new()
+        )
+    }
+
+    pub fn pascal_case_with_initialisms(initialisms: BTreeSet<String>) -> Self {
+        Self::new(
+            CaseCapitalization::Initial,
+            CaseCapitalization::Initial,
+            None,
+            initialisms,
         )
     }
 
@@ -122,11 +135,12 @@ impl Case {
             CaseCapitalization::None,
             CaseCapitalization::None,
             Some('_'),
+            BTreeSet::new()
         )
     }
 
     pub fn screaming_snake_case() -> Self {
-        Self::new(CaseCapitalization::All, CaseCapitalization::All, Some('_'))
+        Self::new(CaseCapitalization::All, CaseCapitalization::All, Some('_'), BTreeSet::new())
     }
 
     pub fn inflect(&self, words: &[String]) -> String {
@@ -139,7 +153,9 @@ impl Case {
             .flat_map(|word| decompose(word))
             .enumerate()
             .map(|(i, word)| {
-                if i == 0 {
+                if self.initialisms.contains(&word) {
+                    CaseCapitalization::All.inflect(&word)
+                } else if i == 0 {
                     self.first_capitalization.inflect(&word)
                 } else {
                     self.rest_capitalization.inflect(&word)

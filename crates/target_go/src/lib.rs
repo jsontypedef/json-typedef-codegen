@@ -2,11 +2,17 @@ use askama::Template;
 use jtd_codegen::target::{self, inflect, metadata};
 use jtd_codegen::Result;
 use lazy_static::lazy_static;
+use serde_json::Value;
+use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 use std::io::Write;
 
 lazy_static! {
     static ref KEYWORDS: BTreeSet<String> = include_str!("keywords")
+        .lines()
+        .map(str::to_owned)
+        .collect();
+    static ref INITIALISMS: BTreeSet<String> = include_str!("initialisms")
         .lines()
         .map(str::to_owned)
         .collect();
@@ -18,12 +24,12 @@ lazy_static! {
     static ref ITEM_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
             KEYWORDS.clone(),
-            inflect::CombiningInflector::new(inflect::Case::pascal_case())
+            inflect::CombiningInflector::new(inflect::Case::pascal_case_with_initialisms(INITIALISMS.clone()))
         ));
     static ref FIELD_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
             KEYWORDS.clone(),
-            inflect::TailInflector::new(inflect::Case::pascal_case())
+            inflect::TailInflector::new(inflect::Case::pascal_case_with_initialisms(INITIALISMS.clone()))
         ));
 }
 
@@ -121,16 +127,22 @@ impl jtd_codegen::target::Target for Target {
             }
 
             target::Item::Preamble => {
-                writeln!(
-                    out,
-                    "{}",
-                    PreambleTemplate {
-                        package: &self.package,
-                        imports: &state.imports
+                writeln!(out, "package {}", self.package)?;
+
+                if !state.imports.is_empty() {
+                    writeln!(out)?;
+
+                    let imports: Vec<String> = state.imports.iter().cloned().collect();
+                    if imports.len() == 1 {
+                        writeln!(out, "import {:?}", imports[0])?;
+                    } else {
+                        writeln!(out, "import (")?;
+                        for import in imports {
+                            writeln!(out, "\t{:?}", import)?;
+                        }
+                        writeln!(out, ")")?;
                     }
-                    .render()
-                    .unwrap()
-                )?;
+                }
 
                 None
             }
@@ -140,17 +152,9 @@ impl jtd_codegen::target::Target for Target {
                 name,
                 type_,
             } => {
-                writeln!(
-                    out,
-                    "{}",
-                    AliasTemplate {
-                        metadata: &metadata,
-                        name: &name,
-                        type_: &type_,
-                    }
-                    .render()
-                    .unwrap()
-                )?;
+                writeln!(out)?;
+                write!(out, "{}", description(&metadata, 0))?;
+                writeln!(out, "type {} = {}", name, type_)?;
 
                 None
             }
@@ -164,17 +168,25 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
-                writeln!(
-                    out,
-                    "{}",
-                    EnumTemplate {
-                        metadata: &metadata,
-                        name: &name,
-                        members: &members,
+                writeln!(out)?;
+                write!(out, "{}", description(&metadata, 0))?;
+                writeln!(out, "type {} string", name)?;
+
+                writeln!(out)?;
+                writeln!(out, "const (")?;
+                for (index, member) in members.into_iter().enumerate() {
+                    if index != 0 {
+                        writeln!(out)?;
                     }
-                    .render()
-                    .unwrap()
-                )?;
+
+                    write!(
+                        out,
+                        "{}",
+                        enum_variant_description(&metadata, 0, &member.json_value)
+                    )?;
+                    writeln!(out, "\t{} {} = {:?}", member.name, name, member.json_value)?;
+                }
+                writeln!(out, ")")?;
 
                 None
             }
@@ -189,17 +201,31 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
-                writeln!(
-                    out,
-                    "{}",
-                    StructTemplate {
-                        metadata: &metadata,
-                        name: &name,
-                        fields: &fields,
+                writeln!(out)?;
+                write!(out, "{}", description(&metadata, 0))?;
+                writeln!(out, "type {} struct {{", name)?;
+                for (index, field) in fields.into_iter().enumerate() {
+                    if index != 0 {
+                        writeln!(out)?;
                     }
-                    .render()
-                    .unwrap()
-                )?;
+
+                    write!(out, "{}", description(&field.metadata, 1))?;
+
+                    if field.optional {
+                        writeln!(
+                            out,
+                            "\t{} {} `json:\"{},omitempty\"`",
+                            field.name, field.type_, field.json_name
+                        )?;
+                    } else {
+                        writeln!(
+                            out,
+                            "\t{} {} `json:\"{}\"`",
+                            field.name, field.type_, field.json_name
+                        )?;
+                    }
+                }
+                writeln!(out, "}}")?;
 
                 None
             }
@@ -218,19 +244,68 @@ impl jtd_codegen::target::Target for Target {
                 state.imports.insert("encoding/json".into());
                 state.imports.insert("fmt".into());
 
+                writeln!(out)?;
+                write!(out, "{}", description(&metadata, 0))?;
+                writeln!(out, "type {} struct {{", name)?;
+                writeln!(out, "\t{} string", tag_field_name)?;
+                for variant in &variants {
+                    writeln!(out)?;
+                    writeln!(out, "\t{} {}", &variant.field_name, &variant.type_name)?;
+                }
+                writeln!(out, "}}")?;
+
+                writeln!(out)?;
+                writeln!(out, "func (v {}) MarshalJSON() ([]byte, error) {{", name)?;
+                writeln!(out, "\tswitch v.{} {{", tag_field_name)?;
+                for variant in &variants {
+                    writeln!(out, "\tcase {:?}:", variant.tag_value)?;
+                    writeln!(out, "\t\treturn json.Marshal(struct {{ T string `json:\"{}\"`; {} }}{{ v.{}, v.{} }})", tag_json_name, variant.type_name, tag_field_name, variant.field_name)?;
+                }
+                writeln!(out, "\t}}")?;
+                writeln!(out)?;
                 writeln!(
                     out,
-                    "{}",
-                    DiscriminatorTemplate {
-                        metadata: &metadata,
-                        name: &name,
-                        tag_field_name: &tag_field_name,
-                        tag_json_name: &tag_json_name,
-                        variants: &variants,
-                    }
-                    .render()
-                    .unwrap()
+                    "\treturn nil, fmt.Errorf(\"bad {0} value: %s\", v.{0})",
+                    tag_field_name
                 )?;
+                writeln!(out, "}}")?;
+
+                writeln!(out)?;
+                writeln!(out, "func (v *{}) UnmarshalJSON(b []byte) error {{", name)?;
+                writeln!(
+                    out,
+                    "\tvar t struct {{ T string `json:\"{}\"` }}",
+                    tag_json_name
+                )?;
+                writeln!(out, "\tif err := json.Unmarshal(b, &t); err != nil {{")?;
+                writeln!(out, "\t\treturn err")?;
+                writeln!(out, "\t}}")?;
+                writeln!(out)?;
+                writeln!(out, "\tvar err error")?;
+                writeln!(out, "\tswitch t.T {{")?;
+                for variant in &variants {
+                    writeln!(out, "\tcase {:?}:", variant.tag_value)?;
+                    writeln!(
+                        out,
+                        "\t\terr = json.Unmarshal(b, &v.{})",
+                        variant.field_name
+                    )?;
+                }
+                writeln!(out, "\tdefault:")?;
+                writeln!(
+                    out,
+                    "\t\terr = fmt.Errorf(\"bad {} value: %s\", t.T)",
+                    tag_field_name
+                )?;
+                writeln!(out, "\t}}")?;
+                writeln!(out)?;
+                writeln!(out, "\tif err != nil {{")?;
+                writeln!(out, "\t\treturn err")?;
+                writeln!(out, "\t}}")?;
+                writeln!(out)?;
+                writeln!(out, "\tv.{} = t.T", tag_field_name)?;
+                writeln!(out, "\treturn nil")?;
+                writeln!(out, "}}")?;
 
                 None
             }
@@ -238,8 +313,6 @@ impl jtd_codegen::target::Target for Target {
             target::Item::DiscriminatorVariant {
                 metadata,
                 name,
-                tag_field_name,
-                tag_json_name,
                 fields,
                 ..
             } => {
@@ -247,19 +320,31 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
-                writeln!(
-                    out,
-                    "{}",
-                    DiscriminatorVariantTemplate {
-                        metadata: &metadata,
-                        name: &name,
-                        tag_field_name: &tag_field_name,
-                        tag_json_name: &tag_json_name,
-                        fields: &fields,
+                writeln!(out)?;
+                write!(out, "{}", description(&metadata, 0))?;
+                writeln!(out, "type {} struct {{", name)?;
+                for (index, field) in fields.into_iter().enumerate() {
+                    if index != 0 {
+                        writeln!(out)?;
                     }
-                    .render()
-                    .unwrap()
-                )?;
+
+                    write!(out, "{}", description(&field.metadata, 1))?;
+
+                    if field.optional {
+                        writeln!(
+                            out,
+                            "\t{} {} `json:\"{},omitempty\"`",
+                            field.name, field.type_, field.json_name
+                        )?;
+                    } else {
+                        writeln!(
+                            out,
+                            "\t{} {} `json:\"{}\"`",
+                            field.name, field.type_, field.json_name
+                        )?;
+                    }
+                }
+                writeln!(out, "}}")?;
 
                 None
             }
@@ -321,6 +406,26 @@ struct DiscriminatorVariantTemplate<'a> {
     tag_field_name: &'a str,
     tag_json_name: &'a str,
     fields: &'a [target::Field],
+}
+
+fn description(metadata: &BTreeMap<String, Value>, indent: usize) -> String {
+    doc(indent, jtd_codegen::target::metadata::description(metadata))
+}
+
+fn enum_variant_description(
+    metadata: &BTreeMap<String, Value>,
+    indent: usize,
+    value: &str,
+) -> String {
+    doc(
+        indent,
+        jtd_codegen::target::metadata::enum_variant_description(metadata, value),
+    )
+}
+
+fn doc(ident: usize, s: &str) -> String {
+    let prefix = "\t".repeat(ident);
+    jtd_codegen::target::fmt::comment_block("", &format!("{}// ", prefix), "", s)
 }
 
 mod filters {

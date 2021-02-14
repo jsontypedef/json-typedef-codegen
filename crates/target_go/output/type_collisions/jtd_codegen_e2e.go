@@ -1,63 +1,19 @@
 package jtd_codegen_e2e
 
-import (
-
-)
-
-
-
-
 type RootFooBar struct {
-
-
-
-
-
-    X bool `json:"x"`
-
+	X bool `json:"x"`
 }
-
-
-
 
 type RootFoo struct {
-
-
-
-
-
-    Bar RootFooBar `json:"bar"`
-
+	Bar RootFooBar `json:"bar"`
 }
-
-
-
 
 type RootFooBar0 struct {
-
-
-
-
-
-    X string `json:"x"`
-
+	X string `json:"x"`
 }
 
-
-
-
 type Root struct {
+	Foo RootFoo `json:"foo"`
 
-
-
-
-
-    Foo RootFoo `json:"foo"`
-
-
-
-
-
-    FooBar RootFooBar0 `json:"foo_bar"`
-
+	FooBar RootFooBar0 `json:"foo_bar"`
 }
