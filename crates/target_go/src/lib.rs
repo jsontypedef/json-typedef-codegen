@@ -1,4 +1,3 @@
-use askama::Template;
 use jtd_codegen::target::{self, inflect, metadata};
 use jtd_codegen::Result;
 use lazy_static::lazy_static;
@@ -357,57 +356,6 @@ pub struct FileState {
     imports: BTreeSet<String>,
 }
 
-#[derive(Template)]
-#[template(path = "preamble")]
-struct PreambleTemplate<'a> {
-    package: &'a str,
-    imports: &'a BTreeSet<String>,
-}
-
-#[derive(Template)]
-#[template(path = "alias")]
-struct AliasTemplate<'a> {
-    metadata: &'a metadata::Metadata,
-    name: &'a str,
-    type_: &'a str,
-}
-
-#[derive(Template)]
-#[template(path = "enum")]
-struct EnumTemplate<'a> {
-    metadata: &'a metadata::Metadata,
-    name: &'a str,
-    members: &'a [target::EnumMember],
-}
-
-#[derive(Template)]
-#[template(path = "struct")]
-struct StructTemplate<'a> {
-    metadata: &'a metadata::Metadata,
-    name: &'a str,
-    fields: &'a [target::Field],
-}
-
-#[derive(Template)]
-#[template(path = "discriminator")]
-struct DiscriminatorTemplate<'a> {
-    metadata: &'a metadata::Metadata,
-    name: &'a str,
-    tag_field_name: &'a str,
-    tag_json_name: &'a str,
-    variants: &'a [target::DiscriminatorVariantInfo],
-}
-
-#[derive(Template)]
-#[template(path = "discriminator_variant")]
-struct DiscriminatorVariantTemplate<'a> {
-    metadata: &'a metadata::Metadata,
-    name: &'a str,
-    tag_field_name: &'a str,
-    tag_json_name: &'a str,
-    fields: &'a [target::Field],
-}
-
 fn description(metadata: &BTreeMap<String, Value>, indent: usize) -> String {
     doc(indent, jtd_codegen::target::metadata::description(metadata))
 }
@@ -426,35 +374,6 @@ fn enum_variant_description(
 fn doc(ident: usize, s: &str) -> String {
     let prefix = "\t".repeat(ident);
     jtd_codegen::target::fmt::comment_block("", &format!("{}// ", prefix), "", s)
-}
-
-mod filters {
-    use askama::Result;
-    use serde_json::Value;
-    use std::collections::BTreeMap;
-
-    pub fn description(metadata: &BTreeMap<String, Value>, indent: &usize) -> Result<String> {
-        Ok(doc(
-            *indent,
-            jtd_codegen::target::metadata::description(metadata),
-        ))
-    }
-
-    pub fn enum_variant_description(
-        metadata: &BTreeMap<String, Value>,
-        indent: &usize,
-        value: &str,
-    ) -> Result<String> {
-        Ok(doc(
-            *indent,
-            jtd_codegen::target::metadata::enum_variant_description(metadata, value),
-        ))
-    }
-
-    fn doc(ident: usize, s: &str) -> String {
-        let prefix = "    ".repeat(ident);
-        jtd_codegen::target::fmt::comment_block("", &format!("{}// ", prefix), "", s)
-    }
 }
 
 #[cfg(test)]
