@@ -1,8 +1,5 @@
-
 using System;
-
 using System.Text.Json;
-
 using System.Text.Json.Serialization;
 
 namespace JtdCodegenE2E
@@ -22,7 +19,6 @@ namespace JtdCodegenE2E
     ///     GeoJSON processors MAY interpret Geometry objects with empty
     ///     "coordinates" arrays as null objects.
     /// </summary>
-
     [JsonConverter(typeof(GeojsonObjectJsonConverter))]
     public abstract class GeojsonObject
     {

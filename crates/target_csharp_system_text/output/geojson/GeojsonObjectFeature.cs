@@ -1,6 +1,4 @@
-
 using System.Collections.Generic;
-
 using System.Text.Json.Serialization;
 
 namespace JtdCodegenE2E
@@ -21,7 +19,6 @@ namespace JtdCodegenE2E
     ///     value of the properties member is an object (any JSON object or
     ///     a JSON null value).
     /// </summary>
-
     public class GeojsonObjectFeature : GeojsonObject
     {
         [JsonPropertyName("type")]
@@ -36,26 +33,14 @@ namespace JtdCodegenE2E
         /// member to be any GeoJSON object type other than one of the
         /// geometry types.
         /// </summary>
-
         [JsonPropertyName("geometry")]
-        
         public GeojsonObject? Geometry { get; set; }
 
-        /// <summary>
-
-        /// </summary>
-
         [JsonPropertyName("properties")]
-        
         public IDictionary<string, object> Properties { get; set; }
-
-        /// <summary>
-
-        /// </summary>
 
         [JsonPropertyName("id")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public object Id { get; set; }
-
     }
 }

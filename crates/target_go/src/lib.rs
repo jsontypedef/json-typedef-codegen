@@ -23,12 +23,16 @@ lazy_static! {
     static ref ITEM_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
             KEYWORDS.clone(),
-            inflect::CombiningInflector::new(inflect::Case::pascal_case_with_initialisms(INITIALISMS.clone()))
+            inflect::CombiningInflector::new(inflect::Case::pascal_case_with_initialisms(
+                INITIALISMS.clone()
+            ))
         ));
     static ref FIELD_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
             KEYWORDS.clone(),
-            inflect::TailInflector::new(inflect::Case::pascal_case_with_initialisms(INITIALISMS.clone()))
+            inflect::TailInflector::new(inflect::Case::pascal_case_with_initialisms(
+                INITIALISMS.clone()
+            ))
         ));
 }
 

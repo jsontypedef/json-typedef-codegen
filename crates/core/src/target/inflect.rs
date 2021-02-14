@@ -109,7 +109,12 @@ impl Case {
     }
 
     pub fn camel_case() -> Self {
-        Self::new(CaseCapitalization::None, CaseCapitalization::Initial, None, BTreeSet::new())
+        Self::new(
+            CaseCapitalization::None,
+            CaseCapitalization::Initial,
+            None,
+            BTreeSet::new(),
+        )
     }
 
     pub fn pascal_case() -> Self {
@@ -117,7 +122,7 @@ impl Case {
             CaseCapitalization::Initial,
             CaseCapitalization::Initial,
             None,
-            BTreeSet::new()
+            BTreeSet::new(),
         )
     }
 
@@ -135,12 +140,17 @@ impl Case {
             CaseCapitalization::None,
             CaseCapitalization::None,
             Some('_'),
-            BTreeSet::new()
+            BTreeSet::new(),
         )
     }
 
     pub fn screaming_snake_case() -> Self {
-        Self::new(CaseCapitalization::All, CaseCapitalization::All, Some('_'), BTreeSet::new())
+        Self::new(
+            CaseCapitalization::All,
+            CaseCapitalization::All,
+            Some('_'),
+            BTreeSet::new(),
+        )
     }
 
     pub fn inflect(&self, words: &[String]) -> String {

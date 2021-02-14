@@ -1,6 +1,4 @@
-
 using System.Collections.Generic;
-
 using System.Text.Json.Serialization;
 
 namespace JtdCodegenE2E
@@ -34,27 +32,16 @@ namespace JtdCodegenE2E
     /// (MultiPoint, MultiLineString, or MultiPolygon) could be used
     /// instead.
     /// </summary>
-
     public class GeojsonObjectGeometryCollection : GeojsonObject
     {
         [JsonPropertyName("type")]
         public string Type_ { get => "GeometryCollection"; }
 
-        /// <summary>
-
-        /// </summary>
-
         [JsonPropertyName("geometries")]
-        
         public IList<GeojsonObject> Geometries { get; set; }
-
-        /// <summary>
-
-        /// </summary>
 
         [JsonPropertyName("bbox")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public BoundingBox? Bbox { get; set; }
-
     }
 }

@@ -1,16 +1,9 @@
-
 using System;
-
 using System.Text.Json;
-
 using System.Text.Json.Serialization;
 
 namespace JtdCodegenE2E
 {
-    /// <summary>
-
-    /// </summary>
-
     [JsonConverter(typeof(NotnullRefNotnullStringJsonConverter))]
     public class NotnullRefNotnullString
     {

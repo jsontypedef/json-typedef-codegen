@@ -1,8 +1,5 @@
-
 using System;
-
 using System.Text.Json;
-
 using System.Text.Json.Serialization;
 
 namespace JtdCodegenE2E
@@ -10,7 +7,6 @@ namespace JtdCodegenE2E
     /// <summary>
     /// A description for discriminator
     /// </summary>
-
     [JsonConverter(typeof(RootDiscriminatorWithDescriptionJsonConverter))]
     public abstract class RootDiscriminatorWithDescription
     {

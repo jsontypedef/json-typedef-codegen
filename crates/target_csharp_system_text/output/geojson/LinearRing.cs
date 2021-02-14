@@ -1,10 +1,6 @@
-
 using System;
-
 using System.Collections.Generic;
-
 using System.Text.Json;
-
 using System.Text.Json.Serialization;
 
 namespace JtdCodegenE2E
@@ -38,7 +34,6 @@ namespace JtdCodegenE2E
     /// bounds the surface, and the interior rings (if present) bound holes
     /// within the surface.
     /// </summary>
-
     [JsonConverter(typeof(LinearRingJsonConverter))]
     public class LinearRing
     {

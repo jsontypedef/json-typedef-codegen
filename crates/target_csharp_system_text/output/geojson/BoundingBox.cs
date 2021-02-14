@@ -1,10 +1,6 @@
-
 using System;
-
 using System.Collections.Generic;
-
 using System.Text.Json;
-
 using System.Text.Json.Serialization;
 
 namespace JtdCodegenE2E
@@ -82,7 +78,6 @@ namespace JtdCodegenE2E
     /// Implementers MUST NOT use latitude values greater than 90 or less than
     /// -90 to imply an extent that is not a spherical cap.
     /// </summary>
-
     [JsonConverter(typeof(BoundingBoxJsonConverter))]
     public class BoundingBox
     {

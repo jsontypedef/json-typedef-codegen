@@ -1,18 +1,10 @@
-
 using System;
-
 using System.Collections.Generic;
-
 using System.Text.Json;
-
 using System.Text.Json.Serialization;
 
 namespace JtdCodegenE2E
 {
-    /// <summary>
-
-    /// </summary>
-
     [JsonConverter(typeof(RootJsonConverter))]
     public class Root
     {

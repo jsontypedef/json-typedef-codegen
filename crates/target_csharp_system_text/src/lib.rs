@@ -4,7 +4,8 @@ use askama::Template;
 use jtd_codegen::target::{self, inflect, metadata};
 use jtd_codegen::Result;
 use lazy_static::lazy_static;
-use std::collections::BTreeSet;
+use serde_json::Value;
+use std::collections::{BTreeMap, BTreeSet};
 use std::io::Write;
 
 lazy_static! {
@@ -143,15 +144,11 @@ impl jtd_codegen::target::Target for Target {
             }
 
             target::Item::Preamble => {
-                writeln!(
-                    out,
-                    "{}",
-                    PreambleTemplate {
-                        imports: &state.imports
-                    }
-                    .render()
-                    .unwrap()
-                )?;
+                for namespace in &state.imports {
+                    writeln!(out, "using {};", namespace)?;
+                }
+
+                writeln!(out)?;
 
                 None
             }
@@ -167,18 +164,39 @@ impl jtd_codegen::target::Target for Target {
                     "System.Text.Json.Serialization".to_string(),
                 ]);
 
+                writeln!(out, "namespace {}", &self.namespace)?;
+                writeln!(out, "{{")?;
+                write!(out, "{}", description(&metadata, 1))?;
+                writeln!(out, "    [JsonConverter(typeof({}JsonConverter))]", name)?;
+                writeln!(out, "    public class {}", name)?;
+                writeln!(out, "    {{")?;
+                writeln!(out, "        /// <summary>")?;
+                writeln!(out, "        /// The underlying data being wrapped.")?;
+                writeln!(out, "        /// </summary>")?;
+                writeln!(out, "        public {} Value {{ get; set; }}", type_)?;
+                writeln!(out, "    }}")?;
+                writeln!(out)?;
                 writeln!(
                     out,
-                    "{}",
-                    AliasTemplate {
-                        namespace: &self.namespace,
-                        metadata: &metadata,
-                        name: &name,
-                        type_: &type_,
-                    }
-                    .render()
-                    .unwrap()
+                    "    public class {0}JsonConverter : JsonConverter<{0}>",
+                    name
                 )?;
+                writeln!(out, "    {{")?;
+                writeln!(out, "        public override {} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)", name)?;
+                writeln!(out, "        {{")?;
+                writeln!(out, "            return new {} {{ Value = JsonSerializer.Deserialize<{}>(ref reader, options) }};", name, type_)?;
+                writeln!(out, "        }}")?;
+                writeln!(out)?;
+                writeln!(out, "        public override void Write(Utf8JsonWriter writer, {} value, JsonSerializerOptions options)", name)?;
+                writeln!(out, "        {{")?;
+                writeln!(
+                    out,
+                    "            JsonSerializer.Serialize<{}>(writer, value.Value, options);",
+                    type_
+                )?;
+                writeln!(out, "        }}")?;
+                writeln!(out, "    }}")?;
+                writeln!(out, "}}")?;
 
                 None
             }
@@ -201,18 +219,59 @@ impl jtd_codegen::target::Target for Target {
                     "System.Text.Json.Serialization".to_string(),
                 ]);
 
+                writeln!(out, "namespace {}", &self.namespace)?;
+                writeln!(out, "{{")?;
+                write!(out, "{}", description(&metadata, 1))?;
+                writeln!(out, "    [JsonConverter(typeof({}JsonConverter))]", name)?;
+                writeln!(out, "    public enum {}", name)?;
+                writeln!(out, "    {{")?;
+                for (index, member) in members.iter().enumerate() {
+                    if index != 0 {
+                        writeln!(out)?;
+                    }
+
+                    write!(
+                        out,
+                        "{}",
+                        enum_variant_description(&metadata, 2, &member.json_value)
+                    )?;
+                    writeln!(out, "        {},", member.name)?;
+                }
+                writeln!(out, "    }}")?;
+
                 writeln!(
                     out,
-                    "{}",
-                    EnumTemplate {
-                        namespace: &self.namespace,
-                        metadata: &metadata,
-                        name: &name,
-                        members: &members,
-                    }
-                    .render()
-                    .unwrap()
+                    "    public class {0}JsonConverter : JsonConverter<{0}>",
+                    name
                 )?;
+                writeln!(out, "    {{")?;
+                writeln!(out, "        public override {} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)", name)?;
+                writeln!(out, "        {{")?;
+                writeln!(out, "            string value = JsonSerializer.Deserialize<string>(ref reader, options);")?;
+                writeln!(out, "            switch (value)")?;
+                writeln!(out, "            {{")?;
+                for member in &members {
+                    writeln!(out, "                case {:?}:", member.json_value)?;
+                    writeln!(out, "                    return {}.{};", name, member.name)?;
+                }
+                writeln!(out, "                default:")?;
+                writeln!(out, "                    throw new ArgumentException(String.Format(\"Bad {} value: {{0}}\", value));", name)?;
+                writeln!(out, "            }}")?;
+                writeln!(out, "        }}")?;
+                writeln!(out)?;
+                writeln!(out, "        public override void Write(Utf8JsonWriter writer, {} value, JsonSerializerOptions options)", name)?;
+                writeln!(out, "        {{")?;
+                writeln!(out, "            switch (value)")?;
+                writeln!(out, "            {{")?;
+                for member in &members {
+                    writeln!(out, "                case {}.{}:", name, member.name)?;
+                    writeln!(out, "                    JsonSerializer.Serialize<string>(writer, {:?}, options);", member.json_value)?;
+                    writeln!(out, "                    return;")?;
+                }
+                writeln!(out, "            }}")?;
+                writeln!(out, "        }}")?;
+                writeln!(out, "    }}")?;
+                writeln!(out, "}}")?;
 
                 None
             }
@@ -234,18 +293,29 @@ impl jtd_codegen::target::Target for Target {
                     .imports
                     .insert("System.Text.Json.Serialization".into());
 
-                writeln!(
-                    out,
-                    "{}",
-                    StructTemplate {
-                        namespace: &self.namespace,
-                        metadata: &metadata,
-                        name: &name,
-                        fields: &fields,
+                writeln!(out, "namespace {}", &self.namespace)?;
+                writeln!(out, "{{")?;
+                write!(out, "{}", description(&metadata, 1))?;
+                writeln!(out, "    public class {}", name)?;
+                writeln!(out, "    {{")?;
+                for (index, field) in fields.into_iter().enumerate() {
+                    if index != 0 {
+                        writeln!(out)?;
                     }
-                    .render()
-                    .unwrap()
-                )?;
+
+                    write!(out, "{}", description(&field.metadata, 2))?;
+                    writeln!(out, "        [JsonPropertyName({:?})]", field.json_name)?;
+                    if field.optional {
+                        writeln!(out, "        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]")?;
+                    }
+                    writeln!(
+                        out,
+                        "        public {} {} {{ get; set; }}",
+                        field.type_, field.name
+                    )?;
+                }
+                writeln!(out, "    }}")?;
+                writeln!(out, "}}")?;
 
                 None
             }
@@ -270,20 +340,43 @@ impl jtd_codegen::target::Target for Target {
                     "System.Text.Json.Serialization".to_string(),
                 ]);
 
+                writeln!(out, "namespace {}", &self.namespace)?;
+                writeln!(out, "{{")?;
+                write!(out, "{}", description(&metadata, 1))?;
+                writeln!(out, "    [JsonConverter(typeof({}JsonConverter))]", name)?;
+                writeln!(out, "    public abstract class {}", name)?;
+                writeln!(out, "    {{")?;
+                writeln!(out, "    }}")?;
+                writeln!(out)?;
                 writeln!(
                     out,
-                    "{}",
-                    DiscriminatorTemplate {
-                        namespace: &self.namespace,
-                        metadata: &metadata,
-                        name: &name,
-                        tag_field_name: &tag_field_name,
-                        tag_json_name: &tag_json_name,
-                        variants: &variants,
-                    }
-                    .render()
-                    .unwrap()
+                    "    public class {0}JsonConverter : JsonConverter<{0}>",
+                    name
                 )?;
+                writeln!(out, "    {{")?;
+                writeln!(out, "        public override {} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)", name)?;
+                writeln!(out, "        {{")?;
+                writeln!(out, "            var readerCopy = reader;")?;
+                writeln!(out, "            var tagValue = JsonDocument.ParseValue(ref reader).RootElement.GetProperty({:?}).GetString();", tag_json_name)?;
+                writeln!(out)?;
+                writeln!(out, "            switch (tagValue)")?;
+                writeln!(out, "            {{")?;
+                for variant in &variants {
+                    writeln!(out, "                case {:?}:", variant.tag_value)?;
+                    writeln!(out, "                    return JsonSerializer.Deserialize<{}>(ref readerCopy, options);", variant.type_name)?;
+                }
+                writeln!(out, "                default:")?;
+                writeln!(out, "                    throw new ArgumentException(String.Format(\"Bad {} value: {{0}}\", tagValue));", tag_field_name)?;
+                writeln!(out, "            }}")?;
+                writeln!(out, "        }}")?;
+                writeln!(out)?;
+                writeln!(out, "        public override void Write(Utf8JsonWriter writer, {} value, JsonSerializerOptions options)", name)?;
+                writeln!(out, "        {{")?;
+                writeln!(out, "            JsonSerializer.Serialize(writer, value, value.GetType(), options);")?;
+                writeln!(out, "        }}")?;
+                writeln!(out, "    }}")?;
+                writeln!(out, "}}")?;
+
 
                 None
             }
@@ -309,22 +402,29 @@ impl jtd_codegen::target::Target for Target {
                     .imports
                     .insert("System.Text.Json.Serialization".into());
 
-                writeln!(
-                    out,
-                    "{}",
-                    DiscriminatorVariantTemplate {
-                        namespace: &self.namespace,
-                        metadata: &metadata,
-                        name: &name,
-                        parent_name: &parent_name,
-                        tag_field_name: &tag_field_name,
-                        tag_json_name: &tag_json_name,
-                        tag_value: &tag_value,
-                        fields: &fields,
+                    writeln!(out, "namespace {}", &self.namespace)?;
+                    writeln!(out, "{{")?;
+                    write!(out, "{}", description(&metadata, 1))?;
+                    writeln!(out, "    public class {} : {}", name, parent_name)?;
+                    writeln!(out, "    {{")?;
+                    writeln!(out, "        [JsonPropertyName({:?})]", tag_json_name)?;
+                    writeln!(out, "        public string {} {{ get => {:?}; }}", tag_field_name, tag_value)?;
+                    for field in fields {
+                        writeln!(out)?;
+                        write!(out, "{}", description(&field.metadata, 2))?;
+                        writeln!(out, "        [JsonPropertyName({:?})]", field.json_name)?;
+                        if field.optional {
+                            writeln!(out, "        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]")?;
+                        }
+                        writeln!(
+                            out,
+                            "        public {} {} {{ get; set; }}",
+                            field.type_, field.name
+                        )?;
                     }
-                    .render()
-                    .unwrap()
-                )?;
+                    writeln!(out, "    }}")?;
+                    writeln!(out, "}}")?;
+
 
                 None
             }
@@ -392,6 +492,31 @@ struct DiscriminatorVariantTemplate<'a> {
     tag_json_name: &'a str,
     tag_value: &'a str,
     fields: &'a [target::Field],
+}
+
+fn description(metadata: &BTreeMap<String, Value>, indent: usize) -> String {
+    doc(indent, jtd_codegen::target::metadata::description(metadata))
+}
+
+fn enum_variant_description(
+    metadata: &BTreeMap<String, Value>,
+    indent: usize,
+    value: &str,
+) -> String {
+    doc(
+        indent,
+        jtd_codegen::target::metadata::enum_variant_description(metadata, value),
+    )
+}
+
+fn doc(ident: usize, s: &str) -> String {
+    let prefix = "    ".repeat(ident);
+    jtd_codegen::target::fmt::comment_block(
+        &format!("{}/// <summary>", prefix),
+        &format!("{}/// ", prefix),
+        &format!("{}/// </summary>", prefix),
+        s,
+    )
 }
 
 mod filters {

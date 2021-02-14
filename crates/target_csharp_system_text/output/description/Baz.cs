@@ -1,16 +1,12 @@
-
 using System;
-
 using System.Text.Json;
-
 using System.Text.Json.Serialization;
 
 namespace JtdCodegenE2E
 {
     /// <summary>
-
+    /// A description for a definition
     /// </summary>
-
     [JsonConverter(typeof(BazJsonConverter))]
     public class Baz
     {

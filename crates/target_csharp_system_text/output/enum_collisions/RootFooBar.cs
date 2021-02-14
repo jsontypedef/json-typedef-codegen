@@ -1,34 +1,16 @@
-
 using System;
-
 using System.Text.Json;
-
 using System.Text.Json.Serialization;
 
 namespace JtdCodegenE2E
 {
-    /// <summary>
-
-    /// </summary>
-
     [JsonConverter(typeof(RootFooBarJsonConverter))]
     public enum RootFooBar
     {
-
-        /// <summary>
-
-        /// </summary>
-
         X,
 
-        /// <summary>
-
-        /// </summary>
-
         Y,
-
     }
-
     public class RootFooBarJsonConverter : JsonConverter<RootFooBar>
     {
         public override RootFooBar Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -36,13 +18,10 @@ namespace JtdCodegenE2E
             string value = JsonSerializer.Deserialize<string>(ref reader, options);
             switch (value)
             {
-
                 case "x":
                     return RootFooBar.X;
-
                 case "y":
                     return RootFooBar.Y;
-
                 default:
                     throw new ArgumentException(String.Format("Bad RootFooBar value: {0}", value));
             }
@@ -52,15 +31,12 @@ namespace JtdCodegenE2E
         {
             switch (value)
             {
-
                 case RootFooBar.X:
                     JsonSerializer.Serialize<string>(writer, "x", options);
                     return;
-
                 case RootFooBar.Y:
                     JsonSerializer.Serialize<string>(writer, "y", options);
                     return;
-
             }
         }
     }

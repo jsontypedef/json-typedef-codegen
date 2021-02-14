@@ -1,10 +1,6 @@
-
 using System;
-
 using System.Collections.Generic;
-
 using System.Text.Json;
-
 using System.Text.Json.Serialization;
 
 namespace JtdCodegenE2E
@@ -48,7 +44,6 @@ namespace JtdCodegenE2E
     /// follows, for example, the curvature of a body of water.  Nor is a
     /// surface of equal height perpendicular to a plumb line.
     /// </summary>
-
     [JsonConverter(typeof(PositionJsonConverter))]
     public class Position
     {
