@@ -1,22 +1,12 @@
 package com.example;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import java.util.List;
 
-/**
-
- */
-
 @JsonSerialize
-
 public class Root {
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("bar")
     private List<String> bar;
@@ -29,57 +19,48 @@ public class Root {
     @JsonProperty("foo")
     private String foo;
 
-
     public Root() {
     }
 
-
     /**
-
+     * Getter for bar.<p>
      */
-
     public List<String> getBar() {
-        return this.bar;
+        return bar;
     }
 
     /**
-
+     * Setter for bar.<p>
      */
-
     public void setBar(List<String> bar) {
         this.bar = bar;
     }
 
     /**
-
+     * Getter for baz.<p>
      */
-
     public Boolean getBaz() {
-        return this.baz;
+        return baz;
     }
 
     /**
-
+     * Setter for baz.<p>
      */
-
     public void setBaz(Boolean baz) {
         this.baz = baz;
     }
 
     /**
-
+     * Getter for foo.<p>
      */
-
     public String getFoo() {
-        return this.foo;
+        return foo;
     }
 
     /**
-
+     * Setter for foo.<p>
      */
-
     public void setFoo(String foo) {
         this.foo = foo;
     }
-
 }

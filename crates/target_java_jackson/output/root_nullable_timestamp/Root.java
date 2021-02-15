@@ -1,15 +1,8 @@
 package com.example;
 
-
 import com.fasterxml.jackson.annotation.JsonCreator;
-
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import java.time.OffsetDateTime;
-
-/**
-
- */
 
 public class Root {
     @JsonValue

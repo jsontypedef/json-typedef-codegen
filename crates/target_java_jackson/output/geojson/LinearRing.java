@@ -1,10 +1,7 @@
 package com.example;
 
-
 import com.fasterxml.jackson.annotation.JsonCreator;
-
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import java.util.List;
 
 /**
@@ -36,7 +33,6 @@ import java.util.List;
  * bounds the surface, and the interior rings (if present) bound holes
  * within the surface.
  */
-
 public class LinearRing {
     @JsonValue
     private List<Position> value;

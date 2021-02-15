@@ -1,14 +1,9 @@
 package com.example;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import java.util.List;
 
 /**
@@ -40,12 +35,9 @@ import java.util.List;
  * (MultiPoint, MultiLineString, or MultiPolygon) could be used
  * instead.
  */
-
 @JsonSerialize
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GeojsonObjectGeometryCollection extends GeojsonObject {
-
-    
     @JsonProperty("geometries")
     private List<GeojsonObject> geometries;
 
@@ -53,25 +45,34 @@ public class GeojsonObjectGeometryCollection extends GeojsonObject {
     @JsonProperty("bbox")
     private BoundingBox bbox;
 
-
     public GeojsonObjectGeometryCollection() {
     }
 
-
+    /**
+     * Getter for geometries.<p>
+     */
     public List<GeojsonObject> getGeometries() {
-        return this.geometries;
+        return geometries;
     }
 
+    /**
+     * Setter for geometries.<p>
+     */
     public void setGeometries(List<GeojsonObject> geometries) {
         this.geometries = geometries;
     }
 
+    /**
+     * Getter for bbox.<p>
+     */
     public BoundingBox getBbox() {
-        return this.bbox;
+        return bbox;
     }
 
+    /**
+     * Setter for bbox.<p>
+     */
     public void setBbox(BoundingBox bbox) {
         this.bbox = bbox;
     }
-
 }

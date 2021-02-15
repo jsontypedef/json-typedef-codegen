@@ -1,8 +1,6 @@
 package com.example;
 
-
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
@@ -20,28 +18,17 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  *     GeoJSON processors MAY interpret Geometry objects with empty
  *     "coordinates" arrays as null objects.
  */
-
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-
     @JsonSubTypes.Type(name = "Feature", value = GeojsonObjectFeature.class),
-
     @JsonSubTypes.Type(name = "FeatureCollection", value = GeojsonObjectFeatureCollection.class),
-
     @JsonSubTypes.Type(name = "GeometryCollection", value = GeojsonObjectGeometryCollection.class),
-
     @JsonSubTypes.Type(name = "LineString", value = GeojsonObjectLineString.class),
-
     @JsonSubTypes.Type(name = "MultiLineString", value = GeojsonObjectMultiLineString.class),
-
     @JsonSubTypes.Type(name = "MultiPoint", value = GeojsonObjectMultiPoint.class),
-
     @JsonSubTypes.Type(name = "MultiPolygon", value = GeojsonObjectMultiPolygon.class),
-
     @JsonSubTypes.Type(name = "Point", value = GeojsonObjectPoint.class),
-
     @JsonSubTypes.Type(name = "Polygon", value = GeojsonObjectPolygon.class),
-
 })
 public abstract class GeojsonObject {
 }

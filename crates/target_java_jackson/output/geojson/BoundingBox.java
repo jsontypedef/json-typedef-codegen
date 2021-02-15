@@ -1,10 +1,7 @@
 package com.example;
 
-
 import com.fasterxml.jackson.annotation.JsonCreator;
-
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import java.util.List;
 
 /**
@@ -80,7 +77,6 @@ import java.util.List;
  * Implementers MUST NOT use latitude values greater than 90 or less than
  * -90 to imply an extent that is not a spherical cap.
  */
-
 public class BoundingBox {
     @JsonValue
     private List<Double> value;

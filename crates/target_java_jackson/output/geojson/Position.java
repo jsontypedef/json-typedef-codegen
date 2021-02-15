@@ -1,10 +1,7 @@
 package com.example;
 
-
 import com.fasterxml.jackson.annotation.JsonCreator;
-
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import java.util.List;
 
 /**
@@ -46,7 +43,6 @@ import java.util.List;
  * follows, for example, the curvature of a body of water.  Nor is a
  * surface of equal height perpendicular to a plumb line.
  */
-
 public class Position {
     @JsonValue
     private List<Double> value;

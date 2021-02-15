@@ -1,10 +1,7 @@
 package com.example;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import java.util.List;
 
 /**
@@ -14,26 +11,25 @@ import java.util.List;
  * Each element of the array is a Feature object as defined above.  It
  * is possible for this array to be empty.
  */
-
 @JsonSerialize
-
 public class GeojsonObjectFeatureCollection extends GeojsonObject {
-
-    
     @JsonProperty("features")
     private List<GeojsonObject> features;
-
 
     public GeojsonObjectFeatureCollection() {
     }
 
-
+    /**
+     * Getter for features.<p>
+     */
     public List<GeojsonObject> getFeatures() {
-        return this.features;
+        return features;
     }
 
+    /**
+     * Setter for features.<p>
+     */
     public void setFeatures(List<GeojsonObject> features) {
         this.features = features;
     }
-
 }
