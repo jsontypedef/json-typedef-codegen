@@ -1,6 +1,4 @@
-
 from dataclasses import dataclass
-
 from typing import Any, Optional, Union, get_args, get_origin
 
 def _from_json(cls, data):
@@ -22,136 +20,60 @@ def _to_json(data):
     if type(data) is dict:
         return { k: _to_json(v) for k, v in data.items() }
     return data.to_json()
+
 @dataclass
 class Root0:
-    """
-
-    """
-
-    foo: str
+    foo: 'str'
 
     @classmethod
-    def from_json(cls, data) -> "Root0":
-        """
-        Construct an instance of this class from parsed JSON data.
-        """
-
+    def from_json(cls, data) -> 'Root0':
         return {
-
             "bar": RootBar,
-
             "quux": RootQuux,
-
         }[data["foo"]].from_json(data)
 
     def to_json(self):
-        """
-        Generate JSON-ready data from an instance of this class.
-        """
+        pass
 
-        pass # subclasses will implement this
 @dataclass
 class RootBar(Root0):
-    """
-
-    """
-
-
     baz: 'str'
-    """
-
-    """
-
-
 
     @classmethod
-    def from_json(cls, data) -> "RootBar":
-        """
-        Construct an instance of this class from parsed JSON data.
-        """
-
+    def from_json(cls, data) -> 'RootBar':
         return cls(
             "bar",
-
             _from_json(str, data.get("baz")),
-
         )
 
     def to_json(self):
-        """
-        Generate JSON-ready data from an instance of this class.
-        """
+        data = { "foo": "bar" }
+        data["baz"] = _to_json(self.baz)
+        return data
 
-        out = {}
-        out["foo"] = "bar"
-
-        
-        out["baz"] = _to_json(self.baz)
-        
-
-        return out
 @dataclass
 class RootQuux(Root0):
-    """
-
-    """
-
-
     quuz: 'str'
-    """
-
-    """
-
-
 
     @classmethod
-    def from_json(cls, data) -> "RootQuux":
-        """
-        Construct an instance of this class from parsed JSON data.
-        """
-
+    def from_json(cls, data) -> 'RootQuux':
         return cls(
             "quux",
-
             _from_json(str, data.get("quuz")),
-
         )
 
     def to_json(self):
-        """
-        Generate JSON-ready data from an instance of this class.
-        """
+        data = { "foo": "quux" }
+        data["quuz"] = _to_json(self.quuz)
+        return data
 
-        out = {}
-        out["foo"] = "quux"
-
-        
-        out["quuz"] = _to_json(self.quuz)
-        
-
-        return out
 @dataclass
 class Root:
-    """
-
-    """
-
-    value: "Optional[Root0]"
-    """
-    The value being wrapped.
-    """
+    value: 'Optional[Root0]'
 
     @classmethod
-    def from_json(cls, data) -> "Root":
-        """
-        Construct an instance of this class from parsed JSON data.
-        """
-
+    def from_json(cls, data) -> 'Root':
         return cls(_from_json(Optional[Root0], data))
 
     def to_json(self):
-        """
-        Generate JSON-ready data from an instance of this class.
-        """
-
         return _to_json(self.value)

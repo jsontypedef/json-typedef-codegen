@@ -1,6 +1,4 @@
-
 from dataclasses import dataclass
-
 from typing import Any, Optional, Union, get_args, get_origin
 
 def _from_json(cls, data):
@@ -22,41 +20,18 @@ def _to_json(data):
     if type(data) is dict:
         return { k: _to_json(v) for k, v in data.items() }
     return data.to_json()
+
 @dataclass
 class Root:
-    """
-
-    """
-
-
     foo: 'Optional[str]'
-    """
-
-    """
-
-
 
     @classmethod
-    def from_json(cls, data) -> "Root":
-        """
-        Construct an instance of this class from parsed JSON data.
-        """
-
+    def from_json(cls, data) -> 'Root':
         return cls(
-
             _from_json(Optional[str], data.get("foo")),
-
         )
 
     def to_json(self):
-        """
-        Generate JSON-ready data from an instance of this class.
-        """
-
-        out = {}
-
-        
-        out["foo"] = _to_json(self.foo)
-        
-
-        return out
+        data = {}
+        data["foo"] = _to_json(self.foo)
+        return data

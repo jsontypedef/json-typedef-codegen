@@ -1,6 +1,4 @@
-
 from dataclasses import dataclass
-
 from typing import Any, Dict, List, Optional, Union, get_args, get_origin
 
 def _from_json(cls, data):
@@ -22,129 +20,46 @@ def _to_json(data):
     if type(data) is dict:
         return { k: _to_json(v) for k, v in data.items() }
     return data.to_json()
+
 @dataclass
 class RootOverrideTypeDiscriminatorBaz(object):
-    """
-
-    """
-
-
 
     @classmethod
-    def from_json(cls, data) -> "RootOverrideTypeDiscriminatorBaz":
-        """
-        Construct an instance of this class from parsed JSON data.
-        """
-
+    def from_json(cls, data) -> 'RootOverrideTypeDiscriminatorBaz':
         return cls(
             "baz",
-
         )
 
     def to_json(self):
-        """
-        Generate JSON-ready data from an instance of this class.
-        """
+        data = { "foo": "baz" }
+        return data
 
-        out = {}
-        out["foo"] = "baz"
-
-        return out
 @dataclass
 class Root:
-    """
-
-    """
-
-
     override_elements_container: 'List[str]'
-    """
-
-    """
-
-
     override_type_discriminator: 'object'
-    """
-
-    """
-
-
     override_type_enum: 'object'
-    """
-
-    """
-
-
     override_type_expr: 'object'
-    """
-
-    """
-
-
     override_type_properties: 'object'
-    """
-
-    """
-
-
     override_values_container: 'Dict[str, str]'
-    """
-
-    """
-
-
 
     @classmethod
-    def from_json(cls, data) -> "Root":
-        """
-        Construct an instance of this class from parsed JSON data.
-        """
-
+    def from_json(cls, data) -> 'Root':
         return cls(
-
             _from_json(List[str], data.get("override_elements_container")),
-
             _from_json(object, data.get("override_type_discriminator")),
-
             _from_json(object, data.get("override_type_enum")),
-
             _from_json(object, data.get("override_type_expr")),
-
             _from_json(object, data.get("override_type_properties")),
-
             _from_json(Dict[str, str], data.get("override_values_container")),
-
         )
 
     def to_json(self):
-        """
-        Generate JSON-ready data from an instance of this class.
-        """
-
-        out = {}
-
-        
-        out["override_elements_container"] = _to_json(self.override_elements_container)
-        
-
-        
-        out["override_type_discriminator"] = _to_json(self.override_type_discriminator)
-        
-
-        
-        out["override_type_enum"] = _to_json(self.override_type_enum)
-        
-
-        
-        out["override_type_expr"] = _to_json(self.override_type_expr)
-        
-
-        
-        out["override_type_properties"] = _to_json(self.override_type_properties)
-        
-
-        
-        out["override_values_container"] = _to_json(self.override_values_container)
-        
-
-        return out
+        data = {}
+        data["override_elements_container"] = _to_json(self.override_elements_container)
+        data["override_type_discriminator"] = _to_json(self.override_type_discriminator)
+        data["override_type_enum"] = _to_json(self.override_type_enum)
+        data["override_type_expr"] = _to_json(self.override_type_expr)
+        data["override_type_properties"] = _to_json(self.override_type_properties)
+        data["override_values_container"] = _to_json(self.override_values_container)
+        return data

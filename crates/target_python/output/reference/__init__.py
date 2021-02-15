@@ -1,6 +1,4 @@
-
 from dataclasses import dataclass
-
 from typing import Any, Union, get_args, get_origin
 
 def _from_json(cls, data):
@@ -22,103 +20,47 @@ def _to_json(data):
     if type(data) is dict:
         return { k: _to_json(v) for k, v in data.items() }
     return data.to_json()
+
 @dataclass
 class Root:
-    """
-
-    """
-
-    value: "Foo"
-    """
-    The value being wrapped.
-    """
+    value: 'Foo'
 
     @classmethod
-    def from_json(cls, data) -> "Root":
-        """
-        Construct an instance of this class from parsed JSON data.
-        """
-
+    def from_json(cls, data) -> 'Root':
         return cls(_from_json(Foo, data))
 
     def to_json(self):
-        """
-        Generate JSON-ready data from an instance of this class.
-        """
-
         return _to_json(self.value)
+
 @dataclass
 class Bar:
-    """
-
-    """
-
-    value: "Baz"
-    """
-    The value being wrapped.
-    """
+    value: 'Baz'
 
     @classmethod
-    def from_json(cls, data) -> "Bar":
-        """
-        Construct an instance of this class from parsed JSON data.
-        """
-
+    def from_json(cls, data) -> 'Bar':
         return cls(_from_json(Baz, data))
 
     def to_json(self):
-        """
-        Generate JSON-ready data from an instance of this class.
-        """
-
         return _to_json(self.value)
+
 @dataclass
 class Baz:
-    """
-
-    """
-
-    value: "str"
-    """
-    The value being wrapped.
-    """
+    value: 'str'
 
     @classmethod
-    def from_json(cls, data) -> "Baz":
-        """
-        Construct an instance of this class from parsed JSON data.
-        """
-
+    def from_json(cls, data) -> 'Baz':
         return cls(_from_json(str, data))
 
     def to_json(self):
-        """
-        Generate JSON-ready data from an instance of this class.
-        """
-
         return _to_json(self.value)
+
 @dataclass
 class Foo:
-    """
-
-    """
-
-    value: "Bar"
-    """
-    The value being wrapped.
-    """
+    value: 'Bar'
 
     @classmethod
-    def from_json(cls, data) -> "Foo":
-        """
-        Construct an instance of this class from parsed JSON data.
-        """
-
+    def from_json(cls, data) -> 'Foo':
         return cls(_from_json(Bar, data))
 
     def to_json(self):
-        """
-        Generate JSON-ready data from an instance of this class.
-        """
-
         return _to_json(self.value)

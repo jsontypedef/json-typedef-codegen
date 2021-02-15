@@ -1,9 +1,8 @@
-// use jtd_codegen::target::*;
-
 use askama::Template;
 use jtd_codegen::target::{self, inflect, metadata};
 use jtd_codegen::Result;
 use lazy_static::lazy_static;
+use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 use std::io::Write;
 
@@ -12,10 +11,16 @@ lazy_static! {
         .lines()
         .map(str::to_owned)
         .collect();
+    static ref INITIALISMS: BTreeSet<String> = include_str!("initialisms")
+        .lines()
+        .map(str::to_owned)
+        .collect();
     static ref TYPE_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
             KEYWORDS.clone(),
-            inflect::CombiningInflector::new(inflect::Case::pascal_case())
+            inflect::CombiningInflector::new(inflect::Case::pascal_case_with_initialisms(
+                INITIALISMS.clone()
+            ))
         ));
     static ref FIELD_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
@@ -158,15 +163,47 @@ impl jtd_codegen::target::Target for Target {
                         "get_args".into(),
                     ]);
 
+                for (module, idents) in &state.imports {
+                    writeln!(
+                        out,
+                        "from {} import {}",
+                        module,
+                        idents.iter().cloned().collect::<Vec<_>>().join(", ")
+                    )?;
+                }
+
+                writeln!(out)?;
+                writeln!(out, "def _from_json(cls, data):")?;
                 writeln!(
                     out,
-                    "{}",
-                    PreambleTemplate {
-                        imports: &state.imports
-                    }
-                    .render()
-                    .unwrap()
+                    "    if data is None or cls in [bool, int, float, str, object] or cls is Any:"
                 )?;
+                writeln!(out, "        return data")?;
+                writeln!(out, "    if get_origin(cls) is Union:")?;
+                writeln!(out, "        return _from_json(get_args(cls)[0], data)")?;
+                writeln!(out, "    if get_origin(cls) is list:")?;
+                writeln!(
+                    out,
+                    "        return [_from_json(get_args(cls)[0], d) for d in data]"
+                )?;
+                writeln!(out, "    if get_origin(cls) is dict:")?;
+                writeln!(out, "        return {{ k: _from_json(get_args(cls)[1], v) for k, v in data.items() }}")?;
+                writeln!(out, "    return cls.from_json(data)")?;
+                writeln!(out)?;
+                writeln!(out, "def _to_json(data):")?;
+                writeln!(
+                    out,
+                    "    if data is None or type(data) in [bool, int, float, str, object]:"
+                )?;
+                writeln!(out, "        return data")?;
+                writeln!(out, "    if type(data) is list:")?;
+                writeln!(out, "        return [_to_json(d) for d in data]")?;
+                writeln!(out, "    if type(data) is dict:")?;
+                writeln!(
+                    out,
+                    "        return {{ k: _to_json(v) for k, v in data.items() }}"
+                )?;
+                writeln!(out, "    return data.to_json()")?;
 
                 None
             }
@@ -182,17 +219,18 @@ impl jtd_codegen::target::Target for Target {
                     .or_default()
                     .insert("dataclass".into());
 
-                writeln!(
-                    out,
-                    "{}",
-                    AliasTemplate {
-                        metadata: &metadata,
-                        name: &name,
-                        type_: &type_,
-                    }
-                    .render()
-                    .unwrap()
-                )?;
+                writeln!(out)?;
+                writeln!(out, "@dataclass")?;
+                writeln!(out, "class {}:", name)?;
+                write!(out, "{}", description(&metadata, 1))?;
+                writeln!(out, "    value: '{}'", type_)?;
+                writeln!(out)?;
+                writeln!(out, "    @classmethod")?;
+                writeln!(out, "    def from_json(cls, data) -> '{}':", name)?;
+                writeln!(out, "        return cls(_from_json({}, data))", type_)?;
+                writeln!(out)?;
+                writeln!(out, "    def to_json(self):")?;
+                writeln!(out, "        return _to_json(self.value)")?;
 
                 None
             }
@@ -212,17 +250,23 @@ impl jtd_codegen::target::Target for Target {
                     .or_default()
                     .insert("Enum".into());
 
-                writeln!(
-                    out,
-                    "{}",
-                    EnumTemplate {
-                        metadata: &metadata,
-                        name: &name,
-                        members: &members,
-                    }
-                    .render()
-                    .unwrap()
-                )?;
+                writeln!(out)?;
+                writeln!(out, "class {}(Enum):", name)?;
+                write!(out, "{}", description(&metadata, 1))?;
+                for member in &members {
+                    writeln!(out, "    {} = {:?}", member.name, member.json_value,)?;
+                    write!(
+                        out,
+                        "{}",
+                        enum_variant_description(&metadata, 1, &member.json_value)
+                    )?;
+                }
+                writeln!(out, "    @classmethod")?;
+                writeln!(out, "    def from_json(cls, data) -> '{}':", name)?;
+                writeln!(out, "        return cls(data)")?;
+                writeln!(out)?;
+                writeln!(out, "    def to_json(self):")?;
+                writeln!(out, "        return self.value")?;
 
                 None
             }
@@ -249,17 +293,47 @@ impl jtd_codegen::target::Target for Target {
                     .or_default()
                     .insert("Optional".into());
 
-                writeln!(
-                    out,
-                    "{}",
-                    StructTemplate {
-                        metadata: &metadata,
-                        name: &name,
-                        fields: &fields,
+                writeln!(out)?;
+                writeln!(out, "@dataclass")?;
+                writeln!(out, "class {}:", name)?;
+                write!(out, "{}", description(&metadata, 1))?;
+                for field in &fields {
+                    writeln!(out, "    {}: '{}'", field.name, field.type_,)?;
+                    write!(out, "{}", description(&field.metadata, 1))?;
+                }
+
+                writeln!(out)?;
+                writeln!(out, "    @classmethod")?;
+                writeln!(out, "    def from_json(cls, data) -> '{}':", name)?;
+                writeln!(out, "        return cls(")?;
+                for field in &fields {
+                    writeln!(
+                        out,
+                        "            _from_json({}, data.get({:?})),",
+                        field.type_, field.json_name
+                    )?;
+                }
+                writeln!(out, "        )")?;
+                writeln!(out)?;
+                writeln!(out, "    def to_json(self):")?;
+                writeln!(out, "        data = {{}}")?;
+                for field in &fields {
+                    if field.optional {
+                        writeln!(out, "        if self.{} is not None:", field.name)?;
+                        writeln!(
+                            out,
+                            "             data[{:?}] = _to_json(self.{})",
+                            field.json_name, field.name
+                        )?;
+                    } else {
+                        writeln!(
+                            out,
+                            "        data[{:?}] = _to_json(self.{})",
+                            field.json_name, field.name
+                        )?;
                     }
-                    .render()
-                    .unwrap()
-                )?;
+                }
+                writeln!(out, "        return data")?;
 
                 None
             }
@@ -281,20 +355,26 @@ impl jtd_codegen::target::Target for Target {
                     .or_default()
                     .insert("dataclass".into());
 
-                writeln!(
-                    out,
-                    "{}",
-                    DiscriminatorTemplate {
-                        metadata: &metadata,
-                        name: &name,
-                        tag_field_name: &tag_field_name,
-                        tag_json_name: &tag_json_name,
-                        variants: &variants,
-                    }
-                    .render()
-                    .unwrap()
-                )?;
-
+                writeln!(out)?;
+                writeln!(out, "@dataclass")?;
+                writeln!(out, "class {}:", name)?;
+                write!(out, "{}", description(&metadata, 1))?;
+                writeln!(out, "    {}: 'str'", tag_field_name)?;
+                writeln!(out)?;
+                writeln!(out, "    @classmethod")?;
+                writeln!(out, "    def from_json(cls, data) -> '{}':", name)?;
+                writeln!(out, "        return {{")?;
+                for variant in &variants {
+                    writeln!(
+                        out,
+                        "            {:?}: {},",
+                        variant.tag_value, variant.type_name
+                    )?;
+                }
+                writeln!(out, "        }}[data[{:?}]].from_json(data)", tag_json_name)?;
+                writeln!(out)?;
+                writeln!(out, "    def to_json(self):")?;
+                writeln!(out, "        pass")?;
                 None
             }
 
@@ -317,20 +397,52 @@ impl jtd_codegen::target::Target for Target {
                     .or_default()
                     .insert("dataclass".into());
 
+                writeln!(out)?;
+                writeln!(out, "@dataclass")?;
+                writeln!(out, "class {}({}):", name, parent_name)?;
+                write!(out, "{}", description(&metadata, 1))?;
+                for field in &fields {
+                    writeln!(out, "    {}: '{}'", field.name, field.type_,)?;
+                    write!(out, "{}", description(&field.metadata, 1))?;
+                }
+
+                writeln!(out)?;
+                writeln!(out, "    @classmethod")?;
+                writeln!(out, "    def from_json(cls, data) -> '{}':", name)?;
+                writeln!(out, "        return cls(")?;
+                writeln!(out, "            {:?},", tag_value)?;
+                for field in &fields {
+                    writeln!(
+                        out,
+                        "            _from_json({}, data.get({:?})),",
+                        field.type_, field.json_name
+                    )?;
+                }
+                writeln!(out, "        )")?;
+                writeln!(out)?;
+                writeln!(out, "    def to_json(self):")?;
                 writeln!(
                     out,
-                    "{}",
-                    DiscriminatorVariantTemplate {
-                        metadata: &metadata,
-                        name: &name,
-                        parent_name: &parent_name,
-                        tag_json_name: &tag_json_name,
-                        tag_value: &tag_value,
-                        fields: &fields,
-                    }
-                    .render()
-                    .unwrap()
+                    "        data = {{ {:?}: {:?} }}",
+                    tag_json_name, tag_value
                 )?;
+                for field in &fields {
+                    if field.optional {
+                        writeln!(out, "        if self.{} is not None:", field.name)?;
+                        writeln!(
+                            out,
+                            "             data[{:?}] = _to_json(self.{})",
+                            field.json_name, field.name
+                        )?;
+                    } else {
+                        writeln!(
+                            out,
+                            "        data[{:?}] = _to_json(self.{})",
+                            field.json_name, field.name
+                        )?;
+                    }
+                }
+                writeln!(out, "        return data")?;
 
                 None
             }
@@ -425,6 +537,37 @@ mod filters {
             &format!("{}\"\"\"", prefix),
             s,
         )
+    }
+}
+
+fn description(metadata: &BTreeMap<String, Value>, indent: usize) -> String {
+    doc(indent, jtd_codegen::target::metadata::description(metadata))
+}
+
+fn enum_variant_description(
+    metadata: &BTreeMap<String, Value>,
+    indent: usize,
+    value: &str,
+) -> String {
+    doc(
+        indent,
+        jtd_codegen::target::metadata::enum_variant_description(metadata, value),
+    )
+}
+
+fn doc(ident: usize, s: &str) -> String {
+    let prefix = "    ".repeat(ident);
+    let out = jtd_codegen::target::fmt::comment_block(
+        &format!("{}\"\"\"", prefix),
+        &format!("{}", prefix),
+        &format!("{}\"\"\"", prefix),
+        s,
+    );
+
+    if out.is_empty() {
+        out
+    } else {
+        out + "\n"
     }
 }
 
