@@ -377,7 +377,6 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out, "    }}")?;
                 writeln!(out, "}}")?;
 
-
                 None
             }
 
@@ -402,29 +401,32 @@ impl jtd_codegen::target::Target for Target {
                     .imports
                     .insert("System.Text.Json.Serialization".into());
 
-                    writeln!(out, "namespace {}", &self.namespace)?;
-                    writeln!(out, "{{")?;
-                    write!(out, "{}", description(&metadata, 1))?;
-                    writeln!(out, "    public class {} : {}", name, parent_name)?;
-                    writeln!(out, "    {{")?;
-                    writeln!(out, "        [JsonPropertyName({:?})]", tag_json_name)?;
-                    writeln!(out, "        public string {} {{ get => {:?}; }}", tag_field_name, tag_value)?;
-                    for field in fields {
-                        writeln!(out)?;
-                        write!(out, "{}", description(&field.metadata, 2))?;
-                        writeln!(out, "        [JsonPropertyName({:?})]", field.json_name)?;
-                        if field.optional {
-                            writeln!(out, "        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]")?;
-                        }
-                        writeln!(
-                            out,
-                            "        public {} {} {{ get; set; }}",
-                            field.type_, field.name
-                        )?;
+                writeln!(out, "namespace {}", &self.namespace)?;
+                writeln!(out, "{{")?;
+                write!(out, "{}", description(&metadata, 1))?;
+                writeln!(out, "    public class {} : {}", name, parent_name)?;
+                writeln!(out, "    {{")?;
+                writeln!(out, "        [JsonPropertyName({:?})]", tag_json_name)?;
+                writeln!(
+                    out,
+                    "        public string {} {{ get => {:?}; }}",
+                    tag_field_name, tag_value
+                )?;
+                for field in fields {
+                    writeln!(out)?;
+                    write!(out, "{}", description(&field.metadata, 2))?;
+                    writeln!(out, "        [JsonPropertyName({:?})]", field.json_name)?;
+                    if field.optional {
+                        writeln!(out, "        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]")?;
                     }
-                    writeln!(out, "    }}")?;
-                    writeln!(out, "}}")?;
-
+                    writeln!(
+                        out,
+                        "        public {} {} {{ get; set; }}",
+                        field.type_, field.name
+                    )?;
+                }
+                writeln!(out, "    }}")?;
+                writeln!(out, "}}")?;
 
                 None
             }
