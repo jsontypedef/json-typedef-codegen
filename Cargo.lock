@@ -245,7 +245,6 @@ dependencies = [
 name = "jtd_codegen_target_csharp_system_text"
 version = "0.1.0"
 dependencies = [
- "askama",
  "jtd-codegen",
  "jtd_codegen_test",
  "lazy_static",
