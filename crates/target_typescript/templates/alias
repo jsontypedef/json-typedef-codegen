@@ -1,2 +1,0 @@
-{{ metadata|description(0) }}
-export type {{ name }} = {{ type_ }};

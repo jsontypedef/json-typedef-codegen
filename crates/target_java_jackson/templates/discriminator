@@ -1,9 +1,0 @@
-{{ metadata|description(0) }}
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = {{ "{:?}"|format(tag_json_name) }})
-@JsonSubTypes({
-{% for variant in variants %}
-    @JsonSubTypes.Type(name = {{ "{:?}"|format(variant.tag_value)}}, value = {{ variant.type_name }}.class),
-{% endfor %}
-})
-public abstract class {{ name }} {
-}

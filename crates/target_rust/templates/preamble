@@ -1,3 +1,0 @@
-{% for (module, idents) in imports %}
-use {{ module }}::{{ "{" }}{{ idents|join(", ") }}{{ "}" }};
-{% endfor %}

@@ -1,7 +1,0 @@
-{{ metadata|description(0) }}
-export enum {{ name }} {
-{% for member in members %}
-{{ metadata|enum_variant_description(1, member.json_value) }}
-	{{ member.name }} = {{ "{:?}"|format(member.json_value) }},
-{% endfor %}
-}

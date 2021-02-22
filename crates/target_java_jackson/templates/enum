@@ -1,8 +1,0 @@
-{{ metadata|description(0) }}
-public enum {{ name }} {
-{% for member in members %}
-{{ metadata|enum_variant_description(2, member.json_value) }}
-    @JsonProperty({{ "{:?}"|format(member.json_value) }})
-    {{ member.name }},
-{% endfor %}
-}

@@ -24,6 +24,7 @@ macro_rules! std_test_cases {
         $crate::strict_std_test_case!($target, elements);
         $crate::strict_std_test_case!($target, enum_collisions);
         $crate::strict_std_test_case!($target, enum_variant_collisions);
+        $crate::strict_std_test_case!($target, initialisms);
         $crate::strict_std_test_case!($target, keywords);
         $crate::strict_std_test_case!($target, nullable_discriminator);
         $crate::strict_std_test_case!($target, nullable_enum);

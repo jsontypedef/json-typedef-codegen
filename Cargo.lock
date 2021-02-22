@@ -245,7 +245,6 @@ dependencies = [
 name = "jtd_codegen_target_csharp_system_text"
 version = "0.1.0"
 dependencies = [
- "askama",
  "jtd-codegen",
  "jtd_codegen_test",
  "lazy_static",
@@ -256,7 +255,6 @@ dependencies = [
 name = "jtd_codegen_target_go"
 version = "0.1.0"
 dependencies = [
- "askama",
  "jtd-codegen",
  "jtd_codegen_test",
  "lazy_static",
@@ -278,7 +276,6 @@ dependencies = [
 name = "jtd_codegen_target_python"
 version = "0.1.0"
 dependencies = [
- "askama",
  "jtd-codegen",
  "jtd_codegen_test",
  "lazy_static",
@@ -289,7 +286,6 @@ dependencies = [
 name = "jtd_codegen_target_rust"
 version = "0.1.0"
 dependencies = [
- "askama",
  "jtd-codegen",
  "jtd_codegen_test",
  "lazy_static",
@@ -300,7 +296,6 @@ dependencies = [
 name = "jtd_codegen_target_typescript"
 version = "0.1.0"
 dependencies = [
- "askama",
  "jtd-codegen",
  "jtd_codegen_test",
  "lazy_static",

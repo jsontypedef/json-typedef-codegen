@@ -1,9 +1,0 @@
-{{ metadata|description(1) }}
-type {{ name }} string
-
-const (
-{% for member in members %}
-{{ metadata|enum_variant_description(1, member.json_value) }}
-	{{ member.name }} {{ name }} = {{ "{:?}"|format(member.json_value) }}
-{% endfor %}
-)

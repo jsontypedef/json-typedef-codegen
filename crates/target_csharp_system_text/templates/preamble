@@ -1,3 +1,0 @@
-{% for namespace in imports %}
-using {{ namespace }};
-{% endfor %}
