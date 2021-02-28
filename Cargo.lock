@@ -293,6 +293,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "jtd_codegen_target_ruby_sig"
+version = "0.1.0"
+dependencies = [
+ "jtd-codegen",
+ "jtd_codegen_test",
+ "lazy_static",
+ "serde_json",
+]
+
+[[package]]
 name = "jtd_codegen_target_rust"
 version = "0.2.0"
 dependencies = [
