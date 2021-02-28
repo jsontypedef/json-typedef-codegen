@@ -7,6 +7,7 @@
                 "goType": "interface{}",
                 "javaJacksonType": "Object",
                 "pythonType": "object",
+                "rubyType": "Object",
                 "rustType": "serde_json::Value",
                 "typescriptType": "any"
             }
@@ -37,6 +38,7 @@
                 "csharpSystemTextType": "object",
                 "goType": "interface{}",
                 "pythonType": "object",
+                "rubyType": "Object",
                 "rustType": "serde_json::Value",
                 "typescriptType": "any"
             }
@@ -48,6 +50,7 @@
                 "goType": "interface{}",
                 "javaJacksonType": "Object",
                 "pythonType": "object",
+                "rubyType": "Object",
                 "rustType": "serde_json::Value",
                 "typescriptType": "any"
             }
@@ -62,6 +65,7 @@
                         "goType": "interface{}",
                         "javaJacksonType": "Object",
                         "pythonType": "object",
+                        "rubyType": "Object",
                         "rustType": "serde_json::Value",
                         "typescriptType": "any"
                     }
@@ -75,6 +79,7 @@
                 "goType": "interface{}",
                 "javaJacksonType": "Object",
                 "pythonType": "object",
+                "rubyType": "Object",
                 "rustType": "serde_json::Value",
                 "typescriptType": "any"
             }

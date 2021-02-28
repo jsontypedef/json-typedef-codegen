@@ -95,6 +95,7 @@ pub enum Item {
         out_dir: PathBuf,
     },
     Preamble,
+    Postamble,
     Alias {
         metadata: Metadata,
         name: String,
