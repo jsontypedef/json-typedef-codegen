@@ -197,25 +197,6 @@ impl jtd_codegen::target::Target for Target {
                 name,
                 type_,
             } => {
-                // state
-                //     .imports
-                //     .entry("dataclasses".into())
-                //     .or_default()
-                //     .insert("dataclass".into());
-
-                // writeln!(out)?;
-                // writeln!(out, "@dataclass")?;
-                // writeln!(out, "class {}:", name)?;
-                // write!(out, "{}", description(&metadata, 1))?;
-                // writeln!(out, "    value: '{}'", type_)?;
-                // writeln!(out)?;
-                // writeln!(out, "    @classmethod")?;
-                // writeln!(out, "    def from_json(cls, data) -> '{}':", name)?;
-                // writeln!(out, "        return cls(_from_json({}, data))", type_)?;
-                // writeln!(out)?;
-                // writeln!(out, "    def to_json(self):")?;
-                // writeln!(out, "        return _to_json(self.value)")?;
-
                 writeln!(out)?;
                 write!(out, "{}", description(&metadata, 1))?;
                 writeln!(out, "  class {}", name)?;
@@ -373,26 +354,6 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out, "    end")?;
                 writeln!(out, "  end")?;
 
-                // writeln!(out)?;
-                // writeln!(out, "@dataclass")?;
-                // writeln!(out, "class {}:", name)?;
-                // write!(out, "{}", description(&metadata, 1))?;
-                // writeln!(out, "    {}: 'str'", tag_field_name)?;
-                // writeln!(out)?;
-                // writeln!(out, "    @classmethod")?;
-                // writeln!(out, "    def from_json(cls, data) -> '{}':", name)?;
-                // writeln!(out, "        return {{")?;
-                // for variant in &variants {
-                //     writeln!(
-                //         out,
-                //         "            {:?}: {},",
-                //         variant.tag_value, variant.type_name
-                //     )?;
-                // }
-                // writeln!(out, "        }}[data[{:?}]].from_json(data)", tag_json_name)?;
-                // writeln!(out)?;
-                // writeln!(out, "    def to_json(self):")?;
-                // writeln!(out, "        pass")?;
                 None
             }
 
