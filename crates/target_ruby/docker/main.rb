@@ -1,8 +1,8 @@
 require 'json'
-require_relative 'gen/jtd_codegen_e2e'
+require_relative 'gen/jtdcodegen_e2e'
 
 $stdout.sync = true
 $stdin.each do |line|
-  value = JtdCodegenE2e::MAIN.from_json(JSON.parse(line))
-  puts JSON.generate(value.to_json)
+  value = JTDCodegenE2E::MAIN.from_json_data(JSON.parse(line))
+  puts JSON.generate(value.to_json_data)
 end

@@ -17,14 +17,7 @@ lazy_static! {
     static ref FILE_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
             KEYWORDS.clone(),
-            inflect::TailInflector::new(inflect::Case::snake_case()),
-        ));
-    static ref MODULE_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
-        Box::new(inflect::KeywordAvoidingInflector::new(
-            KEYWORDS.clone(),
-            inflect::CombiningInflector::new(inflect::Case::pascal_case_with_initialisms(
-                INITIALISMS.clone()
-            ))
+            inflect::CombiningInflector::new(inflect::Case::snake_case()),
         ));
     static ref TYPE_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
@@ -51,9 +44,7 @@ pub struct Target {
 
 impl Target {
     pub fn new(module: String) -> Self {
-        Self {
-            module: MODULE_NAMING_CONVENTION.inflect(&[module.into()]),
-        }
+        Self { module }
     }
 }
 
@@ -118,7 +109,7 @@ impl jtd_codegen::target::Target for Target {
             target::Expr::Float32 => "Float".into(),
             target::Expr::Float64 => "Float".into(),
             target::Expr::String => "String".into(),
-            target::Expr::Timestamp => "String".into(),
+            target::Expr::Timestamp => "DateTime".into(),
             target::Expr::ArrayOf(sub_expr) => {
                 format!("Array[{}]", sub_expr)
             }
@@ -148,6 +139,9 @@ impl jtd_codegen::target::Target for Target {
                     env!("CARGO_PKG_VERSION")
                 )?;
                 writeln!(out)?;
+                writeln!(out, "require 'json'")?;
+                writeln!(out, "require 'time'")?;
+                writeln!(out)?;
                 writeln!(out, "module {}", self.module)?;
 
                 None
@@ -157,36 +151,40 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out)?;
                 writeln!(out, "  private")?;
                 writeln!(out)?;
-                writeln!(out, "  def self.from_json(type, data)")?;
+                writeln!(out, "  def self.from_json_data(type, data)")?;
                 writeln!(out, "    if data.nil? || [Object, TrueClass, Integer, Float, String].include?(type)")?;
                 writeln!(out, "      data")?;
+                writeln!(out, "    elsif type == DateTime")?;
+                writeln!(out, "      DateTime.rfc3339(data)")?;
                 writeln!(out, "    elsif type.is_a?(Array)")?;
                 writeln!(
                     out,
-                    "      data.map {{ |elem| from_json(type.first, elem) }}"
+                    "      data.map {{ |elem| from_json_data(type.first, elem) }}"
                 )?;
                 writeln!(out, "    elsif type.is_a?(Hash)")?;
                 writeln!(
                     out,
-                    "      data.transform_values {{ |elem| from_json(type.values.first, elem) }}"
+                    "      data.transform_values {{ |elem| from_json_data(type.values.first, elem) }}"
                 )?;
                 writeln!(out, "    else")?;
-                writeln!(out, "      type.from_json(data)")?;
+                writeln!(out, "      type.from_json_data(data)")?;
                 writeln!(out, "    end")?;
                 writeln!(out, "  end")?;
                 writeln!(out)?;
-                writeln!(out, "  def self.to_json(data)")?;
+                writeln!(out, "  def self.to_json_data(data)")?;
                 writeln!(out, "    if data.nil? || [TrueClass, FalseClass, Integer, Float, String].include?(data.class)")?;
                 writeln!(out, "      data")?;
+                writeln!(out, "    elsif data.is_a?(DateTime)")?;
+                writeln!(out, "      data.rfc3339")?;
                 writeln!(out, "    elsif data.is_a?(Array)")?;
-                writeln!(out, "      data.map {{ |elem| to_json(elem) }}")?;
+                writeln!(out, "      data.map {{ |elem| to_json_data(elem) }}")?;
                 writeln!(out, "    elsif data.is_a?(Hash)")?;
                 writeln!(
                     out,
-                    "      data.transform_values {{ |elem| to_json(elem) }}"
+                    "      data.transform_values {{ |elem| to_json_data(elem) }}"
                 )?;
                 writeln!(out, "    else")?;
-                writeln!(out, "      data.to_json")?;
+                writeln!(out, "      data.to_json_data")?;
                 writeln!(out, "    end")?;
                 writeln!(out, "  end")?;
                 writeln!(out, "end")?;
@@ -223,18 +221,18 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out, "  class {}", name)?;
                 writeln!(out, "    attr_accessor :value")?;
                 writeln!(out)?;
-                writeln!(out, "    def self.from_json(data)")?;
+                writeln!(out, "    def self.from_json_data(data)")?;
                 writeln!(out, "      out = {}.new", name)?;
                 writeln!(
                     out,
-                    "      out.value = {}.from_json({}, data)",
+                    "      out.value = {}.from_json_data({}, data)",
                     self.module, type_
                 )?;
                 writeln!(out, "      out")?;
                 writeln!(out, "    end")?;
                 writeln!(out)?;
-                writeln!(out, "    def to_json")?;
-                writeln!(out, "      {}.to_json(value)", self.module)?;
+                writeln!(out, "    def to_json_data")?;
+                writeln!(out, "      {}.to_json_data(value)", self.module)?;
                 writeln!(out, "    end")?;
                 writeln!(out, "  end")?;
 
@@ -271,7 +269,7 @@ impl jtd_codegen::target::Target for Target {
                     writeln!(out, "    {} = new({:?})", member.name, member.json_value)?;
                 }
                 writeln!(out)?;
-                writeln!(out, "    def self.from_json(data)")?;
+                writeln!(out, "    def self.from_json_data(data)")?;
                 writeln!(out, "      {{")?;
                 for member in &members {
                     writeln!(out, "        {:?} => {},", member.json_value, member.name)?;
@@ -279,7 +277,7 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out, "      }}[data]")?;
                 writeln!(out, "    end")?;
                 writeln!(out)?;
-                writeln!(out, "    def to_json")?;
+                writeln!(out, "    def to_json_data")?;
                 writeln!(out, "      value")?;
                 writeln!(out, "    end")?;
                 writeln!(out, "  end")?;
@@ -310,31 +308,31 @@ impl jtd_codegen::target::Target for Target {
                     writeln!(out, "    attr_accessor :{}", field.name)?;
                 }
                 writeln!(out)?;
-                writeln!(out, "    def self.from_json(data)")?;
+                writeln!(out, "    def self.from_json_data(data)")?;
                 writeln!(out, "      out = {}.new", name)?;
                 for field in &fields {
                     writeln!(
                         out,
-                        "      out.{} = {}::from_json({}, data[{:?}])",
+                        "      out.{} = {}::from_json_data({}, data[{:?}])",
                         field.name, self.module, field.type_, field.json_name
                     )?;
                 }
                 writeln!(out, "      out")?;
                 writeln!(out, "    end")?;
                 writeln!(out)?;
-                writeln!(out, "    def to_json")?;
+                writeln!(out, "    def to_json_data")?;
                 writeln!(out, "      data = {{}}")?;
                 for field in &fields {
                     if field.optional {
                         writeln!(
                             out,
-                            "      data[{:?}] = {}::to_json({}) unless {}.nil?",
+                            "      data[{:?}] = {}::to_json_data({}) unless {}.nil?",
                             field.json_name, self.module, field.name, field.name
                         )?;
                     } else {
                         writeln!(
                             out,
-                            "      data[{:?}] = {}::to_json({})",
+                            "      data[{:?}] = {}::to_json_data({})",
                             field.json_name, self.module, field.name
                         )?;
                     }
@@ -362,7 +360,7 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out, "  class {}", name)?;
                 writeln!(out, "    attr_accessor :{}", tag_field_name)?;
                 writeln!(out)?;
-                writeln!(out, "    def self.from_json(data)")?;
+                writeln!(out, "    def self.from_json_data(data)")?;
                 writeln!(out, "      {{")?;
                 for variant in &variants {
                     writeln!(
@@ -371,7 +369,7 @@ impl jtd_codegen::target::Target for Target {
                         variant.tag_value, variant.type_name
                     )?;
                 }
-                writeln!(out, "      }}[data[{:?}]].from_json(data)", tag_json_name)?;
+                writeln!(out, "      }}[data[{:?}]].from_json_data(data)", tag_json_name)?;
                 writeln!(out, "    end")?;
                 writeln!(out, "  end")?;
 
@@ -419,20 +417,20 @@ impl jtd_codegen::target::Target for Target {
                     writeln!(out, "    attr_accessor :{}", field.name)?;
                 }
                 writeln!(out)?;
-                writeln!(out, "    def self.from_json(data)")?;
+                writeln!(out, "    def self.from_json_data(data)")?;
                 writeln!(out, "      out = {}.new", name)?;
                 writeln!(out, "      out.{} = {:?}", tag_field_name, tag_value)?;
                 for field in &fields {
                     writeln!(
                         out,
-                        "      out.{} = {}::from_json({}, data[{:?}])",
+                        "      out.{} = {}::from_json_data({}, data[{:?}])",
                         field.name, self.module, field.type_, field.json_name
                     )?;
                 }
                 writeln!(out, "      out")?;
                 writeln!(out, "    end")?;
                 writeln!(out)?;
-                writeln!(out, "    def to_json")?;
+                writeln!(out, "    def to_json_data")?;
                 writeln!(
                     out,
                     "      data = {{ {:?} => {:?} }}",
@@ -442,13 +440,13 @@ impl jtd_codegen::target::Target for Target {
                     if field.optional {
                         writeln!(
                             out,
-                            "      data[{:?}] = {}::to_json({}) unless {}.nil?",
+                            "      data[{:?}] = {}::to_json_data({}) unless {}.nil?",
                             field.json_name, self.module, field.name, field.name
                         )?;
                     } else {
                         writeln!(
                             out,
-                            "      data[{:?}] = {}::to_json({})",
+                            "      data[{:?}] = {}::to_json_data({})",
                             field.json_name, self.module, field.name
                         )?;
                     }
@@ -489,6 +487,6 @@ fn doc(ident: usize, s: &str) -> String {
 #[cfg(test)]
 mod tests {
     mod std_tests {
-        jtd_codegen_test::std_test_cases!(&crate::Target::new("jtd_codegen_e2e".into()));
+        jtd_codegen_test::std_test_cases!(&crate::Target::new("JTDCodegenE2E".into()));
     }
 }

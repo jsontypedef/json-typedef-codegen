@@ -1,8 +1,7 @@
 use jtd_codegen::target::{self, inflect, metadata};
 use jtd_codegen::Result;
 use lazy_static::lazy_static;
-use serde_json::Value;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 use std::io::Write;
 
 lazy_static! {
@@ -17,14 +16,7 @@ lazy_static! {
     static ref FILE_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
             KEYWORDS.clone(),
-            inflect::TailInflector::new(inflect::Case::snake_case()),
-        ));
-    static ref MODULE_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
-        Box::new(inflect::KeywordAvoidingInflector::new(
-            KEYWORDS.clone(),
-            inflect::CombiningInflector::new(inflect::Case::pascal_case_with_initialisms(
-                INITIALISMS.clone()
-            ))
+            inflect::CombiningInflector::new(inflect::Case::snake_case()),
         ));
     static ref TYPE_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
@@ -51,9 +43,7 @@ pub struct Target {
 
 impl Target {
     pub fn new(module: String) -> Self {
-        Self {
-            module: MODULE_NAMING_CONVENTION.inflect(&[module.into()]),
-        }
+        Self { module }
     }
 }
 
@@ -118,7 +108,7 @@ impl jtd_codegen::target::Target for Target {
             target::Expr::Float32 => "Float".into(),
             target::Expr::Float64 => "Float".into(),
             target::Expr::String => "String".into(),
-            target::Expr::Timestamp => "String".into(),
+            target::Expr::Timestamp => "DateTime".into(),
             target::Expr::ArrayOf(sub_expr) => {
                 format!("Array[{}]", sub_expr)
             }
@@ -154,22 +144,31 @@ impl jtd_codegen::target::Target for Target {
             }
 
             target::Item::Postamble => {
+                // We don't mark these as private in RBS, because Steep at the
+                // time of writing will consider the resulting code to not be
+                // valid. Possibly relevant:
+                //
+                // https://github.com/soutaro/steep/issues/266
+
+                writeln!(out)?;
+                writeln!(out, "  def self.from_json_data: (untyped, untyped) -> untyped")?;
+                writeln!(out, "  def self.to_json_data: (untyped) -> untyped")?;
                 writeln!(out, "end")?;
 
                 None
             }
 
             target::Item::Alias {
-                metadata,
                 name,
                 type_,
+                ..
             } => {
                 writeln!(out)?;
                 writeln!(out, "  class {}", name)?;
                 writeln!(out, "    attr_accessor value: {}", type_)?;
                 writeln!(out)?;
-                writeln!(out, "    def self.from_json: (data: untyped) -> {}", name)?;
-                writeln!(out, "    def to_json: () -> untyped")?;
+                writeln!(out, "    def self.from_json_data: (untyped) -> {}", name)?;
+                writeln!(out, "    def to_json_data: () -> untyped")?;
                 writeln!(out, "  end")?;
 
                 None
@@ -188,12 +187,12 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out, "  class {}", name)?;
                 writeln!(out, "    attr_accessor value: String")?;
                 writeln!(out)?;
-                for (index, member) in members.iter().enumerate() {
+                for member in &members {
                     writeln!(out, "    {}: {}", member.name, name)?;
                 }
                 writeln!(out)?;
-                writeln!(out, "    def self.from_json: (data: untyped) -> {}", name)?;
-                writeln!(out, "    def to_json: () -> untyped")?;
+                writeln!(out, "    def self.from_json_data: (untyped) -> {}", name)?;
+                writeln!(out, "    def to_json_data: () -> untyped")?;
                 writeln!(out, "  end")?;
 
                 None
@@ -215,8 +214,8 @@ impl jtd_codegen::target::Target for Target {
                     writeln!(out, "    attr_accessor {}: {}", field.name, field.type_)?;
                 }
                 writeln!(out)?;
-                writeln!(out, "    def self.from_json: (data: untyped) -> {}", name)?;
-                writeln!(out, "    def to_json: () -> untyped")?;
+                writeln!(out, "    def self.from_json_data: (untyped) -> {}", name)?;
+                writeln!(out, "    def to_json_data: () -> untyped")?;
                 writeln!(out, "  end")?;
 
                 None
@@ -226,8 +225,7 @@ impl jtd_codegen::target::Target for Target {
                 metadata,
                 name,
                 tag_field_name,
-                tag_json_name,
-                variants,
+                ..
             } => {
                 if let Some(s) = metadata.get("rubyType").and_then(|v| v.as_str()) {
                     return Ok(Some(s.into()));
@@ -237,8 +235,8 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out, "  class {}", name)?;
                 writeln!(out, "    attr_accessor {}: String", tag_field_name)?;
                 writeln!(out)?;
-                writeln!(out, "    def self.from_json: (data: untyped) -> {}", name)?;
-                writeln!(out, "    def to_json: () -> untyped")?;
+                writeln!(out, "    def self.from_json_data: (untyped) -> {}", name)?;
+                writeln!(out, "    def to_json_data: () -> untyped")?;
                 writeln!(out, "  end")?;
 
                 None
@@ -248,9 +246,6 @@ impl jtd_codegen::target::Target for Target {
                 metadata,
                 name,
                 parent_name,
-                tag_json_name,
-                tag_field_name,
-                tag_value,
                 fields,
                 ..
             } => {
@@ -264,8 +259,8 @@ impl jtd_codegen::target::Target for Target {
                     writeln!(out, "    attr_accessor {}: {}", field.name, field.type_)?;
                 }
                 writeln!(out)?;
-                writeln!(out, "    def self.from_json: (data: untyped) -> {}", name)?;
-                writeln!(out, "    def to_json: () -> untyped")?;
+                writeln!(out, "    def self.from_json_data: (untyped) -> {}", name)?;
+                writeln!(out, "    def to_json_data: () -> untyped")?;
                 writeln!(out, "  end")?;
 
                 None

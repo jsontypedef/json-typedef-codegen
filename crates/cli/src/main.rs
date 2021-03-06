@@ -103,6 +103,34 @@ fn main() -> Result<()> {
         log.finish("Python", &codegen_info);
     }
 
+    if let Some(out_dir) = matches.value_of("ruby-out") {
+        log.start("Ruby", out_dir);
+
+        let module = matches.value_of("ruby-module").unwrap().to_owned();
+
+        let target = jtd_codegen_target_ruby::Target::new(module);
+
+        let codegen_info =
+            jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
+                .with_context(|| "Failed to generate Ruby code")?;
+
+        log.finish("Ruby", &codegen_info);
+    }
+
+    if let Some(out_dir) = matches.value_of("ruby-sig-out") {
+        log.start("Ruby Signatures", out_dir);
+
+        let module = matches.value_of("ruby-sig-module").unwrap().to_owned();
+
+        let target = jtd_codegen_target_ruby_sig::Target::new(module);
+
+        let codegen_info =
+            jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
+                .with_context(|| "Failed to generate Ruby Signatures code")?;
+
+        log.finish("Ruby Signatures", &codegen_info);
+    }
+
     if let Some(out_dir) = matches.value_of("rust-out") {
         log.start("Rust", out_dir);
 
