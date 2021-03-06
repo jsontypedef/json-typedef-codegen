@@ -66,7 +66,7 @@ impl Inflector for TailInflector {
 fn decompose(s: &str) -> Vec<String> {
     let mut out: Vec<Vec<char>> = vec![vec![]];
     for c in s.chars() {
-        if c.is_whitespace() || c == '-' || c == '_' {
+        if c.is_whitespace() || c == '-' || c == '_' || c == ':' {
             out.push(vec![]);
             continue;
         }
@@ -225,17 +225,22 @@ mod tests {
         assert_eq!(vec!["foo", "bar"], decompose("fooBar"));
         assert_eq!(vec!["foo", "bar"], decompose("foo-bar"));
         assert_eq!(vec!["foo", "bar"], decompose("foo_bar"));
+        assert_eq!(vec!["foo", "bar"], decompose("foo::bar"));
         assert_eq!(vec!["foo", "bar"], decompose("FOO BAR"));
         assert_eq!(vec!["foo", "bar"], decompose("FOO-BAR"));
         assert_eq!(vec!["foo", "bar"], decompose("FOO_BAR"));
+        assert_eq!(vec!["foo", "bar"], decompose("FOO::BAR"));
 
         assert_eq!(vec!["foo", "bar", "baz"], decompose("foo barBaz"));
         assert_eq!(vec!["foo", "bar", "baz"], decompose("fooBar-baz"));
         assert_eq!(vec!["foo", "bar", "baz"], decompose("foo-bar_baz"));
-        assert_eq!(vec!["foo", "bar", "baz"], decompose("foo_bar BAZ"));
+        assert_eq!(vec!["foo", "bar", "baz"], decompose("foo_bar::baz"));
+        assert_eq!(vec!["foo", "bar", "baz"], decompose("foo::bar BAZ"));
         assert_eq!(vec!["foo", "bar", "baz"], decompose("FOO BAR-BAZ"));
         assert_eq!(vec!["foo", "bar", "baz"], decompose("FOO-BAR_BAZ"));
         assert_eq!(vec!["foo", "bar", "baz"], decompose("FOO_BAR baz"));
+        assert_eq!(vec!["foo", "bar", "baz"], decompose("FOO_BAR::BAZ"));
+        assert_eq!(vec!["foo", "bar", "baz"], decompose("FOO::BAR baz"));
     }
 
     #[test]

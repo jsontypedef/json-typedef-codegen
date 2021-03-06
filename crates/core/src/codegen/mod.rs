@@ -473,6 +473,8 @@ impl<'a, T: Target> CodeGenerator<'a, T> {
         self.target
             .item(&mut file, &mut file_data.state, Item::Preamble)?;
         file.write_all(&file_data.buf)?;
+        self.target
+            .item(&mut file, &mut file_data.state, Item::Postamble)?;
 
         Ok(())
     }

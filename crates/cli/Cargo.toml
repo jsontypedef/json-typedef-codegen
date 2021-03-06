@@ -14,6 +14,8 @@ jtd_codegen_target_csharp_system_text = { path = "../target_csharp_system_text" 
 jtd_codegen_target_go = { path = "../target_go" }
 jtd_codegen_target_java_jackson = { path = "../target_java_jackson" }
 jtd_codegen_target_python = { path = "../target_python" }
+jtd_codegen_target_ruby = { path = "../target_ruby" }
+jtd_codegen_target_ruby_sig = { path = "../target_ruby_sig" }
 jtd_codegen_target_rust = { path = "../target_rust" }
 jtd_codegen_target_typescript = { path = "../target_typescript" }
 serde = "1.0"

@@ -235,6 +235,8 @@ dependencies = [
  "jtd_codegen_target_go",
  "jtd_codegen_target_java_jackson",
  "jtd_codegen_target_python",
+ "jtd_codegen_target_ruby",
+ "jtd_codegen_target_ruby_sig",
  "jtd_codegen_target_rust",
  "jtd_codegen_target_typescript",
  "serde",
@@ -275,6 +277,26 @@ dependencies = [
 [[package]]
 name = "jtd_codegen_target_python"
 version = "0.2.0"
+dependencies = [
+ "jtd-codegen",
+ "jtd_codegen_test",
+ "lazy_static",
+ "serde_json",
+]
+
+[[package]]
+name = "jtd_codegen_target_ruby"
+version = "0.1.0"
+dependencies = [
+ "jtd-codegen",
+ "jtd_codegen_test",
+ "lazy_static",
+ "serde_json",
+]
+
+[[package]]
+name = "jtd_codegen_target_ruby_sig"
+version = "0.1.0"
 dependencies = [
  "jtd-codegen",
  "jtd_codegen_test",

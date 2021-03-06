@@ -1,0 +1,13 @@
+[package]
+name = "jtd_codegen_target_ruby_sig"
+version = "0.1.0"
+authors = ["Ulysse Carion <ulysse@segment.com>"]
+edition = "2018"
+
+[dependencies]
+jtd-codegen = { path = "../core" }
+lazy_static = "1.4.0"
+serde_json = "1.0"
+
+[dev-dependencies]
+jtd_codegen_test = { path = "../test" }

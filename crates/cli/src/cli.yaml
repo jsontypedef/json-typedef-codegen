@@ -48,7 +48,7 @@ args:
       takes_value: true
       value_name: package
 
-    # Java + Jackson
+  # Java + Jackson
   - java-jackson-out:
       help: Output directory for Java + Jackson code generation
       long: java-jackson-out
@@ -68,6 +68,34 @@ args:
       long: python-out
       takes_value: true
       value_name: dir
+
+  # Ruby
+  - ruby-out:
+      help: Output directory for Ruby code generation
+      long: ruby-out
+      takes_value: true
+      value_name: dir
+      requires:
+        - ruby-module
+  - ruby-module:
+      help: Module for Ruby generated types
+      long: ruby-module
+      takes_value: true
+      value_name: package
+
+  # Ruby Signatures
+  - ruby-sig-out:
+      help: Output directory for Ruby Signatures code generation
+      long: ruby-sig-out
+      takes_value: true
+      value_name: dir
+      requires:
+        - ruby-sig-module
+  - ruby-sig-module:
+      help: Module for Ruby Signatures generated types
+      long: ruby-sig-module
+      takes_value: true
+      value_name: package
 
   # Rust
   - rust-out:
