@@ -71,7 +71,10 @@
                     }
                 },
                 "baz": {
-                    "properties": {}
+                    "properties": {},
+                    "metadata": {
+                        "pythonType": "object"
+                    }
                 }
             },
             "metadata": {

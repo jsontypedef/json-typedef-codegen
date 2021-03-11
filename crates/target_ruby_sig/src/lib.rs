@@ -151,18 +151,17 @@ impl jtd_codegen::target::Target for Target {
                 // https://github.com/soutaro/steep/issues/266
 
                 writeln!(out)?;
-                writeln!(out, "  def self.from_json_data: (untyped, untyped) -> untyped")?;
+                writeln!(
+                    out,
+                    "  def self.from_json_data: (untyped, untyped) -> untyped"
+                )?;
                 writeln!(out, "  def self.to_json_data: (untyped) -> untyped")?;
                 writeln!(out, "end")?;
 
                 None
             }
 
-            target::Item::Alias {
-                name,
-                type_,
-                ..
-            } => {
+            target::Item::Alias { name, type_, .. } => {
                 writeln!(out)?;
                 writeln!(out, "  class {}", name)?;
                 writeln!(out, "    attr_accessor value: {}", type_)?;

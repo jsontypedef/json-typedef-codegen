@@ -350,7 +350,11 @@ impl jtd_codegen::target::Target for Target {
                         variant.tag_value, variant.type_name
                     )?;
                 }
-                writeln!(out, "      }}[data[{:?}]].from_json_data(data)", tag_json_name)?;
+                writeln!(
+                    out,
+                    "      }}[data[{:?}]].from_json_data(data)",
+                    tag_json_name
+                )?;
                 writeln!(out, "    end")?;
                 writeln!(out, "  end")?;
 
