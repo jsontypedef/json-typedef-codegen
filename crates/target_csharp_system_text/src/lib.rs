@@ -160,9 +160,7 @@ impl jtd_codegen::target::Target for Target {
                 None
             }
 
-            target::Item::Postamble => {
-                None
-            }
+            target::Item::Postamble => None,
 
             target::Item::Alias {
                 metadata,
