@@ -71,7 +71,7 @@ def _to_json_data(data: Any) -> Any:
     return data.to_json_data()
 
 def _parse_rfc3339(s: str) -> datetime:
-    datetime_re = '(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d+)?(Z|((\+|-)(\d{2}):(\d{2})))'
+    datetime_re = '^(\d{4})-(\d{2})-(\d{2})[tT](\d{2}):(\d{2}):(\d{2})(\.\d+)?([zZ]|((\+|-)(\d{2}):(\d{2})))$'
     match = re.match(datetime_re, s)
     if not match:
         raise ValueError('Invalid RFC3339 date/time', s)
