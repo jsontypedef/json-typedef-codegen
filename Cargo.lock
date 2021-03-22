@@ -321,6 +321,7 @@ dependencies = [
  "jtd-codegen",
  "jtd_codegen_test",
  "lazy_static",
+ "regex",
  "serde_json",
 ]
 

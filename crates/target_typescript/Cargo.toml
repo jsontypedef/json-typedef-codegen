@@ -8,6 +8,7 @@ edition = "2018"
 jtd-codegen = { path = "../core" }
 lazy_static = "1.4.0"
 serde_json = "1.0"
+regex = "1"
 
 [dev-dependencies]
 jtd_codegen_test = { path = "../test" }
