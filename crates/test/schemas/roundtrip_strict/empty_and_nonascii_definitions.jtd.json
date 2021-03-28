@@ -1,0 +1,13 @@
+{
+  "definitions": {
+      "": { "type": "string" },
+      "$foo": { "type": "string" },
+      "_foo": { "type": "string" },
+      "0foo": { "type": "string" },
+      "foo0bar": { "type": "string" },
+      "foo bar": { "type": "string" },
+      "foo\nbar": { "type": "string" },
+      "foo\uFDFDbar": { "type": "string" }
+  },
+  "type": "string"
+}

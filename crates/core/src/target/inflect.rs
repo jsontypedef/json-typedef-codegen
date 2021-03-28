@@ -66,8 +66,18 @@ impl Inflector for TailInflector {
 fn decompose(s: &str) -> Vec<String> {
     let mut out: Vec<Vec<char>> = vec![vec![]];
     for c in s.chars() {
-        if c.is_whitespace() || c == '-' || c == '_' || c == ':' {
+        // Non-ASCII alphanumeric characters, such as whitespace, dashes,
+        // underscores, or non-ASCII characters, are presumed to always be
+        // delimiters.
+        if !c.is_ascii_alphanumeric() {
             out.push(vec![]);
+            continue;
+        }
+
+        // Do not allow a part to start with a digit. Most languages prohibit
+        // digits at the beginning of identifiers. Just ignore the digit to make
+        // this happen.
+        if c.is_ascii_digit() && out.last().unwrap().is_empty() {
             continue;
         }
 
@@ -80,7 +90,8 @@ fn decompose(s: &str) -> Vec<String> {
         out.last_mut().unwrap().push(c);
     }
 
-    out.into_iter()
+    out
+        .into_iter()
         .filter(|word| !word.is_empty())
         .map(|chars| chars.into_iter().flat_map(|c| c.to_lowercase()).collect())
         .collect()
@@ -154,13 +165,17 @@ impl Case {
     }
 
     pub fn inflect(&self, words: &[String]) -> String {
-        if words.is_empty() {
-            return "".to_owned();
+        let mut word_parts: Vec<_> = words.into_iter().flat_map(|word| decompose(word)).collect();
+
+        // If after decomposing the word into its parts (and after the
+        // associated stripping of non-ASCII alphanumerics) we don't have any
+        // words to work with, then inflect a "default name" instead.
+        if word_parts.is_empty() {
+            word_parts = vec!["default".into(), "name".into()];
         }
 
-        let parts: Vec<_> = words
+        let parts: Vec<_> = word_parts
             .into_iter()
-            .flat_map(|word| decompose(word))
             .enumerate()
             .map(|(i, word)| {
                 if self.initialisms.contains(&word) {
