@@ -90,8 +90,7 @@ fn decompose(s: &str) -> Vec<String> {
         out.last_mut().unwrap().push(c);
     }
 
-    out
-        .into_iter()
+    out.into_iter()
         .filter(|word| !word.is_empty())
         .map(|chars| chars.into_iter().flat_map(|c| c.to_lowercase()).collect())
         .collect()
@@ -260,7 +259,7 @@ mod tests {
 
     #[test]
     fn test_camel_case() {
-        assert_eq!("", Case::camel_case().inflect(&[]));
+        assert_eq!("defaultName", Case::camel_case().inflect(&[]));
 
         assert_eq!("foo", Case::camel_case().inflect(&["foo".to_owned()]));
         assert_eq!(
@@ -275,7 +274,7 @@ mod tests {
 
     #[test]
     fn test_pascal_case() {
-        assert_eq!("", Case::pascal_case().inflect(&[]));
+        assert_eq!("DefaultName", Case::pascal_case().inflect(&[]));
 
         assert_eq!("Foo", Case::pascal_case().inflect(&["foo".to_owned()]));
         assert_eq!(
@@ -290,7 +289,7 @@ mod tests {
 
     #[test]
     fn test_snake_case() {
-        assert_eq!("", Case::snake_case().inflect(&[]));
+        assert_eq!("default_name", Case::snake_case().inflect(&[]));
 
         assert_eq!("foo", Case::snake_case().inflect(&["foo".to_owned()]));
         assert_eq!(
@@ -305,7 +304,7 @@ mod tests {
 
     #[test]
     fn test_screaming_snake_case() {
-        assert_eq!("", Case::screaming_snake_case().inflect(&[]));
+        assert_eq!("DEFAULT_NAME", Case::screaming_snake_case().inflect(&[]));
 
         assert_eq!(
             "FOO",

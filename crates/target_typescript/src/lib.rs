@@ -329,5 +329,10 @@ mod tests {
             &crate::Target::new(),
             empty_and_nonascii_properties
         );
+
+        jtd_codegen_test::strict_std_test_case!(
+            &crate::Target::new(),
+            empty_and_nonascii_enum_values
+        );
     }
 }

@@ -460,5 +460,10 @@ mod tests {
             &crate::Target::new("JTDCodegenE2E".into()),
             empty_and_nonascii_properties
         );
+
+        jtd_codegen_test::strict_std_test_case!(
+            &crate::Target::new("JTDCodegenE2E".into()),
+            empty_and_nonascii_enum_values
+        );
     }
 }

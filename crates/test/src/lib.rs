@@ -23,7 +23,6 @@ macro_rules! std_test_cases {
         $crate::strict_std_test_case!($target, description);
         $crate::strict_std_test_case!($target, elements);
         $crate::strict_std_test_case!($target, empty_and_nonascii_definitions);
-        $crate::strict_std_test_case!($target, empty_and_nonascii_enum_values);
         $crate::strict_std_test_case!($target, enum_collisions);
         $crate::strict_std_test_case!($target, enum_variant_collisions);
         $crate::strict_std_test_case!($target, initialisms);
