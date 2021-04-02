@@ -224,7 +224,7 @@ dependencies = [
 
 [[package]]
 name = "jtd_codegen_cli"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -245,7 +245,7 @@ dependencies = [
 
 [[package]]
 name = "jtd_codegen_target_csharp_system_text"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "jtd-codegen",
  "jtd_codegen_test",
@@ -255,7 +255,7 @@ dependencies = [
 
 [[package]]
 name = "jtd_codegen_target_go"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "jtd-codegen",
  "jtd_codegen_test",
@@ -265,7 +265,7 @@ dependencies = [
 
 [[package]]
 name = "jtd_codegen_target_java_jackson"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "askama",
  "jtd-codegen",
@@ -276,7 +276,7 @@ dependencies = [
 
 [[package]]
 name = "jtd_codegen_target_python"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "jtd-codegen",
  "jtd_codegen_test",
@@ -286,7 +286,7 @@ dependencies = [
 
 [[package]]
 name = "jtd_codegen_target_ruby"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "jtd-codegen",
  "jtd_codegen_test",
@@ -296,7 +296,7 @@ dependencies = [
 
 [[package]]
 name = "jtd_codegen_target_ruby_sig"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "jtd-codegen",
  "jtd_codegen_test",
@@ -306,7 +306,7 @@ dependencies = [
 
 [[package]]
 name = "jtd_codegen_target_rust"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "jtd-codegen",
  "jtd_codegen_test",
@@ -316,7 +316,7 @@ dependencies = [
 
 [[package]]
 name = "jtd_codegen_target_typescript"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "jtd-codegen",
  "jtd_codegen_test",
