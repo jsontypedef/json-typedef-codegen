@@ -1,0 +1,12 @@
+{
+    "enum": [
+        "",
+        "$foo",
+        "_foo",
+        "0foo",
+        "foo0bar",
+        "foo bar",
+        "foo\nbar",
+        "foo\uFDFDbar"
+    ]
+}

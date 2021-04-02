@@ -276,4 +276,16 @@ mod tests {
     mod std_tests {
         jtd_codegen_test::std_test_cases!(&crate::Target::new("jtd_codegen_e2e".into()));
     }
+
+    mod optional_std_tests {
+        jtd_codegen_test::strict_std_test_case!(
+            &crate::Target::new("jtd_codegen_e2e".into()),
+            empty_and_nonascii_properties
+        );
+
+        jtd_codegen_test::strict_std_test_case!(
+            &crate::Target::new("jtd_codegen_e2e".into()),
+            empty_and_nonascii_enum_values
+        );
+    }
 }

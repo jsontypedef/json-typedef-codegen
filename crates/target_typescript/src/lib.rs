@@ -1,6 +1,7 @@
 use jtd_codegen::target::{self, inflect, metadata};
 use jtd_codegen::Result;
 use lazy_static::lazy_static;
+use regex::Regex;
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 use std::io::Write;
@@ -179,9 +180,19 @@ impl jtd_codegen::target::Target for Target {
 
                     write!(out, "{}", &description)?;
                     if field.optional {
-                        writeln!(out, "  {}?: {};", field.json_name, field.type_)?;
+                        writeln!(
+                            out,
+                            "  {}?: {};",
+                            format_property(field.json_name.clone()),
+                            field.type_
+                        )?;
                     } else {
-                        writeln!(out, "  {}: {};", field.json_name, field.type_)?;
+                        writeln!(
+                            out,
+                            "  {}: {};",
+                            format_property(field.json_name.clone()),
+                            field.type_
+                        )?;
                     }
                 }
                 writeln!(out, "}}")?;
@@ -240,9 +251,19 @@ impl jtd_codegen::target::Target for Target {
 
                     write!(out, "{}", &description)?;
                     if field.optional {
-                        writeln!(out, "  {}?: {};", field.json_name, field.type_)?;
+                        writeln!(
+                            out,
+                            "  {}?: {};",
+                            format_property(field.json_name.clone()),
+                            field.type_
+                        )?;
                     } else {
-                        writeln!(out, "  {}: {};", field.json_name, field.type_)?;
+                        writeln!(
+                            out,
+                            "  {}: {};",
+                            format_property(field.json_name.clone()),
+                            field.type_
+                        )?;
                     }
                 }
                 writeln!(out, "}}")?;
@@ -250,6 +271,25 @@ impl jtd_codegen::target::Target for Target {
                 None
             }
         })
+    }
+}
+
+fn format_property(s: String) -> String {
+    // This implements a conservative subset of the set of allowable identifiers
+    // in JavaScript:
+    //
+    // https://tc39.es/ecma262/#sec-names-and-keywords
+    //
+    // If a property isn't an allowable identifier by these rules, then we
+    // escape the property.
+    lazy_static! {
+        static ref IDENTIFIER: Regex = Regex::new("^[a-zA-Z_$][a-zA-Z0-9_$]*$").unwrap();
+    }
+
+    if IDENTIFIER.is_match(&s) {
+        s
+    } else {
+        format!("{:?}", s)
     }
 }
 
@@ -282,5 +322,17 @@ fn doc(ident: usize, s: &str) -> String {
 mod tests {
     mod std_tests {
         jtd_codegen_test::std_test_cases!(&crate::Target::new());
+    }
+
+    mod optional_std_tests {
+        jtd_codegen_test::strict_std_test_case!(
+            &crate::Target::new(),
+            empty_and_nonascii_properties
+        );
+
+        jtd_codegen_test::strict_std_test_case!(
+            &crate::Target::new(),
+            empty_and_nonascii_enum_values
+        );
     }
 }
