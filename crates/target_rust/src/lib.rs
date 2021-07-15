@@ -1,10 +1,10 @@
+use jtd_codegen::error::Error;
 use jtd_codegen::target::{self, inflect, metadata};
 use jtd_codegen::Result;
 use lazy_static::lazy_static;
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 use std::io::Write;
-use jtd_codegen::error::Error;
 
 lazy_static! {
     static ref KEYWORDS: BTreeSet<String> = include_str!("keywords")
@@ -238,9 +238,7 @@ impl jtd_codegen::target::Target for Target {
                 let mut derives = vec!["Serialize", "Deserialize"];
 
                 if let Some(s) = metadata.get("rustCustomDerive").and_then(|v| v.as_str()) {
-                    derives.extend(
-                        s.split(",")
-                    );
+                    derives.extend(s.split(","));
                 }
 
                 state
@@ -251,29 +249,21 @@ impl jtd_codegen::target::Target for Target {
 
                 let mut custom_use = Vec::<&str>::new();
                 if let Some(s) = metadata.get("rustCustomUse").and_then(|v| v.as_str()) {
-                    custom_use.extend(
-                        s.split(";")
-                    );
+                    custom_use.extend(s.split(";"));
                 }
-                for cu in custom_use
-                {
+                for cu in custom_use {
                     // custom::path::{import,export} or custom::path::single
                     let mut use_imports = Vec::<&str>::new();
                     let mut path_parts = cu.split("::").collect::<Vec<&str>>();
                     let mut last_part = path_parts.pop().unwrap();
                     // If there are no path_parts or the last part was "", panic!
                     if path_parts.len() < 1 || last_part.trim().len() < 1 {
-                        return Err(
-                            Error::Io(
-                                std::io::Error::new(
-                                    std::io::ErrorKind::Other,
-                                    format!("Invalid custom use statement: {:?}", cu)
-                                )
-                            )
-                        );
+                        return Err(Error::Io(std::io::Error::new(
+                            std::io::ErrorKind::Other,
+                            format!("Invalid custom use statement: {:?}", cu),
+                        )));
                     }
-                    if last_part.starts_with('{')
-                    {
+                    if last_part.starts_with('{') {
                         // Strip the first/last chars and split
                         last_part = &last_part[1..last_part.len() - 1];
                         use_imports.extend(last_part.split(","))
