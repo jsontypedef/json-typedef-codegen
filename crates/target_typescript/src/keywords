@@ -53,6 +53,7 @@ true
 try
 type
 typeof
+undefined
 var
 void
 while
