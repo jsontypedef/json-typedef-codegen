@@ -9,7 +9,7 @@ use crate::target::{
 use ast::{Ast, SchemaAst};
 use jtd::Schema;
 use namespace::Namespace;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
@@ -36,6 +36,7 @@ struct CodeGenerator<'a, T> {
     out_dir: &'a Path,
     strategy: Strategy,
     definition_names: BTreeMap<String, String>,
+    recursive_definitions: BTreeSet<String>,
 }
 
 struct FileData<T> {
@@ -50,6 +51,7 @@ impl<'a, T: Target> CodeGenerator<'a, T> {
             out_dir,
             strategy: target.strategy(),
             definition_names: BTreeMap::new(),
+            recursive_definitions: BTreeSet::new(),
         }
     }
 
@@ -66,6 +68,18 @@ impl<'a, T: Target> CodeGenerator<'a, T> {
         for (name, ast) in &schema_ast.definitions {
             let ast_name = self.ast_name(&mut global_namespace, ast);
             self.definition_names.insert(name.clone(), ast_name);
+        }
+
+        // Detect recursive definitions, as some target language need to handle
+        // them specifically (e.g. Rust).
+        // Note that a type is *not* considered to be recursive it it contains
+        // instances of itself only through "elements" or "values"
+        // (the underlying container is considered to break the recursion).
+        for (name, ast) in &schema_ast.definitions {
+            let mut visited = vec![];
+            if find_recursion(name, ast, &schema_ast.definitions, &mut visited) {
+                self.recursive_definitions.insert(name.clone());
+            }
         }
 
         // If the target is using FilePerType partitioning, then this state
@@ -477,5 +491,33 @@ impl<'a, T: Target> CodeGenerator<'a, T> {
             .item(&mut file, &mut file_data.state, Item::Postamble)?;
 
         Ok(())
+    }
+}
+
+fn find_recursion(name: &str, ast: &Ast, definitions: &BTreeMap<String, Ast>, visited: &mut Vec<String>) -> bool {
+    match ast {
+        Ast::Ref { definition, .. } => {
+            if definition == name {
+                true
+            } else if visited.iter().any(|i| i == &name) {
+                false
+            } else {
+                visited.push(definition.clone());
+                find_recursion(name, &definitions[definition], definitions, visited)
+            }
+        }
+        Ast::NullableOf { type_, .. } => {
+            find_recursion(name, type_, definitions, visited)
+        }
+        Ast::Struct { fields, .. } => {
+            fields.iter()
+                  .any(|f| find_recursion(name, &f.type_, definitions, visited))
+        }
+        Ast::Discriminator { variants, .. } => {
+            variants.iter()
+                    .flat_map(|v| v.fields.iter())
+                    .any(|f| find_recursion(name, &f.type_, definitions, visited))
+                }
+        _ => false,
     }
 }
