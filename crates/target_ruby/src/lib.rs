@@ -117,6 +117,7 @@ impl jtd_codegen::target::Target for Target {
                 format!("Hash[String, {}]", sub_expr)
             }
             target::Expr::NullableOf(sub_expr) => sub_expr,
+            target::Expr::RecursiveRef(sub_expr) => sub_expr,
         }
     }
 

@@ -121,14 +121,16 @@ impl jtd_codegen::target::Target for Target {
                 format!("HashMap<String, {}>", sub_expr)
             }
 
-            // TODO: A Box here is necessary because otherwise a recursive data
-            // structure may fail to compile, such as in the geojson test case.
+            target::Expr::NullableOf(sub_expr) => format!("Option<{}>", sub_expr),
+            // A Box here is usually necessary for recursive data structures,
+            // such as in the geojson test case.
             //
-            // A more "proper" fix to this problem would be to have a cyclical
-            // reference detector, and insert Box<T> only if it's necessary to
-            // break a cyclic dependency. It's unclear how much of a problem
-            // this is in the real world.
-            target::Expr::NullableOf(sub_expr) => format!("Option<Box<{}>>", sub_expr),
+            // Note that this strategy is slighyly over-defensive;
+            // in a cycle of mutually recursive types,
+            // only one of the types needs to be boxed to break the cycle.
+            // In such cases, the user may want to optimize the code,
+            // overriding some of the boxings with metadata.rustType.
+            target::Expr::RecursiveRef(sub_expr) => format!("Box<{}>", sub_expr),
         }
     }
 

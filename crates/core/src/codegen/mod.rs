@@ -134,8 +134,17 @@ impl<'a, T: Target> CodeGenerator<'a, T> {
             // Ref nodes are a special sort of "expr-like" node, where we
             // already know what the name of the expression is; it's the name of
             // the definition.
-            Ast::Ref { definition, .. } => self.definition_names[&definition].clone(),
-
+            // Note however that recursive definition may need some special
+            // treatment by the target.
+            Ast::Ref { metadata, definition } => {
+                let sub_expr = self.definition_names[&definition].clone();
+                if self.recursive_definitions.iter().any(|i| i == &definition) {
+                    self.target
+                        .expr(&mut file_data.state, metadata, Expr::RecursiveRef(sub_expr))
+                } else {
+                    sub_expr
+                }
+            }
             // The remaining "expr-like" node types just build up strings and
             // possibly alter the per-file state (usually in order to add
             // "imports" to the file).
@@ -501,9 +510,11 @@ fn find_recursion(name: &str, ast: &Ast, definitions: &BTreeMap<String, Ast>, vi
                 true
             } else if visited.iter().any(|i| i == &name) {
                 false
-            } else {
+            } else if let Some(ast2) = definitions.get(definition) {
                 visited.push(definition.clone());
-                find_recursion(name, &definitions[definition], definitions, visited)
+                find_recursion(name, &ast2, definitions, visited)
+            } else {
+                false
             }
         }
         Ast::NullableOf { type_, .. } => {

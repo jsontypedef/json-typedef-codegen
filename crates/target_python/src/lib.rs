@@ -135,6 +135,7 @@ impl jtd_codegen::target::Target for Target {
 
                 format!("Optional[{}]", sub_expr)
             }
+            target::Expr::RecursiveRef(sub_expr) => sub_expr,
         }
     }
 
