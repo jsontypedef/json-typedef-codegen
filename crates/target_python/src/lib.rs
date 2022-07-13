@@ -238,7 +238,7 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out, "    return data.to_json_data()")?;
                 writeln!(out)?;
                 writeln!(out, "def _parse_rfc3339(s: str) -> datetime:")?;
-                writeln!(out, "    datetime_re = '^(\\d{{4}})-(\\d{{2}})-(\\d{{2}})[tT](\\d{{2}}):(\\d{{2}}):(\\d{{2}})(\\.\\d+)?([zZ]|((\\+|-)(\\d{{2}}):(\\d{{2}})))$'")?;
+                writeln!(out, "    datetime_re = r'^(\\d{{4}})-(\\d{{2}})-(\\d{{2}})[tT](\\d{{2}}):(\\d{{2}}):(\\d{{2}})(\\.\\d+)?([zZ]|((\\+|-)(\\d{{2}}):(\\d{{2}})))$'")?;
                 writeln!(out, "    match = re.match(datetime_re, s)")?;
                 writeln!(out, "    if not match:")?;
                 writeln!(
