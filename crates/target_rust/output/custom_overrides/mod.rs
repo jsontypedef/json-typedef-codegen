@@ -9,20 +9,20 @@ pub struct RootOverrideTypeDiscriminatorBaz {}
 #[derive(Serialize, Deserialize)]
 pub struct Root {
     #[serde(rename = "override_elements_container")]
-    pub overrideElementsContainer: Vec<String>,
+    pub override_elements_container: Vec<String>,
 
     #[serde(rename = "override_type_discriminator")]
-    pub overrideTypeDiscriminator: serde_json::Value,
+    pub override_type_discriminator: serde_json::Value,
 
     #[serde(rename = "override_type_enum")]
-    pub overrideTypeEnum: serde_json::Value,
+    pub override_type_enum: serde_json::Value,
 
     #[serde(rename = "override_type_expr")]
-    pub overrideTypeExpr: serde_json::Value,
+    pub override_type_expr: serde_json::Value,
 
     #[serde(rename = "override_type_properties")]
-    pub overrideTypeProperties: serde_json::Value,
+    pub override_type_properties: serde_json::Value,
 
     #[serde(rename = "override_values_container")]
-    pub overrideValuesContainer: HashMap<String, String>,
+    pub override_values_container: HashMap<String, String>,
 }

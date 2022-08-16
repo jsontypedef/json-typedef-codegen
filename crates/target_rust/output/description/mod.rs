@@ -38,11 +38,11 @@ pub struct RootPropertiesWithDescription {}
 pub struct Root {
     /// A description for discriminator
     #[serde(rename = "discriminator_with_description")]
-    pub discriminatorWithDescription: RootDiscriminatorWithDescription,
+    pub discriminator_with_description: RootDiscriminatorWithDescription,
 
     /// A description for enum
     #[serde(rename = "enum_with_description")]
-    pub enumWithDescription: RootEnumWithDescription,
+    pub enum_with_description: RootEnumWithDescription,
 
     /// Whereas disregard and contempt for human rights have resulted in
     /// barbarous acts which have outraged the conscience of mankind, and the
@@ -50,19 +50,19 @@ pub struct Root {
     /// and belief and freedom from fear and want has been proclaimed as the
     /// highest aspiration of the common people,
     #[serde(rename = "long_description")]
-    pub longDescription: String,
+    pub long_description: String,
 
     /// A description for properties
     #[serde(rename = "properties_with_description")]
-    pub propertiesWithDescription: RootPropertiesWithDescription,
+    pub properties_with_description: RootPropertiesWithDescription,
 
     /// A description for ref
     #[serde(rename = "ref_with_description")]
-    pub refWithDescription: Baz,
+    pub ref_with_description: Baz,
 
     /// A description for string
     #[serde(rename = "string_with_description")]
-    pub stringWithDescription: String,
+    pub string_with_description: String,
 }
 
 /// A description for a definition

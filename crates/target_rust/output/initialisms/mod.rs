@@ -20,14 +20,14 @@ pub struct Root {
     pub id: String,
 
     #[serde(rename = "nested_id_initialism")]
-    pub nestedIdInitialism: RootNestedIdInitialism,
+    pub nested_id_initialism: RootNestedIdInitialism,
 
     #[serde(rename = "utf8")]
     pub utf8: String,
 
     #[serde(rename = "word_with_embedded_id_initialism")]
-    pub wordWithEmbeddedIdInitialism: String,
+    pub word_with_embedded_id_initialism: String,
 
     #[serde(rename = "word_with_trailing_initialism_id")]
-    pub wordWithTrailingInitialismId: String,
+    pub word_with_trailing_initialism_id: String,
 }
