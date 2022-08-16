@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize)]
 pub struct Root {
     #[serde(rename = "")]
-    pub defaultName: String,
+    pub default_name: String,
 
     #[serde(rename = "$foo")]
     pub foo: String,
@@ -17,14 +17,14 @@ pub struct Root {
     pub foo1: String,
 
     #[serde(rename = "foo\nbar")]
-    pub fooBar: String,
+    pub foo_bar: String,
 
     #[serde(rename = "foo bar")]
-    pub fooBar0: String,
+    pub foo_bar0: String,
 
     #[serde(rename = "foo0bar")]
     pub foo0bar: String,
 
     #[serde(rename = "foo﷽bar")]
-    pub fooBar1: String,
+    pub foo_bar1: String,
 }
