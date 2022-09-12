@@ -6,6 +6,7 @@ use crate::target::{
     DiscriminatorVariantInfo, EnumMember, EnumMemberNamingStrategy, Expr, Field,
     FilePartitioningStrategy, Item, Strategy, Target,
 };
+use crate::Error;
 use ast::{Ast, SchemaAst};
 use jtd::Schema;
 use namespace::Namespace;
@@ -120,8 +121,11 @@ impl<'a, T: Target> CodeGenerator<'a, T> {
             // Ref nodes are a special sort of "expr-like" node, where we
             // already know what the name of the expression is; it's the name of
             // the definition.
-            Ast::Ref { definition, .. } => self.definition_names[&definition].clone(),
-
+            Ast::Ref { definition, .. } => self
+                .definition_names
+                .get(&definition)
+                .ok_or_else(|| Error::UnknownReference(definition.clone()))?
+                .clone(),
             // The remaining "expr-like" node types just build up strings and
             // possibly alter the per-file state (usually in order to add
             // "imports" to the file).
