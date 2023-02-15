@@ -5,22 +5,22 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize)]
 pub struct Root {
     #[serde(rename = "notnull_ref_notnull_string")]
-    pub notnullRefNotnullString: NotnullRefNotnullString,
+    pub notnull_ref_notnull_string: NotnullRefNotnullString,
 
     #[serde(rename = "notnull_ref_null_string")]
-    pub notnullRefNullString: NotnullRefNullString,
+    pub notnull_ref_null_string: NotnullRefNullString,
 
     #[serde(rename = "notnull_string")]
-    pub notnullString: NotnullString,
+    pub notnull_string: NotnullString,
 
     #[serde(rename = "null_ref_notnull_string")]
-    pub nullRefNotnullString: NullRefNotnullString,
+    pub null_ref_notnull_string: NullRefNotnullString,
 
     #[serde(rename = "null_ref_null_string")]
-    pub nullRefNullString: NullRefNullString,
+    pub null_ref_null_string: NullRefNullString,
 
     #[serde(rename = "null_string")]
-    pub nullString: NullString,
+    pub null_string: NullString,
 }
 
 pub type NotnullRefNotnullString = NotnullString;
