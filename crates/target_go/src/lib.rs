@@ -259,27 +259,12 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out)?;
                 write!(out, "{}", description(&metadata, 0))?;
                 writeln!(out, "type {} struct {{", name)?;
-                writeln!(out, "\t{} string", tag_field_name)?;
-                for variant in &variants {
-                    writeln!(out)?;
-                    writeln!(out, "\t{} {}", &variant.field_name, &variant.type_name)?;
-                }
+                writeln!(out, "\tValue I{} `json:\"-\"`", name)?;
                 writeln!(out, "}}")?;
 
                 writeln!(out)?;
                 writeln!(out, "func (v {}) MarshalJSON() ([]byte, error) {{", name)?;
-                writeln!(out, "\tswitch v.{} {{", tag_field_name)?;
-                for variant in &variants {
-                    writeln!(out, "\tcase {:?}:", variant.tag_value)?;
-                    writeln!(out, "\t\treturn json.Marshal(struct {{ T string `json:\"{}\"`; {} }}{{ v.{}, v.{} }})", tag_json_name, variant.type_name, tag_field_name, variant.field_name)?;
-                }
-                writeln!(out, "\t}}")?;
-                writeln!(out)?;
-                writeln!(
-                    out,
-                    "\treturn nil, fmt.Errorf(\"bad {0} value: %s\", v.{0})",
-                    tag_field_name
-                )?;
+                writeln!(out, "\treturn json.Marshal(v.Value)")?;
                 writeln!(out, "}}")?;
 
                 writeln!(out)?;
@@ -293,21 +278,21 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out, "\t\treturn err")?;
                 writeln!(out, "\t}}")?;
                 writeln!(out)?;
+                writeln!(out, "\tvar value I{}", name)?;
                 writeln!(out, "\tvar err error")?;
+                writeln!(out)?;
                 writeln!(out, "\tswitch t.T {{")?;
                 for variant in &variants {
                     writeln!(out, "\tcase {:?}:", variant.tag_value)?;
-                    writeln!(
-                        out,
-                        "\t\terr = json.Unmarshal(b, &v.{})",
-                        variant.field_name
-                    )?;
+                    writeln!(out, "\t\tvar v {}", variant.type_name)?;
+                    writeln!(out, "\t\terr = json.Unmarshal(b, &v)")?;
+                    writeln!(out, "\t\tvalue = v")?;
                 }
                 writeln!(out, "\tdefault:")?;
                 writeln!(
                     out,
-                    "\t\terr = fmt.Errorf(\"bad {} value: %s\", t.T)",
-                    tag_field_name
+                    "\t\terr = fmt.Errorf(\"{}: bad {} value: %q\", t.T)",
+                    name, tag_json_name
                 )?;
                 writeln!(out, "\t}}")?;
                 writeln!(out)?;
@@ -315,9 +300,91 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out, "\t\treturn err")?;
                 writeln!(out, "\t}}")?;
                 writeln!(out)?;
-                writeln!(out, "\tv.{} = t.T", tag_field_name)?;
+                writeln!(out, "\tv.Value = value")?;
                 writeln!(out, "\treturn nil")?;
                 writeln!(out, "}}")?;
+
+                writeln!(out)?;
+                writeln!(
+                    out,
+                    "// I{} is an interface type that {} types implement.",
+                    name, name
+                )?;
+                writeln!(out, "// It can be the following types:")?;
+                writeln!(out, "//")?;
+                for variant in &variants {
+                    writeln!(
+                        out,
+                        "// - [{}] ({})",
+                        &variant.type_name, &variant.tag_value
+                    )?;
+                }
+                writeln!(out, "//")?;
+                writeln!(out, "type I{} interface {{", name)?;
+                writeln!(out, "\t{}() string", tag_field_name)?;
+                writeln!(out, "\tis{}()", name)?;
+                writeln!(out, "}}")?;
+                writeln!(out)?;
+
+                for variant in &variants {
+                    writeln!(
+                        out,
+                        "func ({}) {}() string {{ return {:?} }}",
+                        variant.type_name, tag_field_name, variant.tag_value
+                    )?;
+                }
+                writeln!(out)?;
+
+                for variant in &variants {
+                    writeln!(out, "func ({}) is{}() {{}}", variant.type_name, name)?;
+                }
+                writeln!(out)?;
+
+                for variant in &variants {
+                    writeln!(
+                        out,
+                        "func (v {}) MarshalJSON() ([]byte, error) {{",
+                        variant.type_name
+                    )?;
+                    writeln!(out, "\ttype Alias {}", variant.type_name)?;
+                    writeln!(out, "\treturn json.Marshal(struct {{")?;
+                    writeln!(out, "\t\tT string `json:\"{}\"`", tag_json_name)?;
+                    writeln!(out, "\t\tAlias")?;
+                    writeln!(out, "\t}}{{")?;
+                    writeln!(out, "\t\tv.{}(),", tag_field_name)?;
+                    writeln!(out, "\t\tAlias(v),")?;
+                    writeln!(out, "\t}})")?;
+                    writeln!(out, "}}")?;
+                    writeln!(out)?;
+
+                    writeln!(
+                        out,
+                        "func (v *{}) UnmarshalJSON(b []byte) error {{",
+                        variant.type_name
+                    )?;
+                    writeln!(out, "\ttype Alias {}", variant.type_name)?;
+                    writeln!(out, "\tvar a struct {{")?;
+                    writeln!(out, "\t\tT string `json:\"{}\"`", tag_json_name)?;
+                    writeln!(out, "\t\tAlias")?;
+                    writeln!(out, "\t}}")?;
+                    writeln!(out)?;
+                    writeln!(out, "\tif err := json.Unmarshal(b, &a); err != nil {{")?;
+                    writeln!(out, "\t\treturn err")?;
+                    writeln!(out, "\t}}")?;
+                    writeln!(out)?;
+                    writeln!(out, "\tif a.T != {:?} {{", variant.tag_value)?;
+                    writeln!(
+                        out,
+                        "\t\treturn fmt.Errorf(\"{}: bad {} value: %q\", a.T)",
+                        variant.type_name, tag_json_name
+                    )?;
+                    writeln!(out, "\t}}")?;
+                    writeln!(out)?;
+                    writeln!(out, "\t*v = {}(a.Alias)", variant.type_name)?;
+                    writeln!(out, "\treturn nil")?;
+                    writeln!(out, "}}")?;
+                    writeln!(out)?;
+                }
 
                 None
             }
