@@ -203,9 +203,15 @@ impl jtd_codegen::target::Target for Target {
                     .or_default()
                     .extend(vec!["Deserialize".to_owned(), "Serialize".to_owned()]);
 
+                let mut derives = vec!["Serialize", "Deserialize"];
+
+                if let Some(s) = metadata.get("rustCustomDerive").and_then(|v| v.as_str()) {
+                    derives.extend(s.split(","));
+                }
+
                 writeln!(out)?;
                 write!(out, "{}", description(&metadata, 0))?;
-                writeln!(out, "#[derive(Serialize, Deserialize)]")?;
+                writeln!(out, "#[derive({})]", derives.join(", "))?;
                 writeln!(out, "pub enum {} {{", name)?;
 
                 for (index, member) in members.into_iter().enumerate() {
