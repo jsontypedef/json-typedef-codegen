@@ -197,17 +197,17 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
-                state
-                    .imports
-                    .entry("serde".into())
-                    .or_default()
-                    .extend(vec!["Deserialize".to_owned(), "Serialize".to_owned()]);
-
                 let mut derives = vec!["Serialize", "Deserialize"];
 
                 if let Some(s) = metadata.get("rustCustomDerive").and_then(|v| v.as_str()) {
                     derives.extend(s.split(","));
                 }
+
+                state
+                    .imports
+                    .entry("serde".into())
+                    .or_default()
+                    .extend(vec!["Deserialize".to_owned(), "Serialize".to_owned()]);
 
                 writeln!(out)?;
                 write!(out, "{}", description(&metadata, 0))?;
@@ -327,6 +327,12 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
+                let mut derives = vec!["Serialize", "Deserialize"];
+
+                if let Some(s) = metadata.get("rustCustomDerive").and_then(|v| v.as_str()) {
+                    derives.extend(s.split(","));
+                }
+
                 state
                     .imports
                     .entry("serde".into())
@@ -335,7 +341,7 @@ impl jtd_codegen::target::Target for Target {
 
                 writeln!(out)?;
                 write!(out, "{}", description(&metadata, 0))?;
-                writeln!(out, "#[derive(Serialize, Deserialize)]")?;
+                writeln!(out, "#[derive({})]", derives.join(", "))?;
                 writeln!(out, "#[serde(tag = {:?})]", tag_json_name)?;
                 writeln!(out, "pub enum {} {{", name)?;
 
@@ -368,6 +374,12 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
+                let mut derives = vec!["Serialize", "Deserialize"];
+
+                if let Some(s) = metadata.get("rustCustomDerive").and_then(|v| v.as_str()) {
+                    derives.extend(s.split(","));
+                }
+
                 state
                     .imports
                     .entry("serde".into())
@@ -376,7 +388,7 @@ impl jtd_codegen::target::Target for Target {
 
                 writeln!(out)?;
                 write!(out, "{}", description(&metadata, 0))?;
-                writeln!(out, "#[derive(Serialize, Deserialize)]")?;
+                writeln!(out, "#[derive({})]", derives.join(", "))?;
 
                 if fields.is_empty() {
                     writeln!(out, "pub struct {} {{}}", name)?;
