@@ -26,5 +26,5 @@ pub struct Root {
     pub foo: RootFoo,
 
     #[serde(rename = "foo_bar")]
-    pub fooBar: RootFooBar0,
+    pub foo_bar: RootFooBar0,
 }

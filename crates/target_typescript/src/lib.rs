@@ -92,6 +92,7 @@ impl jtd_codegen::target::Target for Target {
             target::Expr::ArrayOf(sub_expr) => format!("{}[]", sub_expr),
             target::Expr::DictOf(sub_expr) => format!("{{ [key: string]: {} }}", sub_expr),
             target::Expr::NullableOf(sub_expr) => format!("({} | null)", sub_expr),
+            target::Expr::RecursiveRef(sub_expr) => sub_expr,
         }
     }
 

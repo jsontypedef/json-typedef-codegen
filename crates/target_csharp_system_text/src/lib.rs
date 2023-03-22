@@ -125,6 +125,7 @@ impl jtd_codegen::target::Target for Target {
                 format!("IDictionary<string, {}>", sub_expr)
             }
             target::Expr::NullableOf(sub_expr) => format!("{}?", sub_expr),
+            target::Expr::RecursiveRef(sub_expr) => sub_expr,
         }
     }
 
