@@ -227,6 +227,8 @@ impl jtd_codegen::target::Target for Target {
                 )?;
                 writeln!(out, "        return data")?;
                 writeln!(out, "    if type(data) is datetime:")?;
+                writeln!(out, "        if data.tzinfo == None:")?;
+                writeln!(out, "            return data.replace(tzinfo=timezone.utc).isoformat()")?;
                 writeln!(out, "        return data.isoformat()")?;
                 writeln!(out, "    if type(data) is list:")?;
                 writeln!(out, "        return [_to_json_data(d) for d in data]")?;
