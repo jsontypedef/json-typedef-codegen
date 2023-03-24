@@ -78,6 +78,8 @@ def _to_json_data(data: Any) -> Any:
     if data is None or type(data) in [bool, int, float, str, object]:
         return data
     if type(data) is datetime:
+        if data.tzinfo == None:
+            return data.replace(tzinfo=timezone.utc).isoformat()
         return data.isoformat()
     if type(data) is list:
         return [_to_json_data(d) for d in data]
