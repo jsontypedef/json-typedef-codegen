@@ -87,6 +87,7 @@ pub enum Expr {
     ArrayOf(String),
     DictOf(String),
     NullableOf(String),
+    RecursiveRef(String),
 }
 
 #[derive(Debug)]

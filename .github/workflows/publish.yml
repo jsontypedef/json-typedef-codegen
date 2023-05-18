@@ -4,6 +4,7 @@ on:
 
 jobs:
   release_binary:
+    permissions: write-all
     runs-on: ${{ matrix.runs_on }}
     strategy:
       matrix:

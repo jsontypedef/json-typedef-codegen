@@ -1,3 +1,4 @@
+use jtd_codegen::error::Error;
 use jtd_codegen::target::{self, inflect, metadata};
 use jtd_codegen::Result;
 use lazy_static::lazy_static;
@@ -18,7 +19,7 @@ lazy_static! {
     static ref FIELD_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
             KEYWORDS.clone(),
-            inflect::TailInflector::new(inflect::Case::camel_case())
+            inflect::TailInflector::new(inflect::Case::snake_case())
         ));
     static ref ENUM_MEMBER_NAMING_CONVENTION: Box<dyn inflect::Inflector + Send + Sync> =
         Box::new(inflect::KeywordAvoidingInflector::new(
@@ -121,14 +122,16 @@ impl jtd_codegen::target::Target for Target {
                 format!("HashMap<String, {}>", sub_expr)
             }
 
-            // TODO: A Box here is necessary because otherwise a recursive data
-            // structure may fail to compile, such as in the geojson test case.
+            target::Expr::NullableOf(sub_expr) => format!("Option<{}>", sub_expr),
+            // A Box here is usually necessary for recursive data structures,
+            // such as in the geojson test case.
             //
-            // A more "proper" fix to this problem would be to have a cyclical
-            // reference detector, and insert Box<T> only if it's necessary to
-            // break a cyclic dependency. It's unclear how much of a problem
-            // this is in the real world.
-            target::Expr::NullableOf(sub_expr) => format!("Option<Box<{}>>", sub_expr),
+            // Note that this strategy is slighyly over-defensive;
+            // in a cycle of mutually recursive types,
+            // only one of the types needs to be boxed to break the cycle.
+            // In such cases, the user may want to optimize the code,
+            // overriding some of the boxings with metadata.rustType.
+            target::Expr::RecursiveRef(sub_expr) => format!("Box<{}>", sub_expr),
         }
     }
 
@@ -194,6 +197,12 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
+                let mut derives = vec!["Serialize", "Deserialize"];
+
+                if let Some(s) = metadata.get("rustCustomDerive").and_then(|v| v.as_str()) {
+                    derives.extend(s.split(","));
+                }
+
                 state
                     .imports
                     .entry("serde".into())
@@ -202,7 +211,7 @@ impl jtd_codegen::target::Target for Target {
 
                 writeln!(out)?;
                 write!(out, "{}", description(&metadata, 0))?;
-                writeln!(out, "#[derive(Serialize, Deserialize)]")?;
+                writeln!(out, "#[derive({})]", derives.join(", "))?;
                 writeln!(out, "pub enum {} {{", name)?;
 
                 for (index, member) in members.into_iter().enumerate() {
@@ -234,15 +243,52 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
+                let mut derives = vec!["Serialize", "Deserialize"];
+
+                if let Some(s) = metadata.get("rustCustomDerive").and_then(|v| v.as_str()) {
+                    derives.extend(s.split(","));
+                }
+
                 state
                     .imports
                     .entry("serde".into())
                     .or_default()
                     .extend(vec!["Deserialize".to_owned(), "Serialize".to_owned()]);
 
+                let mut custom_use = Vec::<&str>::new();
+                if let Some(s) = metadata.get("rustCustomUse").and_then(|v| v.as_str()) {
+                    custom_use.extend(s.split(";"));
+                }
+                for cu in custom_use {
+                    // custom::path::{import,export} or custom::path::single
+                    let mut use_imports = Vec::<&str>::new();
+                    let mut path_parts = cu.split("::").collect::<Vec<&str>>();
+                    let mut last_part = path_parts.pop().unwrap();
+                    // If there are no path_parts or the last part was "", panic!
+                    if path_parts.len() < 1 || last_part.trim().len() < 1 {
+                        return Err(Error::Io(std::io::Error::new(
+                            std::io::ErrorKind::Other,
+                            format!("Invalid custom use statement: {:?}", cu),
+                        )));
+                    }
+                    if last_part.starts_with('{') {
+                        // Strip the first/last chars and split
+                        last_part = &last_part[1..last_part.len() - 1];
+                        use_imports.extend(last_part.split(","))
+                    } else {
+                        // No, just push it into the imports list
+                        use_imports.push(last_part);
+                    }
+                    state
+                        .imports
+                        .entry(path_parts.join("::").into())
+                        .or_default()
+                        .extend(use_imports.drain(..).map(|i| i.trim().to_owned()));
+                }
+
                 writeln!(out)?;
                 write!(out, "{}", description(&metadata, 0))?;
-                writeln!(out, "#[derive(Serialize, Deserialize)]")?;
+                writeln!(out, "#[derive({})]", derives.join(", "))?;
 
                 if fields.is_empty() {
                     writeln!(out, "pub struct {} {{}}", name)?;
@@ -281,6 +327,12 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
+                let mut derives = vec!["Serialize", "Deserialize"];
+
+                if let Some(s) = metadata.get("rustCustomDerive").and_then(|v| v.as_str()) {
+                    derives.extend(s.split(","));
+                }
+
                 state
                     .imports
                     .entry("serde".into())
@@ -289,7 +341,7 @@ impl jtd_codegen::target::Target for Target {
 
                 writeln!(out)?;
                 write!(out, "{}", description(&metadata, 0))?;
-                writeln!(out, "#[derive(Serialize, Deserialize)]")?;
+                writeln!(out, "#[derive({})]", derives.join(", "))?;
                 writeln!(out, "#[serde(tag = {:?})]", tag_json_name)?;
                 writeln!(out, "pub enum {} {{", name)?;
 
@@ -322,6 +374,12 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
+                let mut derives = vec!["Serialize", "Deserialize"];
+
+                if let Some(s) = metadata.get("rustCustomDerive").and_then(|v| v.as_str()) {
+                    derives.extend(s.split(","));
+                }
+
                 state
                     .imports
                     .entry("serde".into())
@@ -330,7 +388,7 @@ impl jtd_codegen::target::Target for Target {
 
                 writeln!(out)?;
                 write!(out, "{}", description(&metadata, 0))?;
-                writeln!(out, "#[derive(Serialize, Deserialize)]")?;
+                writeln!(out, "#[derive({})]", derives.join(", "))?;
 
                 if fields.is_empty() {
                     writeln!(out, "pub struct {} {{}}", name)?;
