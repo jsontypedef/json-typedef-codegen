@@ -1,4 +1,5 @@
-FROM rust:1.49
+# syntax=docker/dockerfile:1
+FROM rust:1.63
 
 ARG MAIN
 
@@ -13,5 +14,5 @@ COPY /main.rs /work/src/main.rs
 COPY /gen /work/src/jtd_codegen_e2e/
 RUN sed -i -e "s/MAIN/$MAIN/g" /work/src/main.rs
 
-RUN cargo build
+RUN --mount=type=cache,target="${HOME}/.cargo" cargo build
 ENTRYPOINT target/debug/jtd_e2e_test
