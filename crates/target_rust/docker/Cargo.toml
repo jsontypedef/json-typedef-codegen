@@ -2,7 +2,7 @@
 name = "jtd_e2e_test"
 version = "0.1.0"
 authors = ["Ulysse Carion <ulysse@segment.com>"]
-edition = "2018"
+edition.workspace = true
 
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
