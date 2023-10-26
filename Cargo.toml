@@ -1,2 +1,14 @@
+[workspace.package]
+version = "0.4.1"
+edition = "2018"
+authors = ["Ulysse Carion <ulysse@segment.com>"]
+
 [workspace]
 members = ["crates/*"]
+
+[workspace.dependencies]
+jtd = "0.2.1"
+serde_json = "1.0"
+lazy_static = "1.4.0"
+jtd-codegen = { path = "./crates/core" }
+jtd_codegen_test = { path = "./crates/test" }
