@@ -158,8 +158,6 @@ impl jtd_codegen::target::Target for Target {
                     .extend(vec![
                         "Any".into(),
                         "Union".into(),
-                        "get_origin".into(),
-                        "get_args".into(),
                     ]);
 
                 state
@@ -206,18 +204,6 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out, "        return data")?;
                 writeln!(out, "    if cls is datetime:")?;
                 writeln!(out, "        return _parse_rfc3339(data)")?;
-                writeln!(out, "    if get_origin(cls) is Union:")?;
-                writeln!(
-                    out,
-                    "        return _from_json_data(get_args(cls)[0], data)"
-                )?;
-                writeln!(out, "    if get_origin(cls) is list:")?;
-                writeln!(
-                    out,
-                    "        return [_from_json_data(get_args(cls)[0], d) for d in data]"
-                )?;
-                writeln!(out, "    if get_origin(cls) is dict:")?;
-                writeln!(out, "        return {{ k: _from_json_data(get_args(cls)[1], v) for k, v in data.items() }}")?;
                 writeln!(out, "    return cls.from_json_data(data)")?;
                 writeln!(out)?;
                 writeln!(out, "def _to_json_data(data: Any) -> Any:")?;
@@ -256,7 +242,7 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out, "    if frac_seconds:")?;
                 writeln!(
                     out,
-                    "        frac_seconds_parsed = int(float(frac_seconds) * 1_000_000)"
+                    "        frac_seconds_parsed = int(float(frac_seconds) * 1000000)"
                 )?;
                 writeln!(out, "    else:")?;
                 writeln!(out, "        frac_seconds_parsed = 0")?;
@@ -301,11 +287,6 @@ impl jtd_codegen::target::Target for Target {
                 name,
                 type_,
             } => {
-                state
-                    .imports
-                    .entry("dataclasses".into())
-                    .or_default()
-                    .insert("dataclass".into());
 
                 writeln!(out)?;
                 writeln!(out, "@dataclass")?;
@@ -371,23 +352,22 @@ impl jtd_codegen::target::Target for Target {
 
                 state
                     .imports
-                    .entry("dataclasses".into())
-                    .or_default()
-                    .insert("dataclass".into());
-
-                state
-                    .imports
                     .entry("typing".into())
                     .or_default()
                     .extend(vec!["Dict".into(), "Optional".into()]);
 
                 writeln!(out)?;
-                writeln!(out, "@dataclass")?;
                 writeln!(out, "class {}:", name)?;
                 write!(out, "{}", description(&metadata, 1))?;
+                writeln!(out, "    def __init__(")?;
+                writeln!(out, "        self,")?;
                 for field in &fields {
-                    writeln!(out, "    {}: '{}'", field.name, field.type_,)?;
+                    writeln!(out, "        {}: '{}',", field.name, field.type_,)?;
                     write!(out, "{}", description(&field.metadata, 1))?;
+                }
+                writeln!(out, "    ):")?;
+                for field in &fields {
+                    writeln!(out, "        self.{} = {}", field.name, field.name)?;
                 }
 
                 writeln!(out)?;
@@ -404,7 +384,7 @@ impl jtd_codegen::target::Target for Target {
                 writeln!(out, "        )")?;
                 writeln!(out)?;
                 writeln!(out, "    def to_json_data(self) -> Any:")?;
-                writeln!(out, "        data: Dict[str, Any] = {{}}")?;
+                writeln!(out, "        data = {{}}  # type: Dict[str, Any]")?;
                 for field in &fields {
                     if field.optional {
                         writeln!(out, "        if self.{} is not None:", field.name)?;
@@ -437,11 +417,6 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
-                state
-                    .imports
-                    .entry("dataclasses".into())
-                    .or_default()
-                    .insert("dataclass".into());
 
                 state
                     .imports
@@ -491,11 +466,6 @@ impl jtd_codegen::target::Target for Target {
                     return Ok(Some(s.into()));
                 }
 
-                state
-                    .imports
-                    .entry("dataclasses".into())
-                    .or_default()
-                    .insert("dataclass".into());
 
                 writeln!(out)?;
                 writeln!(out, "@dataclass")?;
