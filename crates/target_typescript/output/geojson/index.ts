@@ -172,6 +172,7 @@ export interface GeojsonObjectGeometryCollection {
   type: "GeometryCollection";
   geometries: GeojsonObject[];
   bbox?: BoundingBox;
+  [x: string]: unknown;
 }
 
 /**
@@ -182,6 +183,7 @@ export interface GeojsonObjectLineString {
   type: "LineString";
   coordinates: Position[];
   bbox?: BoundingBox;
+  [x: string]: unknown;
 }
 
 /**
@@ -192,6 +194,7 @@ export interface GeojsonObjectMultiLineString {
   type: "MultiLineString";
   coordinates: Position[];
   bbox?: BoundingBox;
+  [x: string]: unknown;
 }
 
 /**
@@ -202,6 +205,7 @@ export interface GeojsonObjectMultiPoint {
   type: "MultiPoint";
   coordinates: Position[];
   bbox?: BoundingBox;
+  [x: string]: unknown;
 }
 
 /**
@@ -212,6 +216,7 @@ export interface GeojsonObjectMultiPolygon {
   type: "MultiPolygon";
   coordinates: LinearRing[];
   bbox?: BoundingBox;
+  [x: string]: unknown;
 }
 
 /**
@@ -221,6 +226,7 @@ export interface GeojsonObjectPoint {
   type: "Point";
   coordinates: Position;
   bbox?: BoundingBox;
+  [x: string]: unknown;
 }
 
 /**
@@ -231,6 +237,7 @@ export interface GeojsonObjectPolygon {
   type: "Polygon";
   coordinates: LinearRing[];
   bbox?: BoundingBox;
+  [x: string]: unknown;
 }
 
 /**

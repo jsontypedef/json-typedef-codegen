@@ -161,7 +161,7 @@ impl jtd_codegen::target::Target for Target {
             target::Item::Struct {
                 metadata,
                 name,
-                has_additional: _,
+                has_additional,
                 fields,
             } => {
                 if let Some(s) = metadata.get("typescriptType").and_then(|v| v.as_str()) {
@@ -194,6 +194,9 @@ impl jtd_codegen::target::Target for Target {
                             field.type_
                         )?;
                     }
+                }
+                if has_additional {
+                    writeln!(out, "  [x: string]: unknown;")?;
                 }
                 writeln!(out, "}}")?;
 
@@ -231,6 +234,7 @@ impl jtd_codegen::target::Target for Target {
                 name,
                 tag_json_name,
                 tag_value,
+                has_additional,
                 fields,
                 ..
             } => {
@@ -265,6 +269,9 @@ impl jtd_codegen::target::Target for Target {
                             field.type_
                         )?;
                     }
+                }
+                if has_additional {
+                    writeln!(out, "  [x: string]: unknown;")?;
                 }
                 writeln!(out, "}}")?;
 
