@@ -10,6 +10,8 @@ path = "src/main.rs"
 
 [dependencies]
 jtd-codegen = { path = "../core" }
+jtd_codegen_target_c = { path = "../target_c" }
+jtd_codegen_target_cpp = { path = "../target_cpp" }
 jtd_codegen_target_csharp_system_text = { path = "../target_csharp_system_text" }
 jtd_codegen_target_go = { path = "../target_go" }
 jtd_codegen_target_java_jackson = { path = "../target_java_jackson" }

@@ -46,6 +46,35 @@ fn main() -> Result<()> {
 
     // Generate code for all enabled targets.
 
+    if let Some(out_dir) = matches.value_of("c-out") {
+        log.start("C", out_dir);
+
+        let target = jtd_codegen_target_c::Target::new();
+
+        let codegen_info =
+            jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
+                .with_context(|| "Failed to generate C code")?;
+
+        log.finish("C", &codegen_info);
+    }
+
+    if let Some(out_dir) = matches.value_of("cpp-out") {
+        log.start("C++", out_dir);
+
+        let namespace = matches
+            .value_of("cpp-namespace")
+            .unwrap()
+            .to_owned();
+
+        let target = jtd_codegen_target_cpp::Target::new(namespace);
+
+        let codegen_info =
+            jtd_codegen::codegen(&target, root_name.clone(), &schema, &Path::new(out_dir))
+                .with_context(|| "Failed to generate C++ code")?;
+
+        log.finish("C++", &codegen_info);
+    }
+
     if let Some(out_dir) = matches.value_of("csharp-system-text-out") {
         log.start("C# + System.Text.Json", out_dir);
 
