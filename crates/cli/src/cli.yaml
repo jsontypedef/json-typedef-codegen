@@ -20,6 +20,27 @@ args:
         - json
       default_value: pretty
 
+  # C
+  - c-out:
+      help: Output directory for C code generation
+      long: c-out
+      takes_value: true
+      value_name: dir
+
+  # C++
+  - cpp-out:
+      help: Output directory for C++ code generation
+      long: cpp-out
+      takes_value: true
+      value_name: dir
+      requires:
+        - cpp-namespace
+  - cpp-namespace:
+      help: Namespace for C++ generated types
+      long: cpp-namespace
+      takes_value: true
+      value_name: namespace
+
   # C# + System.Text.Json
   - csharp-system-text-out:
       help: Output directory for C# + System.Text.Json code generation
